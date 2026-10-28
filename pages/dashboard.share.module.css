@@ -1,0 +1,221 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  padding-bottom: var(--spacing-16);
+}
+
+.head {
+  display: flex;
+   10	  align-items: flex-start;
+   11	  justify-content: space-between;
+   12	  gap: var(--spacing-4);
+   13	  flex-wrap: wrap;
+   14	}
+   15	
+   16	.title {
+   17	  font-family: var(--font-family-display);
+   18	  font-size: 1.5rem;
+   19	  font-weight: 800;
+   20	  letter-spacing: -0.015em;
+   21	  margin: 0 0 var(--spacing-2);
+   22	}
+   23	
+   24	.subtitle {
+   25	  margin: 0;
+   26	  max-width: 54ch;
+   27	  color: var(--muted-foreground);
+   28	  font-size: 0.92rem;
+   29	  line-height: 1.55;
+   30	}
+   31	
+   32	.sectionHeading {
+   33	  font-family: var(--font-family-display);
+   34	  font-size: 0.78rem;
+   35	  font-weight: 700;
+   36	  text-transform: uppercase;
+   37	  letter-spacing: 0.08em;
+   38	  color: var(--muted-foreground);
+   39	  margin: 0 0 var(--spacing-3);
+   40	}
+   41	
+   42	.form {
+   43	  display: flex;
+   44	  flex-direction: column;
+   45	  gap: var(--spacing-4);
+   46	  padding: var(--spacing-6);
+   47	  border: 1px solid var(--primary);
+   48	  border-radius: var(--radius-md);
+   49	  background: var(--card);
+   50	}
+   51	
+   52	.formHead {
+   53	  display: flex;
+   54	  align-items: center;
+   55	  justify-content: space-between;
+   56	}
+   57	
+   58	.formTitle {
+   59	  font-family: var(--font-family-display);
+   60	  font-size: 1rem;
+   61	  font-weight: 700;
+   62	  margin: 0;
+   63	}
+   64	
+   65	.field {
+   66	  display: flex;
+   67	  flex-direction: column;
+   68	  gap: var(--spacing-2);
+   69	}
+   70	
+   71	.label {
+   72	  font-size: 0.9rem;
+   73	  font-weight: 500;
+   74	}
+   75	
+   76	.hint {
+   77	  font-size: 0.8rem;
+   78	  color: var(--muted-foreground);
+   79	}
+   80	
+   81	.picker {
+   82	  display: flex;
+   83	  flex-direction: column;
+   84	  border: 1px solid var(--border);
+   85	  border-radius: var(--radius);
+   86	  max-height: 280px;
+   87	  overflow-y: auto;
+   88	}
+   89	
+   90	.pickerRow {
+   91	  display: flex;
+   92	  align-items: center;
+   93	  gap: var(--spacing-3);
+   94	  padding: var(--spacing-2) var(--spacing-3);
+   95	  border-bottom: 1px solid var(--border);
+   96	  cursor: pointer;
+   97	}
+   98	
+   99	.pickerRow:last-child {
+  100	  border-bottom: none;
+  101	}
+  102	
+  103	.pickerText {
+  104	  display: flex;
+  105	  flex-direction: column;
+  106	  min-width: 0;
+  107	}
+  108	
+  109	.pickerName {
+  110	  font-size: 0.9rem;
+  111	  font-weight: 500;
+  112	}
+  113	
+  114	.pickerPrice {
+  115	  font-family: var(--font-family-monospace);
+  116	  font-variant-numeric: tabular-nums;
+  117	  font-size: 0.78rem;
+  118	  color: var(--muted-foreground);
+  119	}
+  120	
+  121	.formActions {
+  122	  display: flex;
+  123	  gap: var(--spacing-2);
+  124	}
+  125	
+  126	.list {
+  127	  list-style: none;
+  128	  margin: 0;
+  129	  padding: 0;
+  130	  border: 1px solid var(--border);
+  131	  border-radius: var(--radius-md);
+  132	  overflow: hidden;
+  133	  background: var(--card);
+  134	}
+  135	
+  136	.row {
+  137	  display: flex;
+  138	  align-items: center;
+  139	  gap: var(--spacing-3);
+  140	  padding: var(--spacing-3) var(--spacing-4);
+  141	  border-bottom: 1px solid var(--border);
+  142	  flex-wrap: wrap;
+  143	}
+  144	
+  145	.row:last-child {
+  146	  border-bottom: none;
+  147	}
+  148	
+  149	.rowText {
+  150	  display: flex;
+  151	  flex-direction: column;
+  152	  gap: 2px;
+  153	  min-width: 0;
+  154	  flex: 1;
+  155	}
+  156	
+  157	.rowName {
+  158	  font-weight: 500;
+  159	  font-size: 0.93rem;
+  160	}
+  161	
+  162	.rowMeta {
+  163	  font-family: var(--font-family-monospace);
+  164	  font-size: 0.75rem;
+  165	  color: var(--muted-foreground);
+  166	  overflow: hidden;
+  167	  text-overflow: ellipsis;
+  168	}
+  169	
+  170	.views {
+  171	  display: inline-flex;
+  172	  align-items: center;
+  173	  gap: var(--spacing-1);
+  174	  font-family: var(--font-family-monospace);
+  175	  font-variant-numeric: tabular-nums;
+  176	  font-size: 0.8rem;
+  177	  color: var(--muted-foreground);
+  178	}
+  179	
+  180	.rowActions {
+  181	  display: flex;
+  182	  align-items: center;
+  183	  gap: var(--spacing-2);
+  184	  margin-left: auto;
+  185	  flex-wrap: wrap;
+  186	}
+  187	
+  188	.empty {
+  189	  display: flex;
+  190	  flex-direction: column;
+  191	  gap: var(--spacing-2);
+  192	  padding: var(--spacing-8);
+  193	  border: 1px dashed var(--border);
+  194	  border-radius: var(--radius-md);
+  195	  background: var(--card);
+  196	}
+  197	
+  198	.emptyTitle {
+  199	  margin: 0;
+  200	  font-family: var(--font-family-display);
+  201	  font-weight: 700;
+  202	  font-size: 1rem;
+  203	}
+  204	
+  205	.emptyBody {
+  206	  margin: 0;
+  207	  max-width: 52ch;
+  208	  color: var(--muted-foreground);
+  209	  line-height: 1.6;
+  210	}
+  211	
+  212	.skeletonTitle {
+  213	  width: 200px;
+  214	  height: 32px;
+  215	}
+  216	
+  217	.skeletonBlock {
+  218	  width: 100%;
+  219	  height: 240px;
+  220	  border-radius: var(--radius-md);
+  221	}

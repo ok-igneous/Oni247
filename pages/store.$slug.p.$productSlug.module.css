@@ -1,0 +1,266 @@
+.page {
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--foreground);
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: var(--spacing-6) var(--spacing-4) var(--spacing-16);
+  display: flex;
+  flex-direction: column;
+   10	  gap: var(--spacing-6);
+   11	  width: 100%;
+   12	  max-width: none;
+   13	  padding-inline: clamp(16px, 4vw, 48px);
+   14	}
+   15	
+   16	.storeHeader { width:100%; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; padding:12px 0 18px; border-bottom:1px solid var(--border); }
+   17	.storeBrand { display:flex; align-items:center; gap:10px; color:var(--foreground); text-decoration:none; font-weight:800; font-family:var(--store-display-font); }
+   18	.storeBrand img { width:42px; height:42px; object-fit:contain; border-radius:8px; }
+   19	.storeNav { display:flex; flex-wrap:wrap; gap:6px; min-width:0; }
+   20	.storeNav a { color:var(--store-link); text-decoration:none; padding:8px 10px; border-radius:7px; }
+   21	.storeNav a:hover { background:var(--card); }
+   22	.storeFooter { display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; border-top:1px solid var(--border); padding:20px 0; color:var(--muted-foreground); }
+   23	.storeFooter a { color:var(--store-link); }
+   24	
+   25	.back {
+   26	  display: inline-flex;
+   27	  align-items: center;
+   28	  gap: var(--spacing-2);
+   29	  color: var(--muted-foreground);
+   30	  text-decoration: none;
+   31	  font-size: 0.9rem;
+   32	  font-weight: 500;
+   33	  align-self: flex-start;
+   34	}
+   35	
+   36	.back:hover {
+   37	  color: var(--foreground);
+   38	}
+   39	
+   40	.layout {
+   41	  display: grid;
+   42	  grid-template-columns: 1fr;
+   43	  gap: var(--spacing-6);
+   44	}
+   45	
+   46	.media {
+   47	  aspect-ratio: 4 / 3;
+   48	  border: 1px solid var(--border);
+   49	  border-radius: var(--radius-md);
+   50	  overflow: hidden;
+   51	  background: var(--muted);
+   52	}
+   53	
+   54	.image {
+   55	  width: 100%;
+   56	  height: 100%;
+   57	  object-fit: cover;
+   58	  display: block;
+   59	}
+   60	
+   61	.placeholder {
+   62	  width: 100%;
+   63	  height: 100%;
+   64	  display: flex;
+   65	  align-items: center;
+   66	  justify-content: center;
+   67	  color: var(--muted-foreground);
+   68	}
+   69	
+   70	.details {
+   71	  display: flex;
+   72	  flex-direction: column;
+   73	  align-items: flex-start;
+   74	  gap: var(--spacing-4);
+   75	}
+   76	
+   77	.badges {
+   78	  display: flex;
+   79	  gap: var(--spacing-2);
+   80	}
+   81	
+   82	.name {
+   83	  font-family: var(--font-family-display);
+   84	  font-size: 1.8rem;
+   85	  font-weight: 800;
+   86	  line-height: 1.12;
+   87	  letter-spacing: -0.02em;
+   88	  margin: 0;
+   89	}
+   90	
+   91	.price {
+   92	  font-family: var(--font-family-monospace);
+   93	  font-variant-numeric: tabular-nums;
+   94	  font-size: 1.4rem;
+   95	  font-weight: 600;
+   96	}
+   97	
+   98	.variantList {
+   99	  display: flex;
+  100	  flex-direction: column;
+  101	  gap: var(--spacing-2);
+  102	  width: 100%;
+  103	}
+  104	
+  105	.variant {
+  106	  padding: var(--spacing-2) var(--spacing-3);
+  107	  border: 1px solid var(--border);
+  108	  border-radius: var(--radius-sm);
+  109	  background: var(--surface);
+  110	  font-size: 0.88rem;
+  111	}
+  112	
+  113	.body {
+  114	  margin: 0;
+  115	  max-width: 58ch;
+  116	  line-height: 1.65;
+  117	  color: var(--muted-foreground);
+  118	}
+  119	
+  120	.note {
+  121	  margin: 0;
+  122	  padding: var(--spacing-3) var(--spacing-4);
+  123	  border-left: 3px solid var(--accent);
+  124	  background: var(--surface);
+  125	  border-radius: var(--radius-sm);
+  126	  font-size: 0.9rem;
+  127	  color: var(--muted-foreground);
+  128	}
+  129	
+  130	.orderButton {
+  131	  width: 100%;
+  132	}
+  133	.quantityRow { display:flex; align-items:center; flex-wrap:wrap; gap:12px; width:100%; padding:12px 0; border-block:1px solid var(--border); }
+  134	.quantityControl { display:flex; align-items:center; gap:10px; }
+  135	.lineTotal { margin-left:auto; font-variant-numeric:tabular-nums; }
+  136	.productActions { display:flex; align-items:stretch; flex-wrap:wrap; gap:10px; width:100%; }
+  137	.productActions > * { max-width:100%; }
+  138	
+  139	.notFoundTitle {
+  140	  font-family: var(--font-family-display);
+  141	  font-size: 1.6rem;
+  142	  font-weight: 800;
+  143	  margin: 0;
+  144	}
+  145	
+  146	.skeletonImage {
+  147	  width: 100%;
+  148	  aspect-ratio: 4 / 3;
+  149	  border-radius: var(--radius-md);
+  150	}
+  151	
+  152	.skeletonTitle {
+  153	  width: 260px;
+  154	  height: 32px;
+  155	}
+  156	
+  157	.skeletonLine {
+  158	  width: 100%;
+  159	  max-width: 420px;
+  160	  height: 16px;
+  161	}
+  162	
+  163	.related {
+  164	  border-top: 1px solid var(--border);
+  165	  padding-top: var(--spacing-8);
+  166	}
+  167	
+  168	.relatedHeading {
+  169	  font-family: var(--font-family-display);
+  170	  font-size: 1.1rem;
+  171	  font-weight: 700;
+  172	  letter-spacing: -0.01em;
+  173	  margin: 0 0 var(--spacing-4);
+  174	}
+  175	
+  176	.relatedGrid {
+  177	  display: grid;
+  178	  grid-template-columns: repeat(2, minmax(0, 1fr));
+  179	  gap: var(--spacing-3);
+  180	}
+  181	
+  182	.relatedCard {
+  183	  display: flex;
+  184	  flex-direction: column;
+  185	  gap: var(--spacing-1);
+  186	  text-decoration: none;
+  187	  color: var(--foreground);
+  188	}
+  189	
+  190	.relatedMedia {
+  191	  position: relative;
+  192	  aspect-ratio: 1 / 1;
+  193	  border: 1px solid var(--border);
+  194	  border-radius: var(--radius);
+  195	  overflow: hidden;
+  196	  background: var(--muted);
+  197	  display: flex;
+  198	  align-items: center;
+  199	  justify-content: center;
+  200	  margin-bottom: var(--spacing-1);
+  201	}
+  202	
+  203	.relatedImage {
+  204	  width: 100%;
+  205	  height: 100%;
+  206	  object-fit: cover;
+  207	}
+  208	
+  209	.relatedIcon {
+  210	  color: var(--muted-foreground);
+  211	}
+  212	
+  213	.relatedSoldOut {
+  214	  position: absolute;
+  215	  inset: auto 0 0 0;
+  216	  background: rgba(22, 33, 28, 0.62);
+  217	  color: #faf7f0;
+  218	  font-size: 0.65rem;
+  219	  font-weight: 600;
+  220	  letter-spacing: 0.04em;
+  221	  text-transform: uppercase;
+  222	  text-align: center;
+  223	  padding: 3px 0;
+  224	}
+  225	
+  226	.relatedName {
+  227	  font-size: 0.88rem;
+  228	  font-weight: 500;
+  229	  line-height: 1.3;
+  230	}
+  231	
+  232	.relatedCard:hover .relatedName {
+  233	  text-decoration: underline;
+  234	}
+  235	
+  236	.relatedPrice {
+  237	  font-family: var(--font-family-monospace);
+  238	  font-variant-numeric: tabular-nums;
+  239	  font-size: 0.82rem;
+  240	  color: var(--muted-foreground);
+  241	}
+  242	
+  243	@media (min-width: 800px) {
+  244	  .relatedGrid {
+  245	    grid-template-columns: repeat(4, minmax(0, 1fr));
+  246	  }
+  247	}
+  248	
+  249	@media (min-width: 800px) {
+  250	  .layout {
+  251	    grid-template-columns: 1.1fr 1fr;
+  252	    gap: var(--spacing-12);
+  253	    align-items: start;
+  254	  }
+  255	
+  256	  .name {
+  257	    font-size: 2.2rem;
+  258	  }
+  259	
+  260	  .orderButton {
+  261	    width: auto;
+  262	  }
+  263	  .productActions { width:auto; }
+  264	}
+  265	
+  266	@media (max-width: 600px) { .storeHeader { align-items:flex-start; flex-direction:column; } .storeNav { width:100%; } .storeNav a { padding:7px 8px; } .lineTotal { margin-left:0; } }

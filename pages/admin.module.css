@@ -1,0 +1,145 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.title {
+  font-family: var(--font-family-display);
+  font-size: 1.6rem;
+   10	  font-weight: 800;
+   11	  letter-spacing: -0.02em;
+   12	  margin: 0;
+   13	}
+   14	
+   15	.group {
+   16	  display: flex;
+   17	  flex-direction: column;
+   18	  gap: var(--spacing-3);
+   19	}
+   20	
+   21	.groupHeading {
+   22	  font-family: var(--font-family-display);
+   23	  font-size: 0.78rem;
+   24	  font-weight: 700;
+   25	  text-transform: uppercase;
+   26	  letter-spacing: 0.08em;
+   27	  color: var(--muted-foreground);
+   28	  margin: 0;
+   29	}
+   30	
+   31	.stats {
+   32	  display: grid;
+   33	  grid-template-columns: repeat(2, minmax(0, 1fr));
+   34	  border: 1px solid var(--border);
+   35	  border-radius: var(--radius-md);
+   36	  overflow: hidden;
+   37	  background: var(--card);
+   38	}
+   39	
+   40	.stat {
+   41	  display: flex;
+   42	  flex-direction: column;
+   43	  gap: var(--spacing-1);
+   44	  padding: var(--spacing-4);
+   45	  border-right: 1px solid var(--border);
+   46	  border-bottom: 1px solid var(--border);
+   47	}
+   48	
+   49	.statValue {
+   50	  font-family: var(--font-family-monospace);
+   51	  font-variant-numeric: tabular-nums;
+   52	  font-size: 1.3rem;
+   53	  font-weight: 600;
+   54	}
+   55	
+   56	.statLabel {
+   57	  font-size: 0.78rem;
+   58	  color: var(--muted-foreground);
+   59	}
+   60	
+   61	.list {
+   62	  list-style: none;
+   63	  margin: 0;
+   64	  padding: 0;
+   65	  border: 1px solid var(--border);
+   66	  border-radius: var(--radius-md);
+   67	  overflow: hidden;
+   68	  background: var(--card);
+   69	}
+   70	
+   71	.row {
+   72	  display: flex;
+   73	  align-items: center;
+   74	  gap: var(--spacing-3);
+   75	  padding: var(--spacing-3) var(--spacing-4);
+   76	  border-bottom: 1px solid var(--border);
+   77	  flex-wrap: wrap;
+   78	}
+   79	
+   80	.row:last-child {
+   81	  border-bottom: none;
+   82	}
+   83	
+   84	.rowText {
+   85	  display: flex;
+   86	  flex-direction: column;
+   87	  min-width: 0;
+   88	  flex: 1;
+   89	}
+   90	
+   91	.rowName {
+   92	  font-weight: 500;
+   93	  font-size: 0.92rem;
+   94	}
+   95	
+   96	.rowMeta {
+   97	  font-family: var(--font-family-monospace);
+   98	  font-size: 0.72rem;
+   99	  color: var(--muted-foreground);
+  100	  overflow: hidden;
+  101	  text-overflow: ellipsis;
+  102	}
+  103	
+  104	.amount {
+  105	  font-family: var(--font-family-monospace);
+  106	  font-variant-numeric: tabular-nums;
+  107	  font-weight: 600;
+  108	  font-size: 0.9rem;
+  109	}
+  110	
+  111	.date {
+  112	  font-size: 0.78rem;
+  113	  color: var(--muted-foreground);
+  114	}
+  115	
+  116	.muted {
+  117	  margin: 0;
+  118	  color: var(--muted-foreground);
+  119	}
+  120	
+  121	.errorText {
+  122	  margin: 0;
+  123	  color: var(--error);
+  124	}
+  125	
+  126	.skeletonTitle {
+  127	  width: 260px;
+  128	  height: 34px;
+  129	}
+  130	
+  131	.skeletonBlock {
+  132	  width: 100%;
+  133	  height: 200px;
+  134	  border-radius: var(--radius-md);
+  135	}
+  136	
+  137	@media (min-width: 720px) {
+  138	  .stats {
+  139	    grid-template-columns: repeat(4, minmax(0, 1fr));
+  140	  }
+  141	
+  142	  .stat:last-child {
+  143	    border-right: none;
+  144	  }
+  145	}

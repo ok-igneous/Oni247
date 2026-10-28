@@ -1,0 +1,136 @@
+.page {
+  min-height: 100vh;
+  background: var(--surface);
+  color: var(--foreground);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-4);
+   10	  padding: var(--spacing-6) var(--spacing-4);
+   11	}
+   12	
+   13	.site {
+   14	  min-height: 100vh;
+   15	  background: var(--background);
+   16	  color: var(--foreground);
+   17	  display: flex;
+   18	  flex-direction: column;
+   19	}
+   20	.header {
+   21	  min-height: 82px;
+   22	  padding: 16px clamp(20px, 5vw, 64px);
+   23	  display: flex;
+   24	  align-items: center;
+   25	  justify-content: space-between;
+   26	  gap: 24px;
+   27	  background: var(--primary);
+   28	  color: var(--primary-foreground);
+   29	  box-shadow: 0 1px 0 rgba(0,0,0,.08);
+   30	}
+   31	.brand { display: inline-flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; }
+   32	.brandMark { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; background: var(--card); color: var(--primary); font-weight: 900; font-size: 1.2rem; }
+   33	.brand strong, .brand small { display: block; }
+   34	.brand strong { font-size: 1.2rem; }
+   35	.brand small { opacity: .8; font-size: .78rem; margin-top: 2px; }
+   36	.header nav a { color: inherit; text-decoration: none; font-weight: 600; }
+   37	.content { width: min(100% - 32px, 900px); margin: 0 auto; padding: clamp(36px, 6vw, 72px) 0; flex: 1; display: flex; flex-direction: column; align-items: center; gap: var(--spacing-4); }
+   38	.content .card { max-width: 620px; }
+   39	.footer { padding: 24px; text-align: center; color: var(--muted-foreground); border-top: 1px solid var(--border); font-size: .85rem; }
+   40	
+   41	.card {
+   42	  width: 100%;
+   43	  max-width: 420px;
+   44	  display: flex;
+   45	  flex-direction: column;
+   46	  align-items: flex-start;
+   47	  gap: var(--spacing-3);
+   48	  background: var(--card);
+   49	  border: 1px solid var(--border);
+   50	  border-radius: var(--radius-lg);
+   51	  box-shadow: var(--shadow-md);
+   52	  padding: var(--spacing-8) var(--spacing-6);
+   53	}
+   54	
+   55	.icon {
+   56	  color: var(--primary);
+   57	}
+   58	
+   59	.title {
+   60	  font-family: var(--font-family-display);
+   61	  font-size: 1.5rem;
+   62	  font-weight: 800;
+   63	  letter-spacing: -0.015em;
+   64	  margin: 0;
+   65	}
+   66	
+   67	.body {
+   68	  margin: 0 0 var(--spacing-2);
+   69	  color: var(--muted-foreground);
+   70	  line-height: 1.55;
+   71	}
+   72	
+   73	.input {
+   74	  width: 100%;
+   75	  font-family: var(--font-family-monospace);
+   76	  letter-spacing: 0.1em;
+   77	  text-transform: uppercase;
+   78	}
+   79	
+   80	.subtitle {
+   81	  font-family: var(--font-family-display);
+   82	  font-size: 1.05rem;
+   83	  font-weight: 700;
+   84	  margin: 0;
+   85	}
+   86	
+   87	.list {
+   88	  list-style: none;
+   89	  margin: 0;
+   90	  padding: 0;
+   91	  width: 100%;
+   92	  display: flex;
+   93	  flex-direction: column;
+   94	}
+   95	
+   96	.row {
+   97	  display: flex;
+   98	  align-items: center;
+   99	  gap: var(--spacing-2);
+  100	  border-top: 1px solid var(--border);
+  101	}
+  102	
+  103	.rowLink {
+  104	  display: flex;
+  105	  align-items: center;
+  106	  justify-content: space-between;
+  107	  gap: var(--spacing-3);
+  108	  flex: 1;
+  109	  min-width: 0;
+  110	  padding: var(--spacing-3) 0;
+  111	  text-decoration: none;
+  112	  color: var(--foreground);
+  113	}
+  114	
+  115	.rowText {
+  116	  display: flex;
+  117	  flex-direction: column;
+  118	  gap: 2px;
+  119	  min-width: 0;
+  120	}
+  121	
+  122	.rowShop {
+  123	  font-weight: 500;
+  124	  font-size: 0.92rem;
+  125	}
+  126	
+  127	.rowMeta {
+  128	  font-family: var(--font-family-monospace);
+  129	  font-size: 0.75rem;
+  130	  color: var(--muted-foreground);
+  131	}
+  132	
+  133	.chevron {
+  134	  color: var(--muted-foreground);
+  135	  flex-shrink: 0;
+  136	}

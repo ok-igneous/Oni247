@@ -1,0 +1,289 @@
+.page {
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--foreground);
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--spacing-8) var(--spacing-4) var(--spacing-16);
+  display: flex;
+  flex-direction: column;
+   10	  gap: var(--spacing-8);
+   11	}
+   12	
+   13	.site { min-height: 100vh; background: var(--background); color: var(--foreground); }
+   14	.siteHeader {
+   15	  position: sticky; top: 0; z-index: 30;
+   16	  min-height: 82px;
+   17	  padding: 16px clamp(20px, 5vw, 64px);
+   18	  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+   19	  background: var(--surface); color: var(--foreground);
+   20	  box-shadow: 0 1px 0 rgba(0,0,0,.08);
+   21	}
+   22	.brand { display: inline-flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; }
+   23	.brandLogo { width: 44px; height: 44px; object-fit: contain; border-radius: var(--store-card-radius, 6px); background: var(--card); }
+   24	.brandMark { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--card); color: var(--primary); font-weight: 900; font-size: 1.2rem; }
+   25	.brand strong, .brand small { display: block; }
+   26	.brand strong { font-size: 1.2rem; }
+   27	.brand small { opacity: .8; font-size: .78rem; margin-top: 2px; }
+   28	.siteHeader nav { display: flex; gap: 18px; flex-wrap: wrap; }
+   29	.siteHeader nav a { color: inherit; text-decoration: none; font-size: .9rem; font-weight: 600; }
+   30	.content { width: min(100% - 32px, 980px); margin: 0 auto; padding: clamp(36px, 6vw, 72px) 0; display: flex; flex-direction: column; gap: var(--spacing-8); }
+   31	.content > .head, .content > section, .content > .note { width: 100%; }
+   32	.footer { padding: 24px; text-align: center; color: var(--muted-foreground); border-top: 1px solid var(--border); font-size: .85rem; }
+   33	
+   34	@media (max-width: 600px) {
+   35	  .siteHeader { align-items: flex-start; flex-direction: column; }
+   36	  .siteHeader nav { gap: 14px; }
+   37	}
+   38	
+   39	.head {
+   40	  display: flex;
+   41	  flex-direction: column;
+   42	  gap: var(--spacing-2);
+   43	  align-items: flex-start;
+   44	}
+   45	
+   46	.shopLink {
+   47	  display: inline-flex;
+   48	  align-items: center;
+   49	  gap: var(--spacing-2);
+   50	  font-size: 0.9rem;
+   51	  font-weight: 500;
+   52	  color: var(--primary);
+   53	  text-decoration: none;
+   54	}
+   55	
+   56	.title {
+   57	  font-family: var(--font-family-display);
+   58	  font-size: 1.7rem;
+   59	  font-weight: 800;
+   60	  letter-spacing: -0.02em;
+   61	  margin: 0;
+   62	}
+   63	
+   64	.body {
+   65	  margin: 0;
+   66	  color: var(--muted-foreground);
+   67	  line-height: 1.55;
+   68	}
+   69	
+   70	.badges {
+   71	  display: flex;
+   72	  gap: var(--spacing-2);
+   73	  margin-top: var(--spacing-1);
+   74	}
+   75	
+   76	.progress {
+   77	  display: flex;
+   78	  flex-direction: column;
+   79	  gap: var(--spacing-4);
+   80	  padding: var(--spacing-6);
+   81	  border: 1px solid var(--border);
+   82	  border-radius: var(--radius-md);
+   83	  background: var(--card);
+   84	}
+   85	
+   86	.step {
+   87	  display: flex;
+   88	  align-items: flex-start;
+   89	  gap: var(--spacing-3);
+   90	}
+   91	
+   92	.stepMarker {
+   93	  width: 24px;
+   94	  height: 24px;
+   95	  flex-shrink: 0;
+   96	  border-radius: var(--radius-full);
+   97	  border: 1px solid var(--border);
+   98	  background: var(--background);
+   99	  color: var(--muted-foreground);
+  100	  display: flex;
+  101	  align-items: center;
+  102	  justify-content: center;
+  103	  font-family: var(--font-family-monospace);
+  104	  font-size: 0.75rem;
+  105	}
+  106	
+  107	.stepDone .stepMarker {
+  108	  background: var(--primary);
+  109	  border-color: var(--primary);
+  110	  color: var(--primary-foreground);
+  111	}
+  112	
+  113	.stepText {
+  114	  display: flex;
+  115	  flex-direction: column;
+  116	  gap: 2px;
+  117	}
+  118	
+  119	.stepLabel {
+  120	  font-weight: 500;
+  121	  color: var(--muted-foreground);
+  122	}
+  123	
+  124	.stepDone .stepLabel {
+  125	  color: var(--foreground);
+  126	}
+  127	
+  128	.stepBlurb {
+  129	  font-size: 0.85rem;
+  130	  color: var(--muted-foreground);
+  131	}
+  132	
+  133	.note {
+  134	  margin: 0;
+  135	  padding: var(--spacing-3) var(--spacing-4);
+  136	  border-left: 3px solid var(--accent);
+  137	  background: var(--surface);
+  138	  border-radius: var(--radius-sm);
+  139	  line-height: 1.55;
+  140	  font-size: 0.92rem;
+  141	}
+  142	
+  143	.sectionHeading {
+  144	  font-family: var(--font-family-display);
+  145	  font-size: 1.05rem;
+  146	  font-weight: 700;
+  147	  margin: 0 0 var(--spacing-3);
+  148	}
+  149	
+  150	.summary {
+  151	  padding: var(--spacing-6);
+  152	  border: 1px solid var(--border);
+  153	  border-radius: var(--radius-md);
+  154	  background: var(--card);
+  155	}
+  156	
+  157	.lines {
+  158	  list-style: none;
+  159	  margin: 0;
+  160	  padding: 0;
+  161	  display: flex;
+  162	  flex-direction: column;
+  163	  gap: var(--spacing-2);
+  164	}
+  165	
+  166	.line {
+  167	  display: flex;
+  168	  align-items: baseline;
+  169	  justify-content: space-between;
+  170	  gap: var(--spacing-3);
+  171	  font-size: 0.93rem;
+  172	}
+  173	
+  174	.lineTotal {
+  175	  font-family: var(--font-family-monospace);
+  176	  font-variant-numeric: tabular-nums;
+  177	  color: var(--muted-foreground);
+  178	}
+  179	
+  180	.totalRow {
+  181	  display: flex;
+  182	  align-items: baseline;
+  183	  justify-content: space-between;
+  184	  margin-top: var(--spacing-3);
+  185	  padding-top: var(--spacing-3);
+  186	  border-top: 1px solid var(--border);
+  187	  font-weight: 600;
+  188	}
+  189	
+  190	.total {
+  191	  font-family: var(--font-family-monospace);
+  192	  font-variant-numeric: tabular-nums;
+  193	  font-size: 1.1rem;
+  194	}
+  195	
+  196	.address {
+  197	  margin: var(--spacing-3) 0 0;
+  198	  font-size: 0.88rem;
+  199	  color: var(--muted-foreground);
+  200	}
+  201	
+  202	.contact {
+  203	  display: flex;
+  204	  flex-direction: column;
+  205	}
+  206	
+  207	.contactRow {
+  208	  display: flex;
+  209	  gap: var(--spacing-2);
+  210	  flex-wrap: wrap;
+  211	}
+  212	
+  213	.related {
+  214	  display: flex;
+  215	  flex-direction: column;
+  216	  align-items: flex-start;
+  217	}
+  218	
+  219	.relatedGrid {
+  220	  display: grid;
+  221	  grid-template-columns: repeat(2, minmax(0, 1fr));
+  222	  gap: var(--spacing-3);
+  223	  width: 100%;
+  224	  margin-bottom: var(--spacing-4);
+  225	}
+  226	
+  227	.relatedCard {
+  228	  display: flex;
+  229	  flex-direction: column;
+  230	  gap: var(--spacing-1);
+  231	  text-decoration: none;
+  232	  color: var(--foreground);
+  233	}
+  234	
+  235	.relatedMedia {
+  236	  aspect-ratio: 1 / 1;
+  237	  border: 1px solid var(--border);
+  238	  border-radius: var(--radius);
+  239	  overflow: hidden;
+  240	  background: var(--muted);
+  241	  display: flex;
+  242	  align-items: center;
+  243	  justify-content: center;
+  244	  margin-bottom: var(--spacing-1);
+  245	}
+  246	
+  247	.relatedImage {
+  248	  width: 100%;
+  249	  height: 100%;
+  250	  object-fit: cover;
+  251	}
+  252	
+  253	.relatedIcon {
+  254	  color: var(--muted-foreground);
+  255	}
+  256	
+  257	.relatedName {
+  258	  font-size: 0.88rem;
+  259	  font-weight: 500;
+  260	  line-height: 1.3;
+  261	}
+  262	
+  263	.relatedPrice {
+  264	  font-family: var(--font-family-monospace);
+  265	  font-variant-numeric: tabular-nums;
+  266	  font-size: 0.82rem;
+  267	  color: var(--muted-foreground);
+  268	}
+  269	
+  270	.shopAll {
+  271	  align-self: flex-start;
+  272	}
+  273	
+  274	.skeletonTitle {
+  275	  width: 260px;
+  276	  height: 32px;
+  277	}
+  278	
+  279	.skeletonBlock {
+  280	  width: 100%;
+  281	  height: 300px;
+  282	  border-radius: var(--radius-md);
+  283	}
+  284	
+  285	@media (min-width: 640px) {
+  286	  .relatedGrid {
+  287	    grid-template-columns: repeat(4, minmax(0, 1fr));
+  288	  }
+  289	}

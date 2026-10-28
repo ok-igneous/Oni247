@@ -1,0 +1,194 @@
+.page {
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--foreground);
+  overflow-x: hidden;
+}
+
+.topBar {
+  position: sticky;
+   10	  top: 0;
+   11	  z-index: 20;
+   12	  display: flex;
+   13	  align-items: center;
+   14	  justify-content: space-between;
+   15	  padding: 0.9rem clamp(1rem, 4vw, 4rem);
+   16	  border-bottom: 1px solid var(--border);
+   17	  background: color-mix(in srgb, var(--background) 92%, transparent);
+   18	  backdrop-filter: blur(14px);
+   19	}
+   20	
+   21	.brand {
+   22	  font-family: var(--font-family-display);
+   23	  font-weight: 800;
+   24	  font-size: 1.1rem;
+   25	  letter-spacing: -0.01em;
+   26	  color: var(--primary);
+   27	  text-decoration: none;
+   28	  font-size: 1.25rem;
+   29	}
+   30	
+   31	.topNav {
+   32	  display: flex;
+   33	  align-items: center;
+   34	  gap: 1.2rem;
+   35	  font-size: 0.92rem;
+   36	}
+   37	
+   38	.topNav a {
+   39	  color: var(--muted-foreground);
+   40	  text-decoration: none;
+   41	}
+   42	
+   43	.topNav a:hover { color: var(--foreground); }
+   44	
+   45	.hero {
+   46	  display: flex;
+   47	  align-items: center;
+   48	  gap: clamp(2.5rem, 6vw, 6rem);
+   49	  padding: clamp(4rem, 9vw, 7.5rem) clamp(1rem, 5vw, 5rem);
+   50	  max-width: 1280px;
+   51	  margin: 0 auto;
+   52	  width: 100%;
+   53	}
+   54	
+   55	.heroCopy { flex: 1; max-width: 650px; }
+   56	
+   57	.eyebrow, .kicker {
+   58	  color: var(--primary);
+   59	  font-size: 0.78rem;
+   60	  font-weight: 800;
+   61	  letter-spacing: 0.08em;
+   62	  text-transform: uppercase;
+   63	}
+   64	
+   65	.eyebrow {
+   66	  display: inline-flex;
+   67	  align-items: center;
+   68	  gap: 0.45rem;
+   69	  margin-bottom: 1.1rem;
+   70	}
+   71	
+   72	.headline {
+   73	  font-family: var(--font-family-display);
+   74	  font-size: clamp(2.8rem, 6vw, 5.2rem);
+   75	  font-weight: 800;
+   76	  line-height: 1.08;
+   77	  letter-spacing: -0.025em;
+   78	  margin: 0 0 1.4rem;
+   79	}
+   80	
+   81	.sub {
+   82	  margin: 0;
+   83	  font-size: 1.05rem;
+   84	  line-height: 1.6;
+   85	  color: var(--muted-foreground);
+   86	  max-width: 58ch;
+   87	}
+   88	
+   89	.actions {
+   90	  display: flex;
+   91	  flex-wrap: wrap;
+   92	  gap: var(--spacing-3);
+   93	}
+   94	
+   95	.trialNote { color: var(--muted-foreground); font-size: 0.85rem; margin-top: 1rem; }
+   96	
+   97	.heroVisual {
+   98	  width: min(100%, 510px);
+   99	  border: 1px solid var(--border);
+  100	  border-radius: 18px;
+  101	  box-shadow: var(--shadow-lg);
+  102	  overflow: hidden;
+  103	  transform: rotate(1deg);
+  104	  background: var(--card);
+  105	}
+  106	
+  107	.browserBar { display: flex; align-items: center; gap: 5px; padding: 0.75rem; background: var(--surface); }
+  108	.browserBar > span { width: 7px; height: 7px; border-radius: 50%; background: var(--border); }
+  109	.address { flex: 1; margin-left: 0.5rem; padding: 0.38rem 0.7rem; border-radius: 999px; background: var(--card); color: var(--muted-foreground); font: 0.68rem var(--font-family-monospace); }
+  110	.storePreview { padding: 1.25rem; }
+  111	.previewIdentity { display: flex; gap: 0.75rem; align-items: center; }
+  112	.previewLogo { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 11px; background: var(--primary); color: var(--primary-foreground); font-weight: 800; }
+  113	.previewIdentity strong, .previewIdentity small { display: block; }
+  114	.previewIdentity small { color: var(--muted-foreground); margin-top: 2px; }
+  115	.previewHero { margin: 1.3rem 0; padding: 1.1rem; border-radius: 12px; background: var(--secondary); font-family: var(--font-family-display); font-weight: 700; font-size: 1.15rem; }
+  116	.previewGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  117	.previewGrid > div { border: 1px solid var(--border); border-radius: 11px; padding: 0.65rem; }
+  118	.previewImage { height: 90px; display: grid; place-items: center; border-radius: 8px; background: var(--surface); color: var(--primary); margin-bottom: 0.55rem; }
+  119	.previewGrid strong, .previewGrid small { display: block; }
+  120	.previewGrid small { color: var(--muted-foreground); margin-top: 3px; }
+  121	.previewCta { display: flex; justify-content: center; align-items: center; gap: 0.4rem; margin-top: 0.85rem; padding: 0.7rem; border-radius: 9px; background: var(--primary); color: var(--primary-foreground); font-size: 0.85rem; font-weight: 700; }
+  122	
+  123	.trustStrip { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.3rem 2rem; padding: 1.2rem; border-block: 1px solid var(--border); color: var(--muted-foreground); font-size: 0.88rem; }
+  124	.trustStrip div { display: flex; align-items: center; gap: 0.35rem; color: var(--foreground); }
+  125	
+  126	.section, .splitSection, .audienceSection, .pricingSection { max-width: 1180px; margin: 0 auto; padding: clamp(4rem, 8vw, 7rem) 1rem; }
+  127	.sectionIntro { max-width: 680px; margin-bottom: 2.5rem; }
+  128	.sectionIntro h2, .splitSection h2, .pricingCard h2, .finalCta h2 { font-family: var(--font-family-display); font-size: clamp(2rem, 4vw, 3.3rem); line-height: 1.08; letter-spacing: -0.03em; margin: 0.55rem 0 0.9rem; }
+  129	.sectionIntro p, .splitSection > div > p, .pricingCard p, .finalCta p { color: var(--muted-foreground); line-height: 1.65; max-width: 62ch; }
+  130	
+  131	.featureGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  132	.featureCard { padding: 1.4rem; border: 1px solid var(--border); border-radius: 14px; background: var(--card); }
+  133	.featureCard h3 { margin: 1rem 0 0.45rem; font-family: var(--font-family-display); }
+  134	.featureCard p { margin: 0; color: var(--muted-foreground); line-height: 1.55; font-size: 0.94rem; }
+  135	.icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; background: var(--secondary); color: var(--primary); }
+  136	.icon svg { width: 19px; }
+  137	
+  138	.splitSection { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 5rem; align-items: start; background: var(--surface); max-width: none; padding-inline: max(1rem, calc((100vw - 1180px) / 2)); }
+  139	.steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 1rem; }
+  140	.steps li { display: flex; gap: 1rem; padding: 1.1rem; border-bottom: 1px solid var(--border); }
+  141	.steps li > span { font: 0.75rem var(--font-family-monospace); color: var(--primary); padding-top: 0.15rem; }
+  142	.steps p { margin: 0.25rem 0 0; color: var(--muted-foreground); }
+  143	
+  144	.audienceGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+  145	.audienceGrid > div { padding: 1.2rem; border: 1px solid var(--border); border-radius: 12px; }
+  146	.audienceGrid svg { color: var(--primary); margin-bottom: 1rem; }
+  147	.audienceGrid strong, .audienceGrid span { display: block; }
+  148	.audienceGrid span { color: var(--muted-foreground); margin-top: 0.35rem; font-size: 0.9rem; line-height: 1.45; }
+  149	
+  150	.pricingSection { padding-top: 3rem; }
+  151	.pricingCard { display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: center; padding: clamp(1.5rem, 4vw, 3rem); border: 1px solid var(--border); border-radius: 18px; background: var(--card); }
+  152	.priceBox { min-width: 210px; padding: 1.4rem; border-radius: 13px; background: var(--secondary); text-align: center; }
+  153	.priceBox strong, .priceBox span { display: block; }
+  154	.priceBox strong { font: 800 2.3rem var(--font-family-display); }
+  155	.priceBox span { color: var(--muted-foreground); font-size: 0.85rem; margin: 0.2rem 0 1rem; }
+  156	.priceBox a { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--primary); font-weight: 700; text-decoration: none; }
+  157	
+  158	.finalCta { text-align: center; padding: clamp(5rem, 10vw, 9rem) 1rem; background: var(--primary); color: var(--primary-foreground); }
+  159	.finalCta .kicker { color: inherit; opacity: 0.8; }
+  160	.finalCta h2 { font-size: clamp(3rem, 7vw, 5.5rem); }
+  161	.finalCta p { margin: 0 auto 1.6rem; color: color-mix(in srgb, var(--primary-foreground) 75%, transparent); }
+  162	.finalCta :global(a) { }
+  163	.checks { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem 1.5rem; margin-top: 1.4rem; font-size: 0.85rem; }
+  164	.checks span { display: flex; align-items: center; gap: 0.3rem; }
+  165	
+  166	.footer { display: grid; grid-template-columns: 1fr auto auto; gap: 2rem; align-items: center; padding: 2rem max(1rem, calc((100vw - 1180px) / 2)); border-top: 1px solid var(--border); }
+  167	.footer div:first-child span { display: block; color: var(--muted-foreground); font-size: 0.85rem; margin-top: 0.25rem; }
+  168	.footer div:nth-child(2) { display: flex; gap: 1rem; }
+  169	.footer a { color: var(--foreground); text-decoration: none; }
+  170	.footer small { color: var(--muted-foreground); }
+  171	
+  172	@media (max-width: 850px) {
+  173	  .topNav a { display: none; }
+  174	  .hero { flex-direction: column; align-items: stretch; }
+  175	  .heroVisual { width: 100%; transform: none; }
+  176	  .featureGrid { grid-template-columns: 1fr 1fr; }
+  177	  .splitSection { grid-template-columns: 1fr; gap: 2rem; }
+  178	  .audienceGrid { grid-template-columns: 1fr 1fr; }
+  179	  .pricingCard { grid-template-columns: 1fr; }
+  180	}
+  181	
+  182	@media (max-width: 560px) {
+  183	  .hero { padding-top: 3.5rem; }
+  184	  .headline { font-size: 2.75rem; }
+  185	  .featureGrid, .audienceGrid { grid-template-columns: 1fr; }
+  186	  .trustStrip > span { width: 100%; text-align: center; }
+  187	  .footer { grid-template-columns: 1fr; gap: 1rem; }
+  188	}
+  189	
+  190	@media (min-width: 720px) {
+  191	  .hero {
+  192	    min-height: 680px;
+  193	  }
+  194	}

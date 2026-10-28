@@ -1,0 +1,87 @@
+.preview {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--background);
+}
+
+   10	.page {
+   11	  fill: var(--background);
+   12	}
+   13	
+   14	.band {
+   15	  fill: var(--surface);
+   16	}
+   17	
+   18	.bandLight {
+   19	  fill: var(--card);
+   20	}
+   21	
+   22	.bandBold {
+   23	  fill: var(--primary);
+   24	}
+   25	
+   26	.rule {
+   27	  fill: var(--border);
+   28	}
+   29	
+   30	.mark {
+   31	  fill: var(--primary);
+   32	}
+   33	
+   34	.markInverse {
+   35	  fill: var(--primary-foreground);
+   36	}
+   37	
+   38	.headline {
+   39	  fill: var(--foreground);
+   40	}
+   41	
+   42	.headlineInverse {
+   43	  fill: var(--primary-foreground);
+   44	}
+   45	
+   46	.subInverse {
+   47	  fill: var(--primary-foreground);
+   48	  opacity: 0.55;
+   49	}
+   50	
+   51	.muted {
+   52	  fill: var(--muted-foreground);
+   53	  opacity: 0.75;
+   54	}
+   55	
+   56	.mutedFaint {
+   57	  fill: var(--muted-foreground);
+   58	  opacity: 0.4;
+   59	}
+   60	
+   61	.tile {
+   62	  fill: var(--muted);
+   63	  stroke: var(--border);
+   64	  stroke-width: 0.6;
+   65	}
+   66	
+   67	.thumb {
+   68	  fill: var(--muted);
+   69	}
+   70	
+   71	.row {
+   72	  fill: var(--card);
+   73	  stroke: var(--border);
+   74	  stroke-width: 0.6;
+   75	}
+   76	
+   77	.pill {
+   78	  fill: var(--primary);
+   79	}
+   80	
+   81	.pillSmall {
+   82	  fill: var(--secondary);
+   83	}
+   84	
+   85	.price {
+   86	  fill: var(--accent);
+   87	}

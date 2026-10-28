@@ -1,0 +1,132 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  background: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+   10	  transition: box-shadow var(--animation-duration-fast) ease,
+   11	    transform var(--animation-duration-fast) ease;
+   12	}
+   13	
+   14	.card:hover {
+   15	  box-shadow: var(--shadow-md);
+   16	}
+   17	
+   18	.rowCard {
+   19	  flex-direction: row;
+   20	}
+   21	
+   22	.rowCard .media {
+   23	  width: 120px;
+   24	  flex-shrink: 0;
+   25	  aspect-ratio: 1 / 1;
+   26	}
+   27	
+   28	.rowCard .description {
+   29	  -webkit-line-clamp: 3;
+   30	}
+   31	
+   32	.mediaLink {
+   33	  display: block;
+   34	  text-decoration: none;
+   35	}
+   36	
+   37	.nameLink {
+   38	  color: inherit;
+   39	  text-decoration: none;
+   40	}
+   41	
+   42	.nameLink:hover {
+   43	  text-decoration: underline;
+   44	}
+   45	
+   46	.media {
+   47	  position: relative;
+   48	  aspect-ratio: 4 / 3;
+   49	  background: var(--muted);
+   50	  overflow: hidden;
+   51	}
+   52	
+   53	.image {
+   54	  width: 100%;
+   55	  height: 100%;
+   56	  object-fit: cover;
+   57	  display: block;
+   58	}
+   59	
+   60	.placeholder {
+   61	  width: 100%;
+   62	  height: 100%;
+   63	  display: flex;
+   64	  align-items: center;
+   65	  justify-content: center;
+   66	  color: var(--muted-foreground);
+   67	}
+   68	
+   69	.featuredBadge {
+   70	  position: absolute;
+   71	  top: var(--spacing-2);
+   72	  left: var(--spacing-2);
+   73	}
+   74	
+   75	.soldOut {
+   76	  position: absolute;
+   77	  inset: 0;
+   78	  display: flex;
+   79	  align-items: center;
+   80	  justify-content: center;
+   81	  background: rgba(22, 33, 28, 0.55);
+   82	  color: #faf7f0;
+   83	  font-family: var(--font-family-display);
+   84	  font-weight: 700;
+   85	  font-size: 0.8rem;
+   86	  letter-spacing: 0.04em;
+   87	  text-transform: uppercase;
+   88	}
+   89	
+   90	.body {
+   91	  display: flex;
+   92	  flex-direction: column;
+   93	  gap: var(--spacing-1);
+   94	  padding: var(--spacing-3);
+   95	  flex: 1;
+   96	}
+   97	
+   98	.name {
+   99	  font-family: var(--font-family-display);
+  100	  font-size: 1rem;
+  101	  font-weight: 700;
+  102	  line-height: 1.25;
+  103	  margin: 0;
+  104	}
+  105	
+  106	.description {
+  107	  margin: 0;
+  108	  font-size: 0.85rem;
+  109	  line-height: 1.45;
+  110	  color: var(--muted-foreground);
+  111	  display: -webkit-box;
+  112	  -webkit-line-clamp: 2;
+  113	  -webkit-box-orient: vertical;
+  114	  overflow: hidden;
+  115	}
+  116	
+  117	.footer {
+  118	  display: flex;
+  119	  align-items: center;
+  120	  justify-content: space-between;
+  121	  gap: var(--spacing-2);
+  122	  margin-top: auto;
+  123	  padding-top: var(--spacing-3);
+  124	}
+  125	
+  126	.price {
+  127	  font-family: var(--font-family-monospace);
+  128	  font-variant-numeric: tabular-nums;
+  129	  font-weight: 600;
+  130	  font-size: 0.95rem;
+  131	  color: var(--foreground);
+  132	}

@@ -1,0 +1,303 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  padding-bottom: var(--spacing-16);
+}
+
+.title {
+  font-family: var(--font-family-display);
+   10	  font-size: 1.5rem;
+   11	  font-weight: 800;
+   12	  letter-spacing: -0.015em;
+   13	  margin: 0 0 var(--spacing-2);
+   14	}
+   15	
+   16	.subtitle {
+   17	  margin: 0;
+   18	  max-width: 56ch;
+   19	  color: var(--muted-foreground);
+   20	  font-size: 0.92rem;
+   21	  line-height: 1.55;
+   22	}
+   23	
+   24	.notice {
+   25	  margin: 0;
+   26	  padding: var(--spacing-3) var(--spacing-4);
+   27	  border-left: 3px solid var(--accent);
+   28	  background: var(--surface);
+   29	  border-radius: var(--radius-sm);
+   30	  font-size: 0.9rem;
+   31	  line-height: 1.55;
+   32	}
+   33	
+   34	.inlineLink {
+   35	  color: var(--primary);
+   36	  text-decoration: underline;
+   37	}
+   38	
+   39	.group {
+   40	  display: flex;
+   41	  flex-direction: column;
+   42	  gap: var(--spacing-4);
+   43	  padding: var(--spacing-6);
+   44	  border: 1px solid var(--border);
+   45	  border-radius: var(--radius-md);
+   46	  background: var(--card);
+   47	}
+   48	
+   49	.groupHead {
+   50	  display: flex;
+   51	  align-items: center;
+   52	  justify-content: space-between;
+   53	  gap: var(--spacing-3);
+   54	}
+   55	
+   56	.groupTitle {
+   57	  font-family: var(--font-family-display);
+   58	  font-size: 0.8rem;
+   59	  font-weight: 700;
+   60	  text-transform: uppercase;
+   61	  letter-spacing: 0.08em;
+   62	  color: var(--muted-foreground);
+   63	  margin: 0;
+   64	}
+   65	
+   66	.field {
+   67	  display: flex;
+   68	  flex-direction: column;
+   69	  gap: var(--spacing-2);
+   70	}
+   71	
+   72	.label {
+   73	  font-size: 0.9rem;
+   74	  font-weight: 500;
+   75	}
+   76	
+   77	.hint {
+   78	  font-size: 0.8rem;
+   79	  line-height: 1.5;
+   80	  color: var(--muted-foreground);
+   81	  margin: 0;
+   82	}
+   83	
+   84	.shortInput {
+   85	  max-width: 240px;
+   86	}
+   87	
+   88	.imageField {
+   89	  display: flex;
+   90	  align-items: flex-start;
+   91	  gap: var(--spacing-4);
+   92	  flex-wrap: wrap;
+   93	}
+   94	
+   95	.heroPreview {
+   96	  width: 180px;
+   97	  aspect-ratio: 16 / 9;
+   98	  flex-shrink: 0;
+   99	  border: 1px solid var(--border);
+  100	  border-radius: var(--radius);
+  101	  background: var(--muted);
+  102	  display: flex;
+  103	  align-items: center;
+  104	  justify-content: center;
+  105	  overflow: hidden;
+  106	}
+  107	
+  108	.heroImage {
+  109	  width: 100%;
+  110	  height: 100%;
+  111	  object-fit: cover;
+  112	}
+  113	
+  114	.preview {
+  115	  width: 80px;
+  116	  height: 80px;
+  117	  flex-shrink: 0;
+  118	  border: 1px solid var(--border);
+  119	  border-radius: var(--radius);
+  120	  background: var(--muted);
+  121	  display: flex;
+  122	  align-items: center;
+  123	  justify-content: center;
+  124	  overflow: hidden;
+  125	}
+  126	
+  127	.previewImage {
+  128	  width: 100%;
+  129	  height: 100%;
+  130	  object-fit: cover;
+  131	}
+  132	
+  133	.icon {
+  134	  color: var(--muted-foreground);
+  135	}
+  136	
+  137	.imageActions {
+  138	  display: flex;
+  139	  flex-wrap: wrap;
+  140	  align-items: center;
+  141	  gap: var(--spacing-2);
+  142	  flex: 1;
+  143	  min-width: 180px;
+  144	}
+  145	
+  146	.fileInput {
+  147	  display: none;
+  148	}
+  149	
+  150	.formActions {
+  151	  display: flex;
+  152	  gap: var(--spacing-2);
+  153	}
+  154	
+  155	.draft {
+  156	  display: flex;
+  157	  flex-direction: column;
+  158	  gap: var(--spacing-3);
+  159	  padding: var(--spacing-4);
+  160	  border: 1px solid var(--primary);
+  161	  border-radius: var(--radius);
+  162	  background: var(--background);
+  163	}
+  164	
+  165	.formHead {
+  166	  display: flex;
+  167	  align-items: center;
+  168	  justify-content: space-between;
+  169	}
+  170	
+  171	.formTitle {
+  172	  font-family: var(--font-family-display);
+  173	  font-size: 0.95rem;
+  174	  font-weight: 700;
+  175	  margin: 0;
+  176	}
+  177	
+  178	.twoUp {
+  179	  display: grid;
+  180	  grid-template-columns: 1fr;
+  181	  gap: var(--spacing-2);
+  182	}
+  183	
+  184	.ratingRow {
+  185	  display: flex;
+  186	  align-items: center;
+  187	  gap: var(--spacing-3);
+  188	}
+  189	
+  190	.stars {
+  191	  display: flex;
+  192	  gap: var(--spacing-1);
+  193	}
+  194	
+  195	.starButton {
+  196	  background: none;
+  197	  border: none;
+  198	  padding: 2px;
+  199	  cursor: pointer;
+  200	  line-height: 0;
+  201	}
+  202	
+  203	.starOn {
+  204	  color: var(--accent);
+  205	  fill: var(--accent);
+  206	}
+  207	
+  208	.starOff {
+  209	  color: var(--border);
+  210	}
+  211	
+  212	.switchRow {
+  213	  display: flex;
+  214	  align-items: center;
+  215	  gap: var(--spacing-3);
+  216	}
+  217	
+  218	.list {
+  219	  list-style: none;
+  220	  margin: 0;
+  221	  padding: 0;
+  222	  border: 1px solid var(--border);
+  223	  border-radius: var(--radius);
+  224	  overflow: hidden;
+  225	}
+  226	
+  227	.row {
+  228	  display: flex;
+  229	  align-items: center;
+  230	  gap: var(--spacing-3);
+  231	  padding: var(--spacing-3);
+  232	  border-bottom: 1px solid var(--border);
+  233	  flex-wrap: wrap;
+  234	}
+  235	
+  236	.row:last-child {
+  237	  border-bottom: none;
+  238	}
+  239	
+  240	.thumb {
+  241	  width: 44px;
+  242	  height: 44px;
+  243	  flex-shrink: 0;
+  244	  border-radius: var(--radius-sm);
+  245	  background: var(--muted);
+  246	  display: flex;
+  247	  align-items: center;
+  248	  justify-content: center;
+  249	  overflow: hidden;
+  250	}
+  251	
+  252	.thumbImage {
+  253	  width: 100%;
+  254	  height: 100%;
+  255	  object-fit: cover;
+  256	}
+  257	
+  258	.rowText {
+  259	  display: flex;
+  260	  flex-direction: column;
+  261	  gap: 2px;
+  262	  min-width: 0;
+  263	  flex: 1;
+  264	}
+  265	
+  266	.rowName {
+  267	  font-weight: 500;
+  268	  font-size: 0.93rem;
+  269	}
+  270	
+  271	.quote {
+  272	  font-size: 0.9rem;
+  273	  line-height: 1.5;
+  274	}
+  275	
+  276	.rowMeta {
+  277	  font-size: 0.78rem;
+  278	  color: var(--muted-foreground);
+  279	}
+  280	
+  281	.rowActions {
+  282	  display: flex;
+  283	  align-items: center;
+  284	  gap: var(--spacing-2);
+  285	  margin-left: auto;
+  286	}
+  287	
+  288	.skeletonTitle {
+  289	  width: 200px;
+  290	  height: 32px;
+  291	}
+  292	
+  293	.skeletonBlock {
+  294	  width: 100%;
+  295	  height: 300px;
+  296	  border-radius: var(--radius-md);
+  297	}
+  298	
+  299	@media (min-width: 720px) {
+  300	  .twoUp {
+  301	    grid-template-columns: repeat(2, minmax(0, 1fr));
+  302	  }
+  303	}

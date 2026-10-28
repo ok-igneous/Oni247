@@ -1,0 +1,513 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  padding-bottom: var(--spacing-16);
+}
+
+.title {
+  font-family: var(--font-family-display);
+   10	  font-size: 1.5rem;
+   11	  font-weight: 800;
+   12	  letter-spacing: -0.015em;
+   13	  margin: 0 0 var(--spacing-2);
+   14	}
+   15	
+   16	.subtitle {
+   17	  margin: 0;
+   18	  max-width: 56ch;
+   19	  color: var(--muted-foreground);
+   20	  font-size: 0.92rem;
+   21	  line-height: 1.55;
+   22	}
+   23	
+   24	.list {
+   25	  list-style: none;
+   26	  margin: 0;
+   27	  padding: 0;
+   28	  display: flex;
+   29	  flex-direction: column;
+   30	  gap: var(--spacing-3);
+   31	}
+   32	
+   33	.card {
+   34	  display: flex;
+   35	  flex-direction: column;
+   36	  gap: var(--spacing-3);
+   37	  padding: var(--spacing-4);
+   38	  border: 1px solid var(--border);
+   39	  border-radius: var(--radius-md);
+   40	  background: var(--card);
+   41	}
+   42	
+   43	.cardHead {
+   44	  display: flex;
+   45	  align-items: flex-start;
+   46	  justify-content: space-between;
+   47	  gap: var(--spacing-3);
+   48	}
+   49	
+   50	.cardWho {
+   51	  display: flex;
+   52	  flex-direction: column;
+   53	  gap: 2px;
+   54	  min-width: 0;
+   55	}
+   56	
+   57	.customer {
+   58	  font-weight: 600;
+   59	  font-size: 0.98rem;
+   60	}
+   61	
+   62	.phone {
+   63	  font-family: var(--font-family-monospace);
+   64	  font-size: 0.82rem;
+   65	  color: var(--primary);
+   66	  text-decoration: none;
+   67	}
+   68	
+   69	.lines {
+   70	  list-style: none;
+   71	  margin: 0;
+   72	  padding: 0;
+   73	  display: flex;
+   74	  flex-direction: column;
+   75	  gap: var(--spacing-1);
+   76	  border-top: 1px solid var(--border);
+   77	  border-bottom: 1px solid var(--border);
+   78	  padding-block: var(--spacing-3);
+   79	}
+   80	
+   81	.line {
+   82	  display: flex;
+   83	  align-items: baseline;
+   84	  justify-content: space-between;
+   85	  gap: var(--spacing-3);
+   86	  font-size: 0.9rem;
+   87	}
+   88	
+   89	.lineTotal {
+   90	  font-family: var(--font-family-monospace);
+   91	  font-variant-numeric: tabular-nums;
+   92	  color: var(--muted-foreground);
+   93	  flex-shrink: 0;
+   94	}
+   95	
+   96	.cardFoot {
+   97	  display: flex;
+   98	  align-items: baseline;
+   99	  justify-content: space-between;
+  100	  gap: var(--spacing-3);
+  101	  flex-wrap: wrap;
+  102	}
+  103	
+  104	.total {
+  105	  font-family: var(--font-family-monospace);
+  106	  font-variant-numeric: tabular-nums;
+  107	  font-weight: 600;
+  108	  font-size: 1.05rem;
+  109	}
+  110	
+  111	.date {
+  112	  font-size: 0.8rem;
+  113	  color: var(--muted-foreground);
+  114	}
+  115	
+  116	.statusRow {
+  117	  display: flex;
+  118	  gap: var(--spacing-2);
+  119	  flex-wrap: wrap;
+  120	}
+  121	
+  122	.empty {
+  123	  display: flex;
+  124	  flex-direction: column;
+  125	  gap: var(--spacing-2);
+  126	  padding: var(--spacing-8);
+  127	  border: 1px dashed var(--border);
+  128	  border-radius: var(--radius-md);
+  129	  background: var(--card);
+  130	}
+  131	
+  132	.emptyTitle {
+  133	  margin: 0;
+  134	  font-family: var(--font-family-display);
+  135	  font-weight: 700;
+  136	  font-size: 1rem;
+  137	}
+  138	
+  139	.emptyBody {
+  140	  margin: 0;
+  141	  max-width: 52ch;
+  142	  color: var(--muted-foreground);
+  143	  line-height: 1.6;
+  144	}
+  145	
+  146	.errorText {
+  147	  margin: 0;
+  148	  color: var(--error);
+  149	}
+  150	
+  151	.skeletonTitle {
+  152	  width: 200px;
+  153	  height: 32px;
+  154	}
+  155	
+  156	.skeletonBlock {
+  157	  width: 100%;
+  158	  height: 240px;
+  159	  border-radius: var(--radius-md);
+  160	}
+  161	
+  162	.summary {
+  163	  display: grid;
+  164	  grid-template-columns: repeat(3, minmax(0, 1fr));
+  165	  border: 1px solid var(--border);
+  166	  border-radius: var(--radius-md);
+  167	  overflow: hidden;
+  168	  background: var(--card);
+  169	}
+  170	
+  171	.summaryItem {
+  172	  display: flex;
+  173	  flex-direction: column;
+  174	  gap: var(--spacing-1);
+  175	  padding: var(--spacing-4);
+  176	  border-right: 1px solid var(--border);
+  177	}
+  178	
+  179	.summaryItem:last-child {
+  180	  border-right: none;
+  181	}
+  182	
+  183	.summaryValue {
+  184	  font-family: var(--font-family-monospace);
+  185	  font-variant-numeric: tabular-nums;
+  186	  font-size: 1.1rem;
+  187	  font-weight: 600;
+  188	}
+  189	
+  190	.summaryLabel {
+  191	  font-size: 0.75rem;
+  192	  color: var(--muted-foreground);
+  193	}
+  194	
+  195	.controls {
+  196	  display: flex;
+  197	  flex-direction: column;
+  198	  gap: var(--spacing-3);
+  199	}
+  200	
+  201	.filters {
+  202	  display: flex;
+  203	  gap: var(--spacing-2);
+  204	  overflow-x: auto;
+  205	  padding-bottom: var(--spacing-1);
+  206	}
+  207	
+  208	.filter {
+  209	  display: inline-flex;
+  210	  align-items: center;
+  211	  gap: var(--spacing-2);
+  212	  flex-shrink: 0;
+  213	  border: 1px solid var(--border);
+  214	  background: var(--card);
+  215	  color: var(--muted-foreground);
+  216	  border-radius: var(--radius-full);
+  217	  padding: var(--spacing-2) var(--spacing-3);
+  218	  font-family: var(--font-family-base);
+  219	  font-size: 0.85rem;
+  220	  font-weight: 500;
+  221	  cursor: pointer;
+  222	}
+  223	
+  224	.filter:hover {
+  225	  color: var(--foreground);
+  226	}
+  227	
+  228	.filterActive {
+  229	  background: var(--primary);
+  230	  border-color: var(--primary);
+  231	  color: var(--primary-foreground);
+  232	}
+  233	
+  234	.filterCount {
+  235	  font-family: var(--font-family-monospace);
+  236	  font-variant-numeric: tabular-nums;
+  237	  font-size: 0.75rem;
+  238	  opacity: 0.8;
+  239	}
+  240	
+  241	.searchWrap {
+  242	  position: relative;
+  243	  display: flex;
+  244	  align-items: center;
+  245	}
+  246	
+  247	.searchIcon {
+  248	  position: absolute;
+  249	  left: var(--spacing-3);
+  250	  color: var(--muted-foreground);
+  251	  pointer-events: none;
+  252	}
+  253	
+  254	.searchInput {
+  255	  width: 100%;
+  256	  padding-left: var(--spacing-8);
+  257	}
+  258	
+  259	.contactLinks {
+  260	  display: flex;
+  261	  flex-wrap: wrap;
+  262	  gap: var(--spacing-3);
+  263	}
+  264	
+  265	.contactLink {
+  266	  display: inline-flex;
+  267	  align-items: center;
+  268	  gap: var(--spacing-1);
+  269	  font-size: 0.82rem;
+  270	  color: var(--primary);
+  271	  text-decoration: none;
+  272	}
+  273	
+  274	.contactLink:hover {
+  275	  text-decoration: underline;
+  276	}
+  277	
+  278	.confirmText {
+  279	  font-size: 0.85rem;
+  280	  color: var(--muted-foreground);
+  281	}
+  282	
+  283	.deleteButton {
+  284	  margin-left: auto;
+  285	}
+  286	
+  287	@media (min-width: 720px) {
+  288	  .controls {
+  289	    flex-direction: row;
+  290	    align-items: center;
+  291	    justify-content: space-between;
+  292	  }
+  293	
+  294	  .searchWrap {
+  295	    width: 280px;
+  296	    flex-shrink: 0;
+  297	  }
+  298	}
+  299	
+  300	.head {
+  301	  display: flex;
+  302	  align-items: flex-start;
+  303	  justify-content: space-between;
+  304	  gap: var(--spacing-4);
+  305	  flex-wrap: wrap;
+  306	}
+  307	
+  308	.form {
+  309	  display: flex;
+  310	  flex-direction: column;
+  311	  gap: var(--spacing-4);
+  312	  padding: var(--spacing-6);
+  313	  border: 1px solid var(--primary);
+  314	  border-radius: var(--radius-md);
+  315	  background: var(--card);
+  316	}
+  317	
+  318	.formHead {
+  319	  display: flex;
+  320	  align-items: center;
+  321	  justify-content: space-between;
+  322	}
+  323	
+  324	.formTitle {
+  325	  font-family: var(--font-family-display);
+  326	  font-size: 1rem;
+  327	  font-weight: 700;
+  328	  margin: 0;
+  329	}
+  330	
+  331	.saleFields {
+  332	  display: grid;
+  333	  grid-template-columns: 1fr;
+  334	  gap: var(--spacing-2);
+  335	}
+  336	
+  337	.picker {
+  338	  display: flex;
+  339	  flex-direction: column;
+  340	  border: 1px solid var(--border);
+  341	  border-radius: var(--radius);
+  342	  max-height: 260px;
+  343	  overflow-y: auto;
+  344	}
+  345	
+  346	.pickerRow {
+  347	  display: flex;
+  348	  align-items: center;
+  349	  justify-content: space-between;
+  350	  gap: var(--spacing-3);
+  351	  padding: var(--spacing-2) var(--spacing-3);
+  352	  border-bottom: 1px solid var(--border);
+  353	}
+  354	
+  355	.pickerRow:last-child {
+  356	  border-bottom: none;
+  357	}
+  358	
+  359	.pickerText {
+  360	  display: flex;
+  361	  flex-direction: column;
+  362	  min-width: 0;
+  363	}
+  364	
+  365	.pickerName {
+  366	  font-size: 0.9rem;
+  367	  font-weight: 500;
+  368	}
+  369	
+  370	.pickerPrice {
+  371	  font-family: var(--font-family-monospace);
+  372	  font-variant-numeric: tabular-nums;
+  373	  font-size: 0.8rem;
+  374	  color: var(--muted-foreground);
+  375	}
+  376	
+  377	.stepper {
+  378	  display: flex;
+  379	  align-items: center;
+  380	  gap: var(--spacing-2);
+  381	  flex-shrink: 0;
+  382	}
+  383	
+  384	.qty {
+  385	  font-family: var(--font-family-monospace);
+  386	  font-variant-numeric: tabular-nums;
+  387	  min-width: 1.5ch;
+  388	  text-align: center;
+  389	}
+  390	
+  391	.switchRow {
+  392	  display: flex;
+  393	  align-items: center;
+  394	  gap: var(--spacing-3);
+  395	}
+  396	
+  397	.switchLabel {
+  398	  font-size: 0.9rem;
+  399	  cursor: pointer;
+  400	}
+  401	
+  402	.formActions {
+  403	  display: flex;
+  404	  gap: var(--spacing-2);
+  405	}
+  406	
+  407	.headBadges {
+  408	  display: flex;
+  409	  gap: var(--spacing-2);
+  410	  flex-shrink: 0;
+  411	}
+  412	
+  413	.trackingRow {
+  414	  display: flex;
+  415	  align-items: center;
+  416	  gap: var(--spacing-2);
+  417	  flex-wrap: wrap;
+  418	}
+  419	
+  420	.trackingCode {
+  421	  font-family: var(--font-family-monospace);
+  422	  font-size: 0.85rem;
+  423	  font-weight: 600;
+  424	  letter-spacing: 0.08em;
+  425	  padding: 2px var(--spacing-2);
+  426	  background: var(--surface);
+  427	  border: 1px solid var(--border);
+  428	  border-radius: var(--radius-sm);
+  429	  color: var(--foreground);
+  430	  text-decoration: none;
+  431	}
+  432	
+  433	.trackingCode:hover {
+  434	  border-color: var(--primary);
+  435	  color: var(--primary);
+  436	}
+  437	
+  438	.address {
+  439	  margin: 0;
+  440	  font-size: 0.85rem;
+  441	  color: var(--muted-foreground);
+  442	}
+  443	
+  444	.shippingRow {
+  445	  display: flex;
+  446	  flex-direction: column;
+  447	  gap: var(--spacing-2);
+  448	  padding-top: var(--spacing-3);
+  449	  border-top: 1px solid var(--border);
+  450	}
+  451	
+  452	.shippingLabel {
+  453	  font-size: 0.75rem;
+  454	  text-transform: uppercase;
+  455	  letter-spacing: 0.06em;
+  456	  color: var(--muted-foreground);
+  457	}
+  458	
+  459	.shippingButtons {
+  460	  display: flex;
+  461	  gap: var(--spacing-2);
+  462	  flex-wrap: wrap;
+  463	}
+  464	
+  465	.ship {
+  466	  border: 1px solid var(--border);
+  467	  background: var(--background);
+  468	  color: var(--muted-foreground);
+  469	  border-radius: var(--radius-full);
+  470	  padding: var(--spacing-1) var(--spacing-3);
+  471	  font-family: var(--font-family-base);
+  472	  font-size: 0.8rem;
+  473	  font-weight: 500;
+  474	  cursor: pointer;
+  475	}
+  476	
+  477	.ship:hover:not(:disabled) {
+  478	  color: var(--foreground);
+  479	}
+  480	
+  481	.shipActive {
+  482	  background: var(--primary);
+  483	  border-color: var(--primary);
+  484	  color: var(--primary-foreground);
+  485	}
+  486	
+  487	.noteBox {
+  488	  display: flex;
+  489	  flex-direction: column;
+  490	  gap: var(--spacing-2);
+  491	}
+  492	
+  493	.savedNote {
+  494	  margin: 0;
+  495	  padding: var(--spacing-2) var(--spacing-3);
+  496	  border-left: 3px solid var(--accent);
+  497	  background: var(--surface);
+  498	  border-radius: var(--radius-sm);
+  499	  font-size: 0.88rem;
+  500	  line-height: 1.5;
+  501	}
+  502	
+  503	@media (min-width: 720px) {
+  504	  .saleFields {
+  505	    grid-template-columns: repeat(3, minmax(0, 1fr));
+  506	  }
+  507	
+  508	  .shippingRow {
+  509	    flex-direction: row;
+  510	    align-items: center;
+  511	    gap: var(--spacing-4);
+  512	  }
+  513	}

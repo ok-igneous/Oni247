@@ -1,0 +1,159 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+   10	  gap: var(--spacing-3);
+   11	  flex-wrap: wrap;
+   12	}
+   13	
+   14	.title {
+   15	  font-family: var(--font-family-display);
+   16	  font-size: 1.5rem;
+   17	  font-weight: 800;
+   18	  letter-spacing: -0.015em;
+   19	  margin: 0;
+   20	}
+   21	
+   22	.notice {
+   23	  margin: 0;
+   24	  padding: var(--spacing-3) var(--spacing-4);
+   25	  border-left: 3px solid var(--accent);
+   26	  background: var(--surface);
+   27	  border-radius: var(--radius-sm);
+   28	  font-size: 0.9rem;
+   29	  line-height: 1.5;
+   30	  color: var(--muted-foreground);
+   31	}
+   32	
+   33	.linkRow {
+   34	  display: flex;
+   35	  flex-direction: column;
+   36	  gap: var(--spacing-2);
+   37	  padding: var(--spacing-4);
+   38	  border: 1px solid var(--border);
+   39	  border-radius: var(--radius-md);
+   40	  background: var(--card);
+   41	}
+   42	
+   43	.linkLabel {
+   44	  font-size: 0.8rem;
+   45	  text-transform: uppercase;
+   46	  letter-spacing: 0.06em;
+   47	  color: var(--muted-foreground);
+   48	}
+   49	
+   50	.link {
+   51	  font-family: var(--font-family-monospace);
+   52	  font-size: 0.85rem;
+   53	  word-break: break-all;
+   54	  color: var(--foreground);
+   55	}
+   56	
+   57	.linkActions {
+   58	  display: flex;
+   59	  gap: var(--spacing-2);
+   60	  margin-top: var(--spacing-1);
+   61	}
+   62	
+   63	.stats {
+   64	  display: grid;
+   65	  grid-template-columns: repeat(2, minmax(0, 1fr));
+   66	  border: 1px solid var(--border);
+   67	  border-radius: var(--radius-md);
+   68	  overflow: hidden;
+   69	  background: var(--card);
+   70	}
+   71	
+   72	.stat {
+   73	  display: flex;
+   74	  flex-direction: column;
+   75	  gap: var(--spacing-1);
+   76	  padding: var(--spacing-4);
+   77	  border-right: 1px solid var(--border);
+   78	  border-bottom: 1px solid var(--border);
+   79	  text-decoration: none;
+   80	  color: inherit;
+   81	  transition: background var(--animation-duration-fast) ease;
+   82	}
+   83	
+   84	.stat:hover {
+   85	  background: var(--surface);
+   86	}
+   87	
+   88	.quickLinks {
+   89	  display: flex;
+   90	  gap: var(--spacing-2);
+   91	  flex-wrap: wrap;
+   92	}
+   93	
+   94	.statValue {
+   95	  font-family: var(--font-family-monospace);
+   96	  font-variant-numeric: tabular-nums;
+   97	  font-size: 1.5rem;
+   98	  font-weight: 600;
+   99	}
+  100	
+  101	.statLabel {
+  102	  font-size: 0.8rem;
+  103	  color: var(--muted-foreground);
+  104	}
+  105	
+  106	.emptyState {
+  107	  display: flex;
+  108	  flex-direction: column;
+  109	  align-items: flex-start;
+  110	  gap: var(--spacing-4);
+  111	  padding: var(--spacing-8);
+  112	  border: 1px dashed var(--border);
+  113	  border-radius: var(--radius-md);
+  114	  background: var(--card);
+  115	}
+  116	
+  117	.emptyBody {
+  118	  margin: 0;
+  119	  max-width: 52ch;
+  120	  line-height: 1.6;
+  121	  color: var(--muted-foreground);
+  122	}
+  123	
+  124	.errorText {
+  125	  margin: 0;
+  126	  color: var(--error);
+  127	}
+  128	
+  129	.skeletonTitle {
+  130	  width: 240px;
+  131	  height: 32px;
+  132	}
+  133	
+  134	.skeletonBlock {
+  135	  width: 100%;
+  136	  height: 180px;
+  137	  border-radius: var(--radius-md);
+  138	}
+  139	
+  140	@media (min-width: 720px) {
+  141	  .stats {
+  142	    grid-template-columns: repeat(4, minmax(0, 1fr));
+  143	  }
+  144	
+  145	  .stat:last-child {
+  146	    border-right: none;
+  147	  }
+  148	
+  149	  .linkRow {
+  150	    flex-direction: row;
+  151	    align-items: center;
+  152	    flex-wrap: wrap;
+  153	  }
+  154	
+  155	  .linkActions {
+  156	    margin-left: auto;
+  157	    margin-top: 0;
+  158	  }
+  159	}

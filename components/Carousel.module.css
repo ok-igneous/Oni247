@@ -1,0 +1,128 @@
+@layer base {
+  .carousel {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .viewport {
+   10	    width: 100%;
+   11	    height: 100%;
+   12	  }
+   13	
+   14	  .container {
+   15	    display: flex;
+   16	    height: 100%;
+   17	    width: 100%;
+   18	    backface-visibility: hidden;
+   19	  }
+   20	
+   21	  .container.horizontal {
+   22	    flex-direction: row;
+   23	  }
+   24	
+   25	  .container.vertical {
+   26	    flex-direction: column;
+   27	  }
+   28	
+   29	  .item {
+   30	    flex: 0 0 auto;
+   31	    min-width: 0;
+   32	    position: relative;
+   33	  }
+   34	
+   35	  .item.horizontal {
+   36	    width: 100%;
+   37	  }
+   38	
+   39	  .item.vertical {
+   40	    height: 100%;
+   41	  }
+   42	
+   43	  .previousButtonContainer,
+   44	  .nextButtonContainer {
+   45	    position: absolute;
+   46	    z-index: var(--z-content);
+   47	    transform: translateY(-50%);
+   48	  }
+   49	
+   50	  .horizontalNav.previousButtonContainer {
+   51	    left: var(--spacing-2);
+   52	    top: 50%;
+   53	  }
+   54	
+   55	  .horizontalNav.nextButtonContainer {
+   56	    right: var(--spacing-2);
+   57	    top: 50%;
+   58	  }
+   59	
+   60	  .verticalNav.previousButtonContainer {
+   61	    top: var(--spacing-2);
+   62	    left: 50%;
+   63	    transform: translateX(-50%);
+   64	  }
+   65	
+   66	  .verticalNav.nextButtonContainer {
+   67	    bottom: var(--spacing-2);
+   68	    left: 50%;
+   69	    transform: translateX(-50%);
+   70	  }
+   71	
+   72	  .previous,
+   73	  .next {
+   74	    background-color: var(--card);
+   75	    color: var(--card-foreground);
+   76	    border: 1px solid var(--border);
+   77	    border-radius: var(--radius-full);
+   78	    box-shadow: var(--shadow);
+   79	    transition: all var(--animation-duration-normal) ease;
+   80	  }
+   81	
+   82	  .previous:hover:not(:disabled),
+   83	  .next:hover:not(:disabled) {
+   84	    background-color: var(--primary);
+   85	    color: var(--primary-foreground);
+   86	    border-color: var(--primary);
+   87	    transform: translateY(-2px);
+   88	    box-shadow: var(--shadow-md);
+   89	  }
+   90	
+   91	  .previous:active:not(:disabled),
+   92	  .next:active:not(:disabled) {
+   93	    transform: translateY(0);
+   94	    box-shadow: var(--shadow);
+   95	  }
+   96	
+   97	  .previous:focus-visible,
+   98	  .next:focus-visible {
+   99	    box-shadow: var(--shadow-focus);
+  100	    outline: none;
+  101	  }
+  102	
+  103	  .previous:disabled,
+  104	  .next:disabled {
+  105	    background-color: var(--muted);
+  106	    color: var(--muted-foreground);
+  107	    cursor: not-allowed;
+  108	    opacity: 0.6;
+  109	  }
+  110	
+  111	  .icon {
+  112	    width: 1rem;
+  113	    height: 1rem;
+  114	  }
+  115	
+  116	  .srOnly {
+  117	    position: absolute;
+  118	    width: 1px;
+  119	    height: 1px;
+  120	    padding: 0;
+  121	    margin: -1px;
+  122	    overflow: hidden;
+  123	    clip: rect(0, 0, 0, 0);
+  124	    white-space: nowrap;
+  125	    border-width: 0;
+  126	  }
+  127	}
+  128	

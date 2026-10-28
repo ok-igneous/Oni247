@@ -1,0 +1,3 @@
+import { z } from "zod";import superjson from "superjson";
+export const schema=z.object({token:z.string().min(20)});export type OutputType={message:string};
+export const postVerifyEmail=async(body:z.infer<typeof schema>,init?:RequestInit):Promise<OutputType>=>{const result=await fetch("/_api/auth/verify_email",{method:"POST",body:superjson.stringify(schema.parse(body)),...init,headers:{"Content-Type":"application/json",...(init?.headers??{})},credentials:"include"});const data=superjson.parse<OutputType & {message?:string}>(await result.text());if(!result.ok)throw new Error(data.message||"Verification failed.");return data;};

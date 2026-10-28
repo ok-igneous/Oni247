@@ -1,0 +1,134 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  padding-bottom: var(--spacing-16);
+}
+
+.title {
+  font-family: var(--font-family-display);
+   10	  font-size: 1.5rem;
+   11	  font-weight: 800;
+   12	  letter-spacing: -0.015em;
+   13	  margin: 0 0 var(--spacing-2);
+   14	}
+   15	
+   16	.subtitle {
+   17	  margin: 0;
+   18	  max-width: 56ch;
+   19	  color: var(--muted-foreground);
+   20	  font-size: 0.92rem;
+   21	  line-height: 1.55;
+   22	}
+   23	
+   24	.list {
+   25	  list-style: none;
+   26	  margin: 0;
+   27	  padding: 0;
+   28	  display: flex;
+   29	  flex-direction: column;
+   30	  gap: var(--spacing-3);
+   31	}
+   32	
+   33	.card {
+   34	  display: flex;
+   35	  flex-direction: column;
+   36	  gap: var(--spacing-3);
+   37	  padding: var(--spacing-4);
+   38	  border: 1px solid var(--border);
+   39	  border-radius: var(--radius-md);
+   40	  background: var(--card);
+   41	}
+   42	
+   43	.cardHead {
+   44	  display: flex;
+   45	  align-items: center;
+   46	  justify-content: space-between;
+   47	  gap: var(--spacing-3);
+   48	}
+   49	
+   50	.customer {
+   51	  font-weight: 600;
+   52	  font-size: 0.98rem;
+   53	}
+   54	
+   55	.message {
+   56	  margin: 0;
+   57	  line-height: 1.6;
+   58	  font-size: 0.93rem;
+   59	  white-space: pre-wrap;
+   60	}
+   61	
+   62	.contacts {
+   63	  display: flex;
+   64	  flex-wrap: wrap;
+   65	  align-items: center;
+   66	  gap: var(--spacing-4);
+   67	  padding-top: var(--spacing-3);
+   68	  border-top: 1px solid var(--border);
+   69	}
+   70	
+   71	.contactLink {
+   72	  display: inline-flex;
+   73	  align-items: center;
+   74	  gap: var(--spacing-1);
+   75	  font-size: 0.85rem;
+   76	  color: var(--primary);
+   77	  text-decoration: none;
+   78	}
+   79	
+   80	.contactLink:hover {
+   81	  text-decoration: underline;
+   82	}
+   83	
+   84	.date {
+   85	  font-size: 0.8rem;
+   86	  color: var(--muted-foreground);
+   87	  margin-left: auto;
+   88	}
+   89	
+   90	.statusRow {
+   91	  display: flex;
+   92	  gap: var(--spacing-2);
+   93	  flex-wrap: wrap;
+   94	}
+   95	
+   96	.empty {
+   97	  display: flex;
+   98	  flex-direction: column;
+   99	  gap: var(--spacing-2);
+  100	  padding: var(--spacing-8);
+  101	  border: 1px dashed var(--border);
+  102	  border-radius: var(--radius-md);
+  103	  background: var(--card);
+  104	}
+  105	
+  106	.emptyTitle {
+  107	  margin: 0;
+  108	  font-family: var(--font-family-display);
+  109	  font-weight: 700;
+  110	  font-size: 1rem;
+  111	}
+  112	
+  113	.emptyBody {
+  114	  margin: 0;
+  115	  max-width: 52ch;
+  116	  color: var(--muted-foreground);
+  117	  line-height: 1.6;
+  118	}
+  119	
+  120	.errorText {
+  121	  margin: 0;
+  122	  color: var(--error);
+  123	}
+  124	
+  125	.skeletonTitle {
+  126	  width: 200px;
+  127	  height: 32px;
+  128	}
+  129	
+  130	.skeletonBlock {
+  131	  width: 100%;
+  132	  height: 240px;
+  133	  border-radius: var(--radius-md);
+  134	}

@@ -1,0 +1,163 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  padding-bottom: var(--spacing-16);
+}
+
+.head {
+  display: flex;
+   10	  align-items: center;
+   11	  gap: var(--spacing-3);
+   12	}
+   13	
+   14	.title {
+   15	  font-family: var(--font-family-display);
+   16	  font-size: 1.5rem;
+   17	  font-weight: 800;
+   18	  letter-spacing: -0.015em;
+   19	  margin: 0;
+   20	}
+   21	
+   22	.notice {
+   23	  margin: 0;
+   24	  padding: var(--spacing-3) var(--spacing-4);
+   25	  border-left: 3px solid var(--accent);
+   26	  background: var(--surface);
+   27	  border-radius: var(--radius-sm);
+   28	  font-size: 0.9rem;
+   29	  line-height: 1.55;
+   30	}
+   31	
+   32	.usage {
+   33	  margin: 0;
+   34	  font-size: 0.9rem;
+   35	  color: var(--muted-foreground);
+   36	}
+   37	
+   38	.plans {
+   39	  display: grid;
+   40	  grid-template-columns: 1fr;
+   41	  gap: var(--spacing-4);
+   42	  margin-top: var(--spacing-2);
+   43	}
+   44	
+   45	.plan {
+   46	  display: flex;
+   47	  flex-direction: column;
+   48	  align-items: flex-start;
+   49	  gap: var(--spacing-2);
+   50	  padding: var(--spacing-6);
+   51	  border: 1px solid var(--border);
+   52	  border-radius: var(--radius-md);
+   53	  background: var(--card);
+   54	}
+   55	
+   56	.planHighlight {
+   57	  border-color: var(--primary);
+   58	}
+   59	
+   60	.planName {
+   61	  font-family: var(--font-family-display);
+   62	  font-size: 1.1rem;
+   63	  font-weight: 700;
+   64	  margin: 0;
+   65	}
+   66	
+   67	.priceRow {
+   68	  display: flex;
+   69	  align-items: baseline;
+   70	  gap: var(--spacing-2);
+   71	}
+   72	
+   73	.planPrice {
+   74	  font-family: var(--font-family-monospace);
+   75	  font-variant-numeric: tabular-nums;
+   76	  font-size: 1.6rem;
+   77	  font-weight: 600;
+   78	}
+   79	
+   80	.period {
+   81	  font-size: 0.85rem;
+   82	  color: var(--muted-foreground);
+   83	}
+   84	
+   85	.launchNote {
+   86	  font-size: 0.8rem;
+   87	  line-height: 1.45;
+   88	  color: var(--muted-foreground);
+   89	}
+   90	
+   91	.features {
+   92	  list-style: none;
+   93	  margin: var(--spacing-2) 0;
+   94	  padding: 0;
+   95	  display: flex;
+   96	  flex-direction: column;
+   97	  gap: var(--spacing-2);
+   98	}
+   99	
+  100	.feature {
+  101	  display: flex;
+  102	  align-items: center;
+  103	  gap: var(--spacing-2);
+  104	  font-size: 0.9rem;
+  105	}
+  106	
+  107	.featureIcon {
+  108	  color: var(--primary);
+  109	  flex-shrink: 0;
+  110	}
+  111	
+  112	.upgradeButton {
+  113	  width: 100%;
+  114	  margin-top: var(--spacing-2);
+  115	}
+  116	
+  117	.errorText {
+  118	  margin: 0;
+  119	  color: var(--error);
+  120	}
+  121	
+  122	.durationBox {
+  123	  display: flex;
+  124	  flex-direction: column;
+  125	  gap: var(--spacing-3);
+  126	  padding: 1.25rem;
+  127	  border: 1px solid var(--border);
+  128	  border-radius: var(--radius-md);
+  129	  background: var(--surface);
+  130	}
+  131	
+  132	.durationBox p { margin: var(--spacing-1) 0 0; }
+  133	
+  134	.durationControls {
+  135	  display: grid;
+  136	  grid-template-columns: 1fr 1fr;
+  137	  gap: var(--spacing-2);
+  138	  max-width: 360px;
+  139	}
+  140	
+  141	.promoNote {
+  142	  margin: 0;
+  143	  font-size: 0.85rem;
+  144	  font-weight: 600;
+  145	}
+  146	
+  147	.skeletonTitle {
+  148	  width: 180px;
+  149	  height: 32px;
+  150	}
+  151	
+  152	.skeletonBlock {
+  153	  width: 100%;
+  154	  height: 320px;
+  155	  border-radius: var(--radius-md);
+  156	}
+  157	
+  158	@media (min-width: 720px) {
+  159	  .plans {
+  160	    grid-template-columns: repeat(3, minmax(0, 1fr));
+  161	    align-items: start;
+  162	  }
+  163	}

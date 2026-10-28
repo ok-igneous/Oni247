@@ -1,0 +1,316 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  padding-bottom: var(--spacing-16);
+}
+
+.head {
+  display: flex;
+   10	  align-items: flex-start;
+   11	  justify-content: space-between;
+   12	  gap: var(--spacing-4);
+   13	  flex-wrap: wrap;
+   14	}
+   15	
+   16	.title {
+   17	  font-family: var(--font-family-display);
+   18	  font-size: 1.5rem;
+   19	  font-weight: 800;
+   20	  letter-spacing: -0.015em;
+   21	  margin: 0 0 var(--spacing-2);
+   22	}
+   23	
+   24	.subtitle {
+   25	  margin: 0;
+   26	  max-width: 52ch;
+   27	  color: var(--muted-foreground);
+   28	  font-size: 0.92rem;
+   29	  line-height: 1.55;
+   30	}
+   31	
+   32	.form {
+   33	  display: flex;
+   34	  flex-direction: column;
+   35	  gap: var(--spacing-4);
+   36	  padding: var(--spacing-6);
+   37	  border: 1px solid var(--primary);
+   38	  border-radius: var(--radius-md);
+   39	  background: var(--card);
+   40	}
+   41	
+   42	.formHead {
+   43	  display: flex;
+   44	  align-items: center;
+   45	  justify-content: space-between;
+   46	}
+   47	
+   48	.formTitle {
+   49	  font-family: var(--font-family-display);
+   50	  font-size: 1rem;
+   51	  font-weight: 700;
+   52	  margin: 0;
+   53	}
+   54	
+   55	.imageField {
+   56	  display: flex;
+   57	  align-items: flex-start;
+   58	  gap: var(--spacing-4);
+   59	}
+   60	
+   61	.preview {
+   62	  width: 88px;
+   63	  height: 88px;
+   64	  flex-shrink: 0;
+   65	  border: 1px solid var(--border);
+   66	  border-radius: var(--radius);
+   67	  background: var(--muted);
+   68	  display: flex;
+   69	  align-items: center;
+   70	  justify-content: center;
+   71	  overflow: hidden;
+   72	}
+   73	
+   74	.previewImage {
+   75	  width: 100%;
+   76	  height: 100%;
+   77	  object-fit: cover;
+   78	}
+   79	
+   80	.previewIcon {
+   81	  color: var(--muted-foreground);
+   82	}
+   83	
+   84	.imageActions {
+   85	  display: flex;
+   86	  flex-wrap: wrap;
+   87	  align-items: center;
+   88	  gap: var(--spacing-2);
+   89	}
+   90	
+   91	.fileInput {
+   92	  display: none;
+   93	}
+   94	
+   95	.field {
+   96	  display: flex;
+   97	  flex-direction: column;
+   98	  gap: var(--spacing-2);
+   99	}
+  100	
+  101	.label {
+  102	  font-size: 0.9rem;
+  103	  font-weight: 500;
+  104	}
+  105	
+  106	.hint {
+  107	  font-size: 0.8rem;
+  108	  line-height: 1.45;
+  109	  color: var(--muted-foreground);
+  110	}
+  111	
+  112	.inlineLink {
+  113	  color: var(--primary);
+  114	  text-decoration: underline;
+  115	}
+  116	
+  117	.planNote {
+  118	  margin: 0;
+  119	  padding: var(--spacing-3) var(--spacing-4);
+  120	  border-left: 3px solid var(--accent);
+  121	  background: var(--surface);
+  122	  border-radius: var(--radius-sm);
+  123	  font-size: 0.88rem;
+  124	  line-height: 1.5;
+  125	  color: var(--muted-foreground);
+  126	}
+  127	
+  128	.numberInput {
+  129	  max-width: 160px;
+  130	}
+  131	
+  132	.variantList {
+  133	  display: flex;
+  134	  flex-direction: column;
+  135	  gap: var(--spacing-2);
+  136	}
+  137	
+  138	.variantRow {
+  139	  display: grid;
+  140	  grid-template-columns: 1fr 1fr 1fr auto;
+  141	  gap: var(--spacing-2);
+  142	  align-items: center;
+  143	}
+  144	
+  145	@media (max-width: 640px) {
+  146	  .variantRow {
+  147	    grid-template-columns: 1fr 1fr;
+  148	  }
+  149	}
+  150	
+  151	.chips {
+  152	  display: flex;
+  153	  flex-wrap: wrap;
+  154	  gap: var(--spacing-2);
+  155	}
+  156	
+  157	.chip {
+  158	  border: 1px solid var(--border);
+  159	  background: var(--background);
+  160	  color: var(--muted-foreground);
+  161	  border-radius: var(--radius-full);
+  162	  padding: var(--spacing-2) var(--spacing-4);
+  163	  font-family: var(--font-family-base);
+  164	  font-size: 0.85rem;
+  165	  font-weight: 500;
+  166	  cursor: pointer;
+  167	}
+  168	
+  169	.chip:hover {
+  170	  color: var(--foreground);
+  171	}
+  172	
+  173	.chipActive {
+  174	  background: var(--primary);
+  175	  border-color: var(--primary);
+  176	  color: var(--primary-foreground);
+  177	}
+  178	
+  179	.toggles {
+  180	  display: flex;
+  181	  gap: var(--spacing-8);
+  182	  flex-wrap: wrap;
+  183	}
+  184	
+  185	.switchRow {
+  186	  display: flex;
+  187	  align-items: center;
+  188	  gap: var(--spacing-3);
+  189	}
+  190	
+  191	.switchLabel {
+  192	  cursor: pointer;
+  193	}
+  194	
+  195	.formActions {
+  196	  display: flex;
+  197	  gap: var(--spacing-2);
+  198	}
+  199	
+  200	.list {
+  201	  list-style: none;
+  202	  margin: 0;
+  203	  padding: 0;
+  204	  border: 1px solid var(--border);
+  205	  border-radius: var(--radius-md);
+  206	  overflow: hidden;
+  207	  background: var(--card);
+  208	}
+  209	
+  210	.row {
+  211	  display: flex;
+  212	  align-items: center;
+  213	  gap: var(--spacing-3);
+  214	  padding: var(--spacing-3) var(--spacing-4);
+  215	  border-bottom: 1px solid var(--border);
+  216	  flex-wrap: wrap;
+  217	}
+  218	
+  219	.row:last-child {
+  220	  border-bottom: none;
+  221	}
+  222	
+  223	.thumb {
+  224	  width: 44px;
+  225	  height: 44px;
+  226	  flex-shrink: 0;
+  227	  border-radius: var(--radius-sm);
+  228	  background: var(--muted);
+  229	  display: flex;
+  230	  align-items: center;
+  231	  justify-content: center;
+  232	  overflow: hidden;
+  233	}
+  234	
+  235	.thumbImage {
+  236	  width: 100%;
+  237	  height: 100%;
+  238	  object-fit: cover;
+  239	}
+  240	
+  241	.rowText {
+  242	  display: flex;
+  243	  flex-direction: column;
+  244	  gap: 2px;
+  245	  min-width: 0;
+  246	  flex: 1;
+  247	}
+  248	
+  249	.rowName {
+  250	  font-weight: 500;
+  251	  font-size: 0.95rem;
+  252	}
+  253	
+  254	.rowMeta {
+  255	  font-family: var(--font-family-monospace);
+  256	  font-variant-numeric: tabular-nums;
+  257	  font-size: 0.8rem;
+  258	  color: var(--muted-foreground);
+  259	}
+  260	
+  261	.rowBadges {
+  262	  display: flex;
+  263	  gap: var(--spacing-2);
+  264	}
+  265	
+  266	.rowActions {
+  267	  display: flex;
+  268	  align-items: center;
+  269	  gap: var(--spacing-2);
+  270	  margin-left: auto;
+  271	}
+  272	
+  273	.confirmText {
+  274	  font-size: 0.85rem;
+  275	  color: var(--muted-foreground);
+  276	}
+  277	
+  278	.empty {
+  279	  display: flex;
+  280	  flex-direction: column;
+  281	  gap: var(--spacing-2);
+  282	  padding: var(--spacing-8);
+  283	  border: 1px dashed var(--border);
+  284	  border-radius: var(--radius-md);
+  285	  background: var(--card);
+  286	}
+  287	
+  288	.emptyTitle {
+  289	  margin: 0;
+  290	  font-family: var(--font-family-display);
+  291	  font-weight: 700;
+  292	  font-size: 1rem;
+  293	}
+  294	
+  295	.emptyBody {
+  296	  margin: 0;
+  297	  max-width: 52ch;
+  298	  color: var(--muted-foreground);
+  299	  line-height: 1.6;
+  300	}
+  301	
+  302	.errorText {
+  303	  margin: 0;
+  304	  color: var(--error);
+  305	}
+  306	
+  307	.skeletonTitle {
+  308	  width: 240px;
+  309	  height: 32px;
+  310	}
+  311	
+  312	.skeletonBlock {
+  313	  width: 100%;
+  314	  height: 260px;
+  315	  border-radius: var(--radius-md);
+  316	}

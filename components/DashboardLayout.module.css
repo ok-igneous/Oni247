@@ -1,0 +1,34 @@
+.shell{min-height:100vh;background:var(--background);color:var(--foreground);display:flex;flex-direction:column}
+.sidebar{display:flex;flex-direction:column;gap:var(--spacing-3);background:var(--sidebar);color:var(--sidebar-foreground);border-bottom:1px solid var(--border);padding:var(--spacing-3) var(--spacing-4)}
+.sidebarTop{display:flex;align-items:center;gap:var(--spacing-3);min-width:0}
+.brand{font-family:var(--font-family-display);font-weight:800;font-size:1.05rem;letter-spacing:-.01em;color:var(--primary);text-decoration:none;flex-shrink:0}
+.businessLabel{font-size:.85rem;color:var(--muted-foreground);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav{display:flex;gap:var(--spacing-1);overflow-x:auto}
+.navItem{display:flex;align-items:center;gap:var(--spacing-2);flex-shrink:0;padding:var(--spacing-2) var(--spacing-3);border-radius:var(--radius-sm);color:var(--muted-foreground);text-decoration:none;font-size:.9rem;font-weight:500}
+.navItem:hover{color:var(--foreground);background:var(--muted)}
+.navItemActive{background:var(--primary);color:var(--primary-foreground)}
+   10	.navItemActive:hover{background:var(--primary);color:var(--primary-foreground)}
+   11	.sidebarBottom{display:flex;gap:var(--spacing-2)}
+   12	.fullWidth{flex:1}
+   13	.content{flex:1;padding:var(--spacing-6) var(--spacing-4);max-width:900px;width:100%;min-width:0}
+   14	.themeCollapseToggle{display:none}
+   15	@media(min-width:900px){
+   16	.shell{flex-direction:row}
+   17	.sidebar{width:232px;flex-shrink:0;border-bottom:none;border-right:1px solid var(--border);padding:var(--spacing-6) var(--spacing-4);gap:var(--spacing-6)}
+   18	.sidebarTop{flex-direction:column;gap:var(--spacing-1);align-items:flex-start}
+   19	.businessLabel{max-width:100%}
+   20	.nav{flex-direction:column;flex:1;overflow-x:visible}
+   21	.sidebarBottom{flex-direction:column}
+   22	.content{padding:var(--spacing-12) var(--spacing-8)}
+   23	.shellTheme .sidebar{transition:width 160ms ease,padding 160ms ease}
+   24	.themeCollapseToggle{display:inline-flex;align-self:flex-end}
+   25	.sidebarCollapsed{width:68px;padding:var(--spacing-4) 8px;align-items:stretch}
+   26	.sidebarCollapsed .sidebarTop{align-items:center}
+   27	.sidebarCollapsed .brand{font-size:1.25rem}
+   28	.sidebarCollapsed .navItem{justify-content:center;padding-left:8px;padding-right:8px}
+   29	.sidebarCollapsed .navItem span,.sidebarCollapsed .sidebarBottom span{display:none}
+   30	.sidebarCollapsed .sidebarBottom{align-items:center}
+   31	.sidebarCollapsed .sidebarBottom>*{width:100%}
+   32	.contentTheme{max-width:none;width:auto;padding:24px}
+   33	}
+   34	@media(max-width:899px){.themeCollapseToggle{display:none}.contentTheme{max-width:100%;padding:var(--spacing-4)}}

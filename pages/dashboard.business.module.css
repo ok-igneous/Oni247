@@ -1,0 +1,43 @@
+.page{display:flex;flex-direction:column;gap:24px;padding-bottom:96px;max-width:1040px}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+.title{font-family:var(--font-family-display);font-size:1.6rem;font-weight:800;letter-spacing:-.02em;margin:0}
+.subtitle{margin:6px 0 0;max-width:62ch;color:var(--muted-foreground);line-height:1.55}
+.status{padding:6px 10px;border:1px solid var(--border);border-radius:999px;font-size:.78rem;font-weight:700}
+.tabs{display:flex;flex-direction:column;gap:20px}
+.tabs [role=tablist]{position:sticky;top:0;z-index:5;background:var(--background)}
+.group{display:flex;flex-direction:column;gap:18px;padding:24px;border:1px solid var(--border);background:var(--card);border-radius:14px}
+.groupTitle{margin:0;font-family:var(--font-family-display);font-size:1.05rem;font-weight:800}
+   10	.field{display:flex;flex-direction:column;gap:7px}
+   11	.label{font-size:.86rem;font-weight:650}
+   12	.hint{font-size:.78rem;color:var(--muted-foreground);line-height:1.45}
+   13	.slugRow{display:flex;align-items:center}
+   14	.slugPrefix{padding:0 10px;border:1px solid var(--border);border-right:0;border-radius:8px 0 0 8px;background:var(--muted);font-size:.85rem}
+   15	.slugRow input{border-radius:0 8px 8px 0}
+   16	.twoUp{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+   17	.themes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+   18	.theme{display:flex;flex-direction:column;gap:7px;text-align:left;border:1px solid var(--border);background:var(--background);border-radius:12px;padding:10px;cursor:pointer}
+   19	.theme:hover{border-color:var(--primary)}
+   20	.themeActive{border:2px solid var(--primary);padding:9px}
+   21	.themeImage{width:100%;height:120px}
+   22	.themeName{font-weight:750}.themeBlurb{font-size:.78rem;color:var(--muted-foreground)}
+   23	.imageRow,.imageActions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+   24	.logoPreview{width:72px;height:72px;object-fit:contain;border:1px solid var(--border);border-radius:10px}
+   25	.hiddenInput{display:none}
+   26	.backgroundPreview{height:180px;border:1px dashed var(--border);border-radius:12px;background-color:var(--muted);background-size:cover;background-position:center;display:grid;place-items:center;color:var(--muted-foreground);overflow:hidden}
+   27	.optionGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+   28	.options{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px}
+   29	.option,.optionActive{border:1px solid var(--border);background:var(--background);border-radius:8px;padding:8px 11px;cursor:pointer;font-size:.8rem}
+   30	.optionActive{background:var(--primary);color:var(--primary-foreground);border-color:var(--primary)}
+   31	.sectionGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+   32	.switchRow{display:flex;align-items:center;gap:10px;padding:11px;border:1px solid var(--border);border-radius:9px}
+   33	.switchRow label{display:flex;flex-direction:column;gap:2px;cursor:pointer}
+   34	.linkCards{display:grid;gap:10px;margin-top:6px}
+   35	.linkCards a{display:flex;justify-content:space-between;gap:16px;padding:13px;border:1px solid var(--border);border-radius:9px;text-decoration:none;color:inherit}
+   36	.linkCards a:hover{border-color:var(--primary)}
+   37	.linkCards span{color:var(--muted-foreground);font-size:.8rem}
+   38	.publishCard{display:grid;gap:7px;padding:16px;border:1px solid var(--border);border-radius:10px;background:var(--muted)}
+   39	.publishCard code{font-size:.85rem}.publishCard a{font-size:.85rem;color:var(--primary);font-weight:650}
+   40	.actions{position:fixed;left:0;right:0;bottom:0;z-index:10;display:flex;justify-content:flex-end;padding:12px 24px;border-top:1px solid var(--border);background:color-mix(in srgb,var(--background) 94%,transparent);backdrop-filter:blur(8px)}
+   41	.skeletonTitle{height:32px;width:220px}.skeletonBlock{height:360px;width:100%}
+   42	@media(max-width:760px){.head{flex-direction:column}.themes{grid-template-columns:1fr}.twoUp,.optionGrid,.sectionGrid{grid-template-columns:1fr}.group{padding:16px}.actions{padding:10px 14px}}
+   43	

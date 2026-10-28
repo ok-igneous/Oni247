@@ -1,0 +1,51 @@
+.page{width:100%;max-width:none;min-height:calc(100vh - 48px);margin:0;padding:0;box-sizing:border-box}
+.head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:20px}
+.title{margin:0;font-family:var(--font-family-display);font-size:2rem}
+.subtitle{margin:6px 0 0;color:var(--muted-foreground);max-width:65ch}
+.actions{display:flex;gap:8px;flex-shrink:0}
+.grid{display:grid;grid-template-columns:minmax(300px,.85fr) minmax(0,1.15fr);gap:16px;align-items:stretch}
+.panel,.previewPanel{min-width:0;border:1px solid var(--border);border-radius:12px;background:var(--card);padding:18px;box-sizing:border-box}
+.panel h2{margin:0 0 14px;font-size:1rem}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+   10	.colorField{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:8px;font-size:.9rem}
+   11	.colorField input{width:38px;height:30px;padding:2px;border:1px solid var(--border);background:transparent}
+   12	.colorField code{font-size:.72rem;color:var(--muted-foreground)}
+   13	.palettes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:18px}
+   14	.palette{border:1px solid var(--border);background:var(--background);color:var(--foreground);border-radius:8px;padding:8px;cursor:pointer;text-align:left}
+   15	.swatches{display:flex;height:18px;margin-bottom:6px}
+   16	.swatches i{flex:1}
+   17	.hint{font-size:.8rem;color:var(--muted-foreground);line-height:1.5}
+   18	.range{display:flex;align-items:center;gap:10px;margin-top:14px;color:var(--muted-foreground);font-size:.9rem}
+   19	.range input{flex:1;min-width:0}
+   20	.previewPanel{grid-column:2;grid-row:1 / span 3;position:sticky;top:16px;height:calc(100vh - 64px);min-height:560px;overflow:auto;width:100%;background:var(--background);color:var(--foreground);font-family:var(--store-font-family);font-size:var(--store-body-size)}
+   21	.previewHeader{font-family:var(--store-display-font);font-weight:var(--store-heading-weight);font-size:1.4rem;padding-bottom:12px;border-bottom:1px solid var(--border)}
+   22	.previewHeaderRow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:12px}
+   23	.previewIdentity{display:flex;align-items:center;gap:10px;min-width:0}
+   24	.previewLogo{width:42px;height:42px;flex-shrink:0;display:grid;place-items:center;overflow:hidden;border-radius:50%;background:var(--store-primary);color:var(--store-button-text);font-weight:800}
+   25	.previewLogo img{width:100%;height:100%;object-fit:cover}
+   26	.previewBusinessName{font-family:var(--store-display-font);font-size:1.05rem;font-weight:var(--store-heading-weight)}
+   27	.previewTagline{margin:3px 0 0;color:var(--muted-foreground);font-size:.8rem}
+   28	.previewNav{display:flex;flex:1;justify-content:center;flex-wrap:wrap;gap:8px;padding:0;color:var(--store-link);font-size:.8rem}
+   29	.menuPos_left{justify-content:flex-start}.menuPos_center{justify-content:center}.menuPos_right{justify-content:flex-end}
+   30	.previewActions{font-size:.75rem;color:var(--store-primary);white-space:nowrap}
+   31	.previewHero{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.7fr);align-items:center;gap:16px;padding:28px 0;min-height:220px}
+   32	.previewHeroText{display:flex;min-width:0;flex-direction:column;align-items:flex-start;gap:12px}
+   33	.previewHeroText h2{font-family:var(--store-display-font);font-weight:var(--store-heading-weight);font-size:clamp(1.6rem,3vw,2.5rem);color:var(--foreground);margin:0}
+   34	.previewHeroText p{color:var(--muted-foreground);line-height:1.5;margin:0}
+   35	.previewHeroImage{min-height:180px;display:grid;place-items:center;background-color:var(--card);background-size:cover;background-position:center;border:1px solid var(--border);border-radius:var(--store-card-radius);color:var(--muted-foreground)}
+   36	.previewHero_left{grid-template-columns:minmax(0,.7fr) minmax(0,1fr)}
+   37	.previewHero_left .previewHeroImage{grid-column:1;grid-row:1}.previewHero_left .previewHeroText{grid-column:2;grid-row:1}
+   38	.previewHero_right .previewHeroImage{grid-column:2;grid-row:1}.previewHero_right .previewHeroText{grid-column:1;grid-row:1}
+   39	.previewHero_full{grid-template-columns:minmax(0,1fr);overflow:hidden;min-height:260px;padding:28px;border-radius:var(--store-card-radius)}
+   40	.previewHero_full .previewHeroImage{position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:0;z-index:0}
+   41	.previewHero_full:after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.38);z-index:0}
+   42	.previewHero_full .previewHeroText{position:relative;z-index:1;color:#fff}.previewHero_full .previewHeroText h2,.previewHero_full .previewHeroText p{color:#fff}
+   43	.previewHero_text{grid-template-columns:minmax(0,1fr)}
+   44	.previewImage{min-height:180px;display:grid;place-items:center;background:var(--card);border:1px solid var(--border);border-radius:var(--store-card-radius);color:var(--muted-foreground)}
+   45	.previewCards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px}
+   46	.previewCards>div{background:var(--card);border:1px solid var(--border);border-radius:var(--store-card-radius);box-shadow:var(--store-card-shadow);padding:14px}
+   47	.previewCards p{color:var(--muted-foreground)}
+   48	.previewPanel a{color:var(--store-link)}
+   49	@media(max-width:1100px){.grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.palettes{grid-template-columns:repeat(2,minmax(0,1fr))}}
+   50	@media(max-width:899px){.page{min-height:0}.grid{grid-template-columns:minmax(0,1fr)}.previewPanel{grid-column:auto;grid-row:auto;position:static;height:auto;min-height:420px;overflow:visible}.head{flex-direction:column}.actions{width:100%;flex-wrap:wrap}.previewHero_left,.previewHero_right{grid-template-columns:minmax(0,1fr)}.previewHero_left .previewHeroImage,.previewHero_right .previewHeroImage,.previewHero_left .previewHeroText,.previewHero_right .previewHeroText{grid-column:1;grid-row:auto}.previewHeroImage{min-height:150px}}
+   51	@media(max-width:560px){.fields{grid-template-columns:minmax(0,1fr)}.page{padding:0}.previewHero{grid-template-columns:minmax(0,1fr)}.previewCards{grid-template-columns:minmax(0,1fr)}.panel,.previewPanel{padding:14px}}
