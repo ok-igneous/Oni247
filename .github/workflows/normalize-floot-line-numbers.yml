@@ -1,0 +1,50 @@
+name: Normalize migrated Floot source
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Remove line-number prefixes introduced during source transfer
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          changed = []
+          for p in Path(".").rglob("*"):
+              if not p.is_file() or ".git" in p.parts:
+                  continue
+              try:
+                  old = p.read_text(encoding="utf-8")
+              except (UnicodeDecodeError, OSError):
+                  continue
+              new = re.sub(r"(?m)^ *[0-9]+\t", "", old)
+              if new != old:
+                  p.write_text(new, encoding="utf-8")
+                  changed.append(str(p))
+          print(f"Normalized {len(changed)} files")
+          with open("normalized-files.txt", "w", encoding="utf-8") as f:
+              f.write("\n".join(changed))
+          PY
+      - name: Commit normalized source
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -f normalized-files.txt
+          if ! git diff --quiet; then
+            git add -A
+            git commit -m "Normalize source files after Floot migration"
+            git push
+          else
+            echo "No line-number prefixes found."
+          fi
