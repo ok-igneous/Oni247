@@ -1,0 +1,139 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* Overlay layers */
+  --z-overlay: 400;
+
+  --z-spotlight: 1000; /* Tutorial spotlights/guided help */
+   10	
+   11	  /* System layers */
+   12	  --z-critical: 2000; /* Critical system notifications */
+   13	
+   14	  /* spacing */
+   15	  --spacing-1: 0.25rem;
+   16	  --spacing-2: 0.5rem;
+   17	  --spacing-3: 0.75rem;
+   18	  --spacing-4: 1rem;
+   19	  --spacing-6: 1.5rem;
+   20	  --spacing-8: 2rem;
+   21	  --spacing-12: 3rem;
+   22	  --spacing-16: 4rem;
+   23	  --spacing-20: 5rem;
+   24	}
+   25	
+   26	:root {
+   27	  --background: #faf7f0;
+   28	  --foreground: #16211c;
+   29	
+   30	  --surface: #f2ece0;
+   31	  --surface-foreground: #16211c;
+   32	
+   33	  --sidebar: #efe8da;
+   34	  --sidebar-foreground: #16211c;
+   35	
+   36	  --card: #fffdf8;
+   37	  --card-foreground: #16211c;
+   38	
+   39	  --popup: #fffdf8;
+   40	  --popup-foreground: #16211c;
+   41	
+   42	  --primary: #0e5c3f;
+   43	  --primary-foreground: #faf7f0;
+   44	
+   45	  --secondary: #e7dfcf;
+   46	  --secondary-foreground: #24322b;
+   47	
+   48	  --accent: #c2701a;
+   49	  --accent-foreground: #fffdf8;
+   50	
+   51	  --muted: #ece5d7;
+   52	  --muted-foreground: #5f6d64;
+   53	
+   54	  --success: #1d7a4f;
+   55	  --success-foreground: #fffdf8;
+   56	  --error: #a32b22;
+   57	  --error-foreground: #fffdf8;
+   58	  --warning: #b8760f;
+   59	  --warning-foreground: #fffdf8;
+   60	  --info: #1f5d78;
+   61	  --info-foreground: #fffdf8;
+   62	  --info-hover: #1a4f66;
+   63	  --info-active: #164155;
+   64	
+   65	  --border: #ded5c4;
+   66	
+   67	  --font-family-base: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
+   68	  --font-family-display: 'Bricolage Grotesque', 'Inter Tight', ui-sans-serif, sans-serif;
+   69	  --font-family-monospace: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+   70	  --font-family-cursive: 'Bricolage Grotesque', cursive;
+   71	
+   72	  --shadow: 0 1px 2px rgba(22, 33, 28, 0.06);
+   73	  --shadow-md: 0 2px 6px rgba(22, 33, 28, 0.08);
+   74	  --shadow-lg: 0 8px 24px rgba(22, 33, 28, 0.12);
+   75	  --shadow-focus: 0 0 0 3px rgba(14, 92, 63, 0.24);
+   76	
+   77	  --radius-sm: 4px;
+   78	  --radius: 8px;
+   79	  --radius-md: 10px;
+   80	  --radius-lg: 14px;
+   81	  --radius-full: 9999px;
+   82	
+   83	  --animation-duration-fast: 120ms;
+   84	  --animation-duration-normal: 180ms;
+   85	  --animation-duration-slow: 280ms;
+   86	
+   87	  --chart-color-1: #0e5c3f;
+   88	  --chart-color-2: #c2701a;
+   89	  --chart-color-3: #1f5d78;
+   90	  --chart-color-4: #7a8b56;
+   91	  --chart-color-5: #a32b22;
+   92	}
+   93	
+   94	.dark {
+   95	  --background: #12170f;
+   96	  --foreground: #eae4d6;
+   97	
+   98	  --surface: #1b2118;
+   99	  --surface-foreground: #eae4d6;
+  100	
+  101	  --sidebar: #171d15;
+  102	  --sidebar-foreground: #eae4d6;
+  103	
+  104	  --card: #1b2118;
+  105	  --card-foreground: #eae4d6;
+  106	
+  107	  --popup: #212820;
+  108	  --popup-foreground: #eae4d6;
+  109	
+  110	  --primary: #46a87b;
+  111	  --primary-foreground: #0b1410;
+  112	
+  113	  --secondary: #2a3127;
+  114	  --secondary-foreground: #eae4d6;
+  115	
+  116	  --accent: #e0983f;
+  117	  --accent-foreground: #1a1206;
+  118	
+  119	  --muted: #252c22;
+  120	  --muted-foreground: #9aa694;
+  121	
+  122	  --success: #46a87b;
+  123	  --success-foreground: #0b1410;
+  124	  --error: #e0736a;
+  125	  --error-foreground: #1a0d0c;
+  126	  --warning: #e0983f;
+  127	  --warning-foreground: #1a1206;
+  128	  --info: #62a8c4;
+  129	  --info-foreground: #0b1418;
+  130	  --info-hover: #4f95b1;
+  131	  --info-active: #40829d;
+  132	
+  133	  --border: #2e362b;
+  134	
+  135	  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  136	  --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.45);
+  137	  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.55);
+  138	  --shadow-focus: 0 0 0 3px rgba(70, 168, 123, 0.3);
+  139	}
