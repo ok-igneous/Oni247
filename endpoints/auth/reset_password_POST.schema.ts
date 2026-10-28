@@ -1,0 +1,3 @@
+import { z } from "zod";import superjson from "superjson";
+export const schema=z.object({token:z.string().min(20),password:z.string().min(8,"Password must be at least 8 characters")});export type OutputType={message:string};
+export const postResetPassword=async(body:z.infer<typeof schema>,init?:RequestInit):Promise<OutputType>=>{const result=await fetch("/_api/auth/reset_password",{method:"POST",body:superjson.stringify(schema.parse(body)),...init,headers:{"Content-Type":"application/json",...(init?.headers??{})}});const data=superjson.parse<OutputType & {message?:string}>(await result.text());if(!result.ok)throw new Error(data.message||"Could not reset password.");return data;};
