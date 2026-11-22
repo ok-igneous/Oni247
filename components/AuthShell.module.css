@@ -7,50 +7,50 @@
   background: var(--surface);
 }
 
-   10	.card {
-   11	  width: 100%;
-   12	  max-width: 420px;
-   13	  background: var(--card);
-   14	  border: 1px solid var(--border);
-   15	  border-radius: var(--radius-lg);
-   16	  box-shadow: var(--shadow-md);
-   17	  padding: var(--spacing-8) var(--spacing-6);
-   18	}
-   19	
-   20	.brand {
-   21	  display: inline-block;
-   22	  font-family: var(--font-family-display);
-   23	  font-weight: 800;
-   24	  font-size: 1.05rem;
-   25	  letter-spacing: -0.01em;
-   26	  color: var(--primary);
-   27	  text-decoration: none;
-   28	  margin-bottom: var(--spacing-6);
-   29	}
-   30	
-   31	.title {
-   32	  font-family: var(--font-family-display);
-   33	  font-size: 1.6rem;
-   34	  font-weight: 800;
-   35	  letter-spacing: -0.015em;
-   36	  margin: 0 0 var(--spacing-2);
-   37	}
-   38	
-   39	.subtitle {
-   40	  margin: 0 0 var(--spacing-6);
-   41	  color: var(--muted-foreground);
-   42	  font-size: 0.95rem;
-   43	  line-height: 1.5;
-   44	}
-   45	
-   46	.body {
-   47	  margin-bottom: var(--spacing-6);
-   48	}
-   49	
-   50	.footer {
-   51	  padding-top: var(--spacing-4);
-   52	  border-top: 1px solid var(--border);
-   53	  font-size: 0.9rem;
-   54	  color: var(--muted-foreground);
-   55	  text-align: center;
-   56	}
+.card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-8) var(--spacing-6);
+}
+
+.brand {
+  display: inline-block;
+  font-family: var(--font-family-display);
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  color: var(--primary);
+  text-decoration: none;
+  margin-bottom: var(--spacing-6);
+}
+
+.title {
+  font-family: var(--font-family-display);
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  margin: 0 0 var(--spacing-2);
+}
+
+.subtitle {
+  margin: 0 0 var(--spacing-6);
+  color: var(--muted-foreground);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.body {
+  margin-bottom: var(--spacing-6);
+}
+
+.footer {
+  padding-top: var(--spacing-4);
+  border-top: 1px solid var(--border);
+  font-size: 0.9rem;
+  color: var(--muted-foreground);
+  text-align: center;
+}
