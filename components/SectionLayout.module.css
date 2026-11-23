@@ -1,0 +1,27 @@
+.shell { display: grid; grid-template-columns: 224px minmax(0, 1fr); gap: 28px; align-items: start; width: 100%; min-width: 0; }
+.menu { position: sticky; top: 12px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.menuTitle { margin: 0 0 6px; padding: 0 10px; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted-foreground); }
+.item { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 38px; padding: 7px 10px; border: 0; border-left: 2px solid transparent; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; background: transparent; color: var(--foreground); font: inherit; font-size: .92rem; text-align: left; cursor: pointer; }
+.item:hover { background: var(--muted); }
+.item:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+.itemActive { border-left-color: var(--primary); background: color-mix(in srgb, var(--primary) 9%, transparent); font-weight: 650; }
+.itemIcon { flex: 0 0 auto; color: var(--muted-foreground); display: inline-flex; }
+.itemActive .itemIcon { color: var(--primary); }
+.itemText { flex: 1; min-width: 0; display: grid; }
+.itemLabel { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.itemHint { font-size: .74rem; font-weight: 400; color: var(--muted-foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.itemBadge { flex: 0 0 auto; font-family: var(--font-family-monospace); font-size: .72rem; padding: 1px 6px; border-radius: var(--radius-full); background: var(--muted); color: var(--muted-foreground); }
+.menuFoot { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.panel { min-width: 0; display: grid; gap: 16px; align-content: start; }
+@media (max-width: 859px) {
+  .shell { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .menu { position: sticky; top: 0; z-index: 5; flex-direction: row; gap: 6px; overflow-x: auto; padding: 6px 0 10px; background: var(--background); border-bottom: 1px solid var(--border); scrollbar-width: none; }
+  .menu::-webkit-scrollbar { display: none; }
+  .menuTitle { display: none; }
+  .item { flex: 0 0 auto; width: auto; min-height: 38px; padding: 6px 12px; border: 1px solid var(--border); border-radius: var(--radius-full); background: var(--card); }
+  .itemActive { border-color: var(--primary); background: var(--primary); color: var(--primary-foreground); }
+  .itemActive .itemIcon { color: var(--primary-foreground); }
+  .itemHint { display: none; }
+  .menuFoot { margin: 0; padding: 0; border: 0; display: flex; }
+}
+
