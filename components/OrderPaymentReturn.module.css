@@ -1,0 +1,9 @@
+.wrap { max-width: 520px; margin: 0 auto; padding: 40px 16px; display: grid; gap: 14px; text-align: center; justify-items: center; }
+.icon { width: 56px; height: 56px; border-radius: 50%; display: grid; place-items: center; background: var(--muted); }
+.ok { background: color-mix(in srgb, var(--primary) 16%, transparent); color: var(--primary); }
+.bad { background: color-mix(in srgb, var(--destructive) 14%, transparent); color: var(--destructive); }
+.wrap h1 { margin: 0; font-size: 1.5rem; }
+.wrap p { margin: 0; opacity: 0.75; line-height: 1.5; }
+.code { font-family: var(--font-family-mono, monospace); background: var(--muted); padding: 4px 10px; border-radius: 6px; }
+.actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
