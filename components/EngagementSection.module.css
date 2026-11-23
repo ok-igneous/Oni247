@@ -1,0 +1,233 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  margin-top: var(--spacing-8);
+  padding-top: var(--spacing-6);
+  border-top: 1px solid var(--border);
+}
+
+.reactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.reaction {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  min-height: 44px;
+  padding: 0 var(--spacing-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--card);
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.reaction:hover {
+  border-color: var(--foreground);
+}
+
+.reaction:focus-visible,
+.tab:focus-visible,
+.like:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.reactionOn {
+  border-color: var(--store-button, var(--primary));
+  background: var(--store-button, var(--primary));
+  color: var(--store-button-text, var(--primary-foreground));
+}
+
+.filled {
+  fill: currentColor;
+}
+
+.count {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+}
+
+.comments {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.commentsHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin: 0;
+  font-family: var(--font-family-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.tabs {
+  display: flex;
+  gap: var(--spacing-1);
+}
+
+.tab {
+  min-height: 36px;
+  padding: 0 var(--spacing-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--card);
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.tabOn {
+  background: var(--foreground);
+  border-color: var(--foreground);
+  color: var(--background);
+}
+
+.empty {
+  margin: 0;
+  color: var(--muted-foreground);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.comment {
+  display: flex;
+  gap: var(--spacing-3);
+}
+
+.avatar {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  font-weight: 700;
+}
+
+.commentBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  min-width: 0;
+  flex: 1;
+}
+
+.commentMeta {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-2);
+  font-size: 0.9rem;
+}
+
+.commentMeta span {
+  color: var(--muted-foreground);
+  font-size: 0.8rem;
+}
+
+.text {
+  margin: 0;
+  line-height: 1.6;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.like {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  min-height: 32px;
+  padding: 0 var(--spacing-2);
+  border: none;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--muted-foreground);
+  font-family: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.like:hover,
+.likeOn {
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+  border: 1px solid var(--border);
+  border-radius: var(--store-card-radius, var(--radius-md));
+  background: var(--card);
+}
+
+.formTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.trap {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.formActions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+}
+
+.hint {
+  font-size: 0.8rem;
+  color: var(--muted-foreground);
+}
+
+.notice {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--success);
+}
