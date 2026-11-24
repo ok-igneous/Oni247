@@ -1,5 +1,6 @@
 import superjson from "superjson";
 import { db } from "../../helpers/db";
+import { sql } from "kysely";
 import { schema, type OutputType } from "./enquiry_POST.schema";
 
 /** Cheap flood guard: one business cannot be given more than this in an hour. */
@@ -10,29 +11,18 @@ export async function handle(request: Request) {
     const json = superjson.parse(await request.text());
     const input = schema.parse(json);
 
-    const business = await db
-      .selectFrom("businesses")
-      .select(["id"])
-      .where("slug", "=", input.slug)
-      .where("status", "=", "published")
-      .limit(1)
-      .executeTakeFirst();
-
-    if (!business) {
+    const result = await sql<{ outcome: string }>`select app_private.submit_public_enquiry(
+      ${input.slug}, ${input.customerName}, ${input.customerPhone},
+      ${input.customerEmail}, ${input.message}
+    ) as outcome`.execute(db);
+    const outcome = result.rows[0]?.outcome;
+    if (outcome === "not_found") {
       return new Response(
         superjson.stringify({ error: "This business page was not found." }),
         { status: 404 },
       );
     }
-
-    const recent = await db
-      .selectFrom("enquiries")
-      .select(({ fn }) => fn.countAll<string>().as("count"))
-      .where("businessId", "=", business.id)
-      .where("createdAt", ">", new Date(Date.now() - 60 * 60 * 1000))
-      .executeTakeFirstOrThrow();
-
-    if (Number(recent.count) >= MAX_ENQUIRIES_PER_HOUR) {
+    if (outcome === "rate_limited") {
       return new Response(
         superjson.stringify({
           error: "Too many messages right now. Please try again later.",
@@ -40,18 +30,9 @@ export async function handle(request: Request) {
         { status: 429 },
       );
     }
-
-    await db
-      .insertInto("enquiries")
-      .values({
-        businessId: business.id,
-        customerName: input.customerName,
-        customerPhone: input.customerPhone,
-        customerEmail: input.customerEmail,
-        message: input.message,
-        status: "new",
-      })
-      .executeTakeFirstOrThrow();
+    if (outcome !== "created") {
+      throw new Error("Could not send your message.");
+    }
 
     return new Response(
       superjson.stringify({ sent: true } satisfies OutputType),
