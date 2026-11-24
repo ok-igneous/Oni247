@@ -249,7 +249,10 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
   try {
     const endpoint = await import("../endpoints/storefront_GET");
     const response = await endpoint.handle(new Request(`http://localhost/_api/storefront?slug=${encodeURIComponent(slug)}`));
-    if (!response.ok) return;
+    if (!response.ok) {
+      if (response.status === 404) return reply.code(404).type("text/html; charset=utf-8").send("<!doctype html><title>Storefront not found</title><h1>Storefront not found</h1>");
+      return;
+    }
     const superjson = (await import("superjson")).default;
     const data = superjson.parse<any>(await response.text());
     let snapshot: { title: string; description: string; body: string; jsonLd?: unknown };
@@ -277,6 +280,10 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
     reply.header("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
     return reply.type("text/html; charset=utf-8").send(html);
   } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    if (["Public product not found", "Public article not found", "Public event not found"].includes(message)) {
+      return reply.code(404).type("text/html; charset=utf-8").send("<!doctype html><title>Page not found</title><h1>Page not found</h1>");
+    }
     request.log.warn({ err: error, path: url.pathname }, "Crawler storefront snapshot unavailable; serving SPA fallback");
   }
 }
