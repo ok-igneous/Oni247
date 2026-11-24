@@ -1,1 +1,236 @@
-.page{max-width:980px;margin:0 auto;padding:24px 16px 60px}.head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:24px}.head h1{margin:0 0 6px;font-size:28px}.head p,.hint,.notice{color:#667085}.notice{padding:12px;border:1px solid #e5e7eb;border-radius:12px}.editor{display:grid;gap:14px}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.tools select{padding:9px 12px;border:1px solid #d1d5db;border-radius:9px;background:white}.images{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}.imageCard{border:1px solid #e5e7eb;border-radius:14px;padding:10px;display:grid;gap:8px}.imageCard img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px}.imageActions{display:flex;justify-content:space-between}.actions{display:flex;gap:10px}.list{display:grid;gap:10px}.gallery{border:1px solid #e5e7eb;border-radius:14px;padding:16px;display:flex;justify-content:space-between;gap:12px;align-items:center}.gallery h2{margin:0 0 5px;font-size:17px}.gallery p{margin:0;color:#667085}.gallery>div:last-child{display:flex;gap:8px}@media(max-width:640px){.head,.gallery{flex-direction:column}.row{grid-template-columns:1fr}.gallery>div:last-child{width:100%}}
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-bottom: var(--spacing-16);
+  max-width: 980px;
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+  flex-wrap: wrap;
+}
+
+.title {
+  font-family: var(--font-family-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  margin: 0 0 var(--spacing-2);
+}
+
+.subtitle {
+  margin: 0;
+  max-width: 62ch;
+  color: var(--muted-foreground);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.notice {
+  margin: 0;
+  padding: var(--spacing-3) var(--spacing-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  font-size: 0.9rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card);
+}
+
+.cardTitle {
+  margin: 0;
+  font-family: var(--font-family-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.twoUp {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--spacing-4);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.label {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+}
+
+.switchRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  cursor: pointer;
+}
+
+.photosHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  flex-wrap: wrap;
+}
+
+.tools {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+}
+
+.cropSelect {
+  width: 200px;
+}
+
+.images {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: var(--spacing-3);
+}
+
+.imageCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--background);
+}
+
+.imageCard img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--radius);
+}
+
+.imageActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-1);
+  flex-wrap: wrap;
+}
+
+.moveGroup {
+  display: flex;
+  align-items: center;
+}
+
+.actions {
+  display: flex;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.gallery {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-3) var(--spacing-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  flex-wrap: wrap;
+}
+
+.thumb,
+.thumbEmpty {
+  width: 84px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  flex-shrink: 0;
+}
+
+.thumbEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+
+.galleryBody {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.galleryTitle {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  margin: 0 0 var(--spacing-1);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.rowActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-2);
+  padding: var(--spacing-8);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  color: var(--muted-foreground);
+}
+
+.empty p {
+  margin: 0;
+}
+
+.skeletonTitle {
+  width: 200px;
+  height: 32px;
+}
+
+.skeletonBlock {
+  width: 100%;
+  height: 240px;
+  border-radius: var(--radius-md);
+}
