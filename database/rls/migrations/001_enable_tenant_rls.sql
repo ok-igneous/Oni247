@@ -199,6 +199,55 @@ $public_showcase_view$;
 REVOKE ALL ON FUNCTION app_private.increment_public_showcase_view(text) FROM PUBLIC;
 
 
+-- Public enquiry submission is a single atomic operation. It exposes no
+-- enquiry reads and enforces the per-business hourly limit inside PostgreSQL.
+CREATE OR REPLACE FUNCTION app_private.submit_public_enquiry(
+  target_slug text,
+  target_customer_name text,
+  target_customer_phone text,
+  target_customer_email text,
+  target_message text
+)
+RETURNS text
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $public_enquiry$
+DECLARE
+  target_business_id text;
+  recent_count bigint;
+BEGIN
+  SELECT b.id::text INTO target_business_id
+  FROM public.businesses b
+  WHERE b.slug = target_slug AND b.status = 'published'
+  LIMIT 1;
+
+  IF target_business_id IS NULL THEN
+    RETURN 'not_found';
+  END IF;
+
+  SELECT count(*) INTO recent_count
+  FROM public.enquiries e
+  WHERE e.business_id::text = target_business_id
+    AND e.created_at > now() - interval '1 hour';
+
+  IF recent_count >= 30 THEN
+    RETURN 'rate_limited';
+  END IF;
+
+  INSERT INTO public.enquiries (
+    business_id, customer_name, customer_phone, customer_email, message, status
+  ) VALUES (
+    target_business_id, target_customer_name, target_customer_phone,
+    target_customer_email, target_message, 'new'
+  );
+
+  RETURN 'created';
+END;
+$public_enquiry$;
+
+REVOKE ALL ON FUNCTION app_private.submit_public_enquiry(text,text,text,text,text) FROM PUBLIC;
+
 -- Invitation acceptance is deliberately a separate, narrow SECURITY DEFINER
 -- operation. Pending invitations do not grant tenant reads; this function may
 -- activate only an invitation matching the authenticated user's verified
