@@ -169,7 +169,7 @@ app.get("/robots.txt", async (request, reply) => {
 // Serve database-backed public storefront HTML to crawlers while keeping the SPA
 // for human visitors. Route matching and HTML injection are covered by unit tests.
 
-function storefrontSnapshot(data: any, pathname: string, origin: string): { title: string; description: string; body: string; jsonLd?: unknown } {
+function storefrontSnapshot(data: any, pathname: string, origin: string): { title: string; description: string; body: string; image?: string; jsonLd?: unknown } {
   const business = data.business;
   const base = `${origin}/${encodeURIComponent(business.slug)}`;
   const segments = pathname.split("/").filter(Boolean).slice(1);
@@ -182,6 +182,7 @@ function storefrontSnapshot(data: any, pathname: string, origin: string): { titl
     return {
       title: `${business.name} — Oni247`,
       description: business.description || `Explore products and services from ${business.name}.`,
+      image: image || undefined,
       body: `<main><h1>${escapeHtml(business.name)}</h1>${intro}${business.heroHeadline ? `<h2>${escapeHtml(business.heroHeadline)}</h2>` : ""}${business.heroSubtext ? `<p>${escapeHtml(business.heroSubtext)}</p>` : ""}${image ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(business.name)}" />` : ""}<h2>Products</h2><ul>${links}</ul><p><a href="${base}/products">Browse products</a> · <a href="${base}/contact">Contact ${escapeHtml(business.name)}</a></p></main>`,
       jsonLd: { "@context": "https://schema.org", "@type": "Store", name: business.name, url: base, description: business.description || undefined, image: image || undefined },
     };
@@ -193,6 +194,7 @@ function storefrontSnapshot(data: any, pathname: string, origin: string): { titl
     return {
       title: `${product.name} — ${business.name}`,
       description,
+      image: product.imageUrl || undefined,
       body: `<main><nav><a href="${base}">${escapeHtml(business.name)}</a> / <a href="${base}/products">Products</a></nav><h1>${escapeHtml(product.name)}</h1>${product.imageUrl ? `<img src="${escapeHtml(product.imageUrl)}" alt="${escapeHtml(product.name)}" />` : ""}<p>${escapeHtml(description)}</p><p>${escapeHtml(product.currency)} ${escapeHtml(product.price)}</p><p><a href="${base}/products">Browse more products</a></p></main>`,
       jsonLd: { "@context": "https://schema.org", "@type": "Product", name: product.name, description, image: product.imageUrl ? [product.imageUrl] : undefined, offers: { "@type": "Offer", priceCurrency: product.currency, price: product.price, availability: "https://schema.org/InStock" } },
     };
@@ -204,6 +206,7 @@ function storefrontSnapshot(data: any, pathname: string, origin: string): { titl
     return {
       title: `${post.title} — ${business.name}`,
       description,
+      image: post.coverImageUrl || undefined,
       body: `<main><nav><a href="${base}">${escapeHtml(business.name)}</a> / <a href="${base}/blog">Blog</a></nav><article><h1>${escapeHtml(post.title)}</h1>${post.coverImageUrl ? `<img src="${escapeHtml(post.coverImageUrl)}" alt="${escapeHtml(post.title)}" />` : ""}<p>${escapeHtml(description)}</p><div>${post.content ?? ""}</div></article></main>`,
       jsonLd: { "@context": "https://schema.org", "@type": "BlogPosting", headline: post.title, description, datePublished: post.publishedAt || undefined, image: post.coverImageUrl ? [post.coverImageUrl] : undefined, author: { "@type": "Organization", name: business.name }, mainEntityOfPage: `${origin}${pathname}` },
     };
@@ -214,6 +217,7 @@ function storefrontSnapshot(data: any, pathname: string, origin: string): { titl
     return {
       title: `${event.title} — ${business.name}`,
       description: event.description || `Event hosted by ${business.name}.`,
+      image: event.coverImageUrl || undefined,
       body: `<main><nav><a href="${base}">${escapeHtml(business.name)}</a> / <a href="${base}/events">Events</a></nav><article><h1>${escapeHtml(event.title)}</h1>${event.coverImageUrl ? `<img src="${escapeHtml(event.coverImageUrl)}" alt="${escapeHtml(event.title)}" />` : ""}<p>${escapeHtml(event.description)}</p><p>${escapeHtml(event.startsAt)}${event.endsAt ? ` – ${escapeHtml(event.endsAt)}` : ""}</p>${event.venue ? `<p>${escapeHtml(event.venue)}</p>` : ""}</article></main>`,
       jsonLd: { "@context": "https://schema.org", "@type": "Event", name: event.title, description: event.description, startDate: event.startsAt, endDate: event.endsAt || undefined, location: event.venue ? { "@type": "Place", name: event.venue } : undefined, image: event.coverImageUrl ? [event.coverImageUrl] : undefined, organizer: { "@type": "Organization", name: business.name }, url: `${origin}${pathname}` },
     };
@@ -255,7 +259,7 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
     }
     const superjson = (await import("superjson")).default;
     const data = superjson.parse<any>(await response.text());
-    let snapshot: { title: string; description: string; body: string; jsonLd?: unknown };
+    let snapshot: { title: string; description: string; body: string; image?: string; jsonLd?: unknown };
     if (parts[1] === "g" && parts[2]) {
       const galleryEndpoint = await import("../endpoints/galleries/public_GET");
       const galleryResponse = await galleryEndpoint.handle(new Request(`http://localhost/_api/galleries/public?slug=${encodeURIComponent(slug)}&gallerySlug=${encodeURIComponent(decodeURIComponent(parts[2]))}`));
@@ -274,7 +278,7 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
     }
     const canonical = `${url.origin}${url.pathname}`;
     const jsonLd = JSON.stringify(snapshot.jsonLd ?? {}).replace(/</g, "\\u003c");
-    const metadata = `<title>${escapeHtml(snapshot.title)}</title><meta name="description" content="${escapeHtml(snapshot.description.slice(0, 160))}"><link rel="canonical" href="${escapeHtml(canonical)}"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:title" content="${escapeHtml(snapshot.title)}"><meta property="og:description" content="${escapeHtml(snapshot.description.slice(0, 200))}"><meta property="og:url" content="${escapeHtml(canonical)}"><meta name="twitter:card" content="summary_large_image"><script type="application/ld+json">${jsonLd}</script>`;
+    const metadata = `<title>${escapeHtml(snapshot.title)}</title><meta name="description" content="${escapeHtml(snapshot.description.slice(0, 160))}"><link rel="canonical" href="${escapeHtml(canonical)}"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:title" content="${escapeHtml(snapshot.title)}"><meta property="og:description" content="${escapeHtml(snapshot.description.slice(0, 200))}"><meta property="og:url" content="${escapeHtml(canonical)}">${snapshot.image ? `<meta property="og:image" content="${escapeHtml(snapshot.image)}"><meta name="twitter:image" content="${escapeHtml(snapshot.image)}">` : ""}<meta name="twitter:card" content="summary_large_image"><script type="application/ld+json">${jsonLd}</script>`;
     const indexHtml = await (await import("node:fs/promises")).readFile(path.join(distDir, "index.html"), "utf8");
     const html = injectCrawlerHtml(indexHtml, metadata, snapshot.body);
     reply.header("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
