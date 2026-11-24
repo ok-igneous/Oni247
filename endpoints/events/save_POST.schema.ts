@@ -1,0 +1,3 @@
+import superjson from "superjson";
+export type InputType={id?:string;title:string;slug?:string;description:string;coverImageUrl?:string|null;startsAt:string;endsAt?:string|null;venue?:string|null;registrationEnabled:boolean;approvalRequired?:boolean;registrationClosesAt?:string|null;capacity?:number|null;formId?:string|null;published:boolean};
+export const postSaveEvent=async(body:InputType,init?:RequestInit)=>{const r=await fetch("/_api/events/save",{method:"POST",body:superjson.stringify(body),...init,headers:{"Content-Type":"application/json",...(init?.headers??{})}});if(!r.ok){const e=superjson.parse<{error:string}>(await r.text());throw new Error(e.error)}return superjson.parse<{saved:boolean}>(await r.text())};
