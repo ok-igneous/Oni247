@@ -163,8 +163,6 @@ export default function PublicEventPage() {
           description: event.description,
           startDate: event.startsAt,
           endDate: event.endsAt || undefined,
-          eventStatus: "https://schema.org/EventScheduled",
-          eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
           location: event.venue ? { "@type": "Place", name: event.venue } : undefined,
           image: event.coverImageUrl ? [event.coverImageUrl] : undefined,
           organizer: { "@type": "Organization", name: data.business.name },
