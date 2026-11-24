@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { isCrawlerUserAgent, isPublicCustomDomainPath, isPublicStorefrontPath, normalizeDomainHost } from "./storefrontPrerender";
+import { isCrawlerUserAgent, isPublicCustomDomainPath, isPublicStorefrontPath, normalizeDomainHost, resolvePlatformSubdomainSlug } from "./storefrontPrerender";
 import { renderCrawlerDocument, type CrawlerSnapshot } from "./crawlerDocument";
 
 export type CrawlerSnapshotRequest = {
