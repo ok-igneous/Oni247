@@ -70,7 +70,7 @@ describe("production crawler renderer factory", () => {
   });
 
   it("resolves a published business subdomain at its root and nested storefront paths", async () => {
-    vi.stubEnv("APP_BASE_URL", "https://oni247.example.com");
+    vi.stubEnv("PLATFORM_ROOT_DOMAIN", "oni247.example.com");
     const loadSnapshot = vi.fn(async ({ slug, pathname, customDomain }: CrawlerSnapshotRequest) => ({
       title: slug,
       description: "Platform subdomain",
