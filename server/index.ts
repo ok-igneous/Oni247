@@ -165,6 +165,116 @@ app.get("/robots.txt", async (request, reply) => {
   );
 });
 
+// Serve useful, database-backed HTML to crawlers while preserving the existing
+// client-rendered React application for normal visitors. This is intentionally
+// limited to public storefront routes; dashboard and checkout flows stay SPA-only.
+const htmlEscape = (value: unknown) => String(value ?? "")
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+  .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+
+const crawlerUserAgent = (value: string) =>
+  /googlebot|bingbot|duckduckbot|yandexbot|baiduspider|slurp|facebookexternalhit|twitterbot|linkedinbot/i.test(value);
+
+function storefrontSnapshot(data: any, pathname: string, origin: string): { title: string; description: string; body: string; jsonLd?: unknown } {
+  const business = data.business;
+  const base = `${origin}/${encodeURIComponent(business.slug)}`;
+  const segments = pathname.split("/").filter(Boolean).slice(1);
+  const [kind, contentSlug] = segments;
+  const links = (data.products ?? []).filter((item: any) => item.available).map((item: any) =>
+    `<li><a href="${base}/p/${encodeURIComponent(item.slug)}">${htmlEscape(item.name)}</a>${item.description ? `<p>${htmlEscape(item.description)}</p>` : ""}</li>`).join("");
+  const intro = business.description ? `<p>${htmlEscape(business.description)}</p>` : "";
+  const image = business.heroImageUrl || business.logoUrl;
+  if (!kind) {
+    return {
+      title: `${business.name} — Oni247`,
+      description: business.description || `Explore products and services from ${business.name}.`,
+      body: `<main><h1>${htmlEscape(business.name)}</h1>${intro}${business.heroHeadline ? `<h2>${htmlEscape(business.heroHeadline)}</h2>` : ""}${business.heroSubtext ? `<p>${htmlEscape(business.heroSubtext)}</p>` : ""}${image ? `<img src="${htmlEscape(image)}" alt="${htmlEscape(business.name)}" />` : ""}<h2>Products</h2><ul>${links}</ul><p><a href="${base}/products">Browse products</a> · <a href="${base}/contact">Contact ${htmlEscape(business.name)}</a></p></main>`,
+      jsonLd: { "@context": "https://schema.org", "@type": "Store", name: business.name, url: base, description: business.description || undefined, image: image || undefined },
+    };
+  }
+  if (kind === "p") {
+    const product = (data.products ?? []).find((item: any) => item.slug === contentSlug && item.available);
+    if (!product || !business.canUseProductLinks) throw new Error("Public product not found");
+    const description = product.description || `${product.name} from ${business.name}.`;
+    return {
+      title: `${product.name} — ${business.name}`,
+      description,
+      body: `<main><nav><a href="${base}">${htmlEscape(business.name)}</a> / <a href="${base}/products">Products</a></nav><h1>${htmlEscape(product.name)}</h1>${product.imageUrl ? `<img src="${htmlEscape(product.imageUrl)}" alt="${htmlEscape(product.name)}" />` : ""}<p>${htmlEscape(description)}</p><p>${htmlEscape(product.currency)} ${htmlEscape(product.price)}</p><p><a href="${base}/products">Browse more products</a></p></main>`,
+      jsonLd: { "@context": "https://schema.org", "@type": "Product", name: product.name, description, image: product.imageUrl ? [product.imageUrl] : undefined, offers: { "@type": "Offer", priceCurrency: product.currency, price: product.price, availability: "https://schema.org/InStock" } },
+    };
+  }
+  if (kind === "b") {
+    const post = (data.blogPosts ?? []).find((item: any) => item.slug === contentSlug);
+    if (!post) throw new Error("Public article not found");
+    const description = post.excerpt || post.title;
+    return {
+      title: `${post.title} — ${business.name}`,
+      description,
+      body: `<main><nav><a href="${base}">${htmlEscape(business.name)}</a> / <a href="${base}/blog">Blog</a></nav><article><h1>${htmlEscape(post.title)}</h1>${post.coverImageUrl ? `<img src="${htmlEscape(post.coverImageUrl)}" alt="${htmlEscape(post.title)}" />` : ""}<p>${htmlEscape(description)}</p><div>${post.content ?? ""}</div></article></main>`,
+      jsonLd: { "@context": "https://schema.org", "@type": "BlogPosting", headline: post.title, description, datePublished: post.publishedAt || undefined, image: post.coverImageUrl ? [post.coverImageUrl] : undefined, author: { "@type": "Organization", name: business.name }, mainEntityOfPage: `${origin}${pathname}` },
+    };
+  }
+  if (kind === "e") {
+    const event = (data.events ?? []).find((item: any) => item.slug === contentSlug);
+    if (!event) throw new Error("Public event not found");
+    return {
+      title: `${event.title} — ${business.name}`,
+      description: event.description || `Event hosted by ${business.name}.`,
+      body: `<main><nav><a href="${base}">${htmlEscape(business.name)}</a> / <a href="${base}/events">Events</a></nav><article><h1>${htmlEscape(event.title)}</h1>${event.coverImageUrl ? `<img src="${htmlEscape(event.coverImageUrl)}" alt="${htmlEscape(event.title)}" />` : ""}<p>${htmlEscape(event.description)}</p><p>${htmlEscape(event.startsAt)}${event.endsAt ? ` – ${htmlEscape(event.endsAt)}` : ""}</p>${event.venue ? `<p>${htmlEscape(event.venue)}</p>` : ""}</article></main>`,
+      jsonLd: { "@context": "https://schema.org", "@type": "Event", name: event.title, description: event.description, startDate: event.startsAt, endDate: event.endsAt || undefined, location: event.venue ? { "@type": "Place", name: event.venue } : undefined, image: event.coverImageUrl ? [event.coverImageUrl] : undefined, organizer: { "@type": "Organization", name: business.name }, url: `${origin}${pathname}` },
+    };
+  }
+  const pageTitles: Record<string, string> = { products: "Products", services: "Services", about: "About", gallery: "Gallery", blog: "Blog", events: "Events", contact: "Contact" };
+  const pageTitle = pageTitles[kind];
+  if (!pageTitle || !business.canUseMultiPage) throw new Error("Public page not found");
+  const body = kind === "blog"
+    ? (data.blogPosts ?? []).map((post: any) => `<li><a href="${base}/b/${encodeURIComponent(post.slug)}">${htmlEscape(post.title)}</a><p>${htmlEscape(post.excerpt || "")}</p></li>`).join("")
+    : kind === "events"
+      ? (data.events ?? []).map((event: any) => `<li><a href="${base}/e/${encodeURIComponent(event.slug)}">${htmlEscape(event.title)}</a><p>${htmlEscape(event.description)}</p></li>`).join("")
+      : kind === "services"
+        ? (data.services ?? []).map((service: any) => `<li><h2>${htmlEscape(service.name)}</h2><p>${htmlEscape(service.description)}</p></li>`).join("")
+        : kind === "about" ? intro
+          : kind === "products" ? links
+            : `<p>Visit ${htmlEscape(business.name)} for more information.</p>`;
+  return {
+    title: `${pageTitle} — ${business.name}`,
+    description: business.description || `${pageTitle} from ${business.name}.`,
+    body: `<main><nav><a href="${base}">${htmlEscape(business.name)}</a></nav><h1>${htmlEscape(pageTitle)}</h1>${kind === "products" || kind === "services" || kind === "blog" || kind === "events" ? `<ul>${body}</ul>` : body}</main>`,
+    jsonLd: { "@context": "https://schema.org", "@type": "WebPage", name: `${pageTitle} — ${business.name}`, url: `${origin}${pathname}`, isPartOf: { "@type": "WebSite", name: business.name, url: base } },
+  };
+}
+
+async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyReply) {
+  const userAgent = String(request.headers["user-agent"] ?? "");
+  if (!crawlerUserAgent(userAgent)) return;
+  if (!hasProductionBuild) return;
+  const url = new URL(request.url, `${request.protocol}://${request.host}`);
+  const parts = url.pathname.split("/").filter(Boolean);
+  if (!parts.length || ["_api", "dashboard", "admin", "login", "register", "track", "healthz", "readyz", "robots.txt", "sitemap.xml"].includes(parts[0])) return;
+  const slug = decodeURIComponent(parts[0]);
+  try {
+    const endpoint = await import("../endpoints/storefront_GET");
+    const response = await endpoint.handle(new Request(`http://localhost/_api/storefront?slug=${encodeURIComponent(slug)}`));
+    if (!response.ok) return;
+    const superjson = (await import("superjson")).default;
+    const data = superjson.parse<any>(await response.text());
+    const snapshot = storefrontSnapshot(data, url.pathname, url.origin);
+    const canonical = `${url.origin}${url.pathname}`;
+    const jsonLd = JSON.stringify(snapshot.jsonLd ?? {}).replace(/</g, "\\u003c");
+    const metadata = `<title>${htmlEscape(snapshot.title)}</title><meta name="description" content="${htmlEscape(snapshot.description.slice(0, 160))}"><link rel="canonical" href="${htmlEscape(canonical)}"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:title" content="${htmlEscape(snapshot.title)}"><meta property="og:description" content="${htmlEscape(snapshot.description.slice(0, 200))}"><meta property="og:url" content="${htmlEscape(canonical)}"><meta name="twitter:card" content="summary_large_image"><script type="application/ld+json">${jsonLd}</script>`;
+    const indexHtml = await (await import("node:fs/promises")).readFile(path.join(distDir, "index.html"), "utf8");
+    const html = indexHtml
+      .replace(/<title>[^<]*<\\/title>/i, "")
+      .replace("</head>", `${metadata}</head>`)
+      .replace('<div id="root"></div>', `<div id="root">${snapshot.body}</div>`);
+    reply.header("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
+    return reply.type("text/html; charset=utf-8").send(html);
+  } catch (error) {
+    request.log.warn({ err: error, path: url.pathname }, "Crawler storefront snapshot unavailable; serving SPA fallback");
+  }
+}
+
+
 const distDir = path.join(projectRoot, "dist");
 const hasProductionBuild = existsSync(path.join(distDir, "index.html"));
 if (hasProductionBuild) {
