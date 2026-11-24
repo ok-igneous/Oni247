@@ -6,7 +6,7 @@ import { readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { escapeHtml, injectCrawlerHtml, isCrawlerUserAgent, isPublicStorefrontPath } from "./storefrontPrerender";
+import { escapeHtml, injectCrawlerHtml, isCrawlerUserAgent, isPublicStorefrontPath, normalizeDomainHost } from "./storefrontPrerender";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(here, "..");
@@ -247,9 +247,23 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
   if (!isCrawlerUserAgent(userAgent)) return;
   if (!hasProductionBuild) return;
   const url = new URL(request.url, `${request.protocol}://${request.host}`);
-  if (!isPublicStorefrontPath(url.pathname)) return;
+  const isCustomDomainRoot = url.pathname === "/";
+  if (!isCustomDomainRoot && !isPublicStorefrontPath(url.pathname)) return;
   const parts = url.pathname.split("/").filter(Boolean);
-  const slug = decodeURIComponent(parts[0]);
+  let slug = parts[0] ? decodeURIComponent(parts[0]) : "";
+  if (isCustomDomainRoot) {
+    const { db } = await import("../helpers/db");
+    const customDomainBusinesses = await db.selectFrom("businesses")
+      .select(["slug", "customDomain"])
+      .where("status", "=", "published")
+      .where("customDomainStatus", "=", "verified")
+      .execute();
+    const matchedBusiness = customDomainBusinesses.find(
+      (business) => normalizeDomainHost(business.customDomain) === url.hostname.toLowerCase(),
+    );
+    if (!matchedBusiness) return;
+    slug = matchedBusiness.slug;
+  }
   try {
     const endpoint = await import("../endpoints/storefront_GET");
     const response = await endpoint.handle(new Request(`http://localhost/_api/storefront?slug=${encodeURIComponent(slug)}`));
@@ -313,6 +327,7 @@ const crawlerStorefrontRoute = async (request: FastifyRequest, reply: FastifyRep
   const rendered = await renderCrawlerStorefront(request, reply);
   return rendered ?? reply.callNotFound();
 };
+app.get("/", crawlerStorefrontRoute);
 app.get("/:slug", crawlerStorefrontRoute);
 app.get("/:slug/*", crawlerStorefrontRoute);
 
