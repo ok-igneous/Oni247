@@ -31,13 +31,8 @@ AS $$
         SELECT 1
         FROM public.team_members tm
         WHERE tm.business_id::text = target_business_id
-          AND (
-            (
-              tm.user_id::text = current_setting('app.user_id', true)
-              AND lower(tm.status) = 'active'
-            )
-
-          )
+          AND tm.user_id::text = current_setting('app.user_id', true)
+          AND lower(tm.status) = 'active'
       )
     );
 $$;
