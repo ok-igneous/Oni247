@@ -35,3 +35,8 @@ Do not cut over production until the above checks pass. Never copy Floot secrets
 ## Hosting compatibility
 
 The current extraction targets a conventional Node.js host because the existing endpoint handlers use Node-compatible PostgreSQL, crypto, SMTP and filesystem-based module discovery. Cloudflare R2 is supported for object storage, but this Fastify server is **not** a Cloudflare Workers/Pages deployment yet. A Cloudflare deployment must use a supported container runtime for this Node server, or a separately engineered Worker-native API adapter. Do not attempt a direct Workers upload until that runtime decision is made and tested.
+
+
+## Database security / RLS
+
+The staged PostgreSQL RLS foundation and rollout requirements are documented in [database/rls/README.md](./database/rls/README.md). Do not apply its migration until the request-scoped transaction context is implemented, a non-owner runtime role is provisioned, the actual database schema is compared, and the public/system access paths are covered. Applying the migration before those prerequisites will block normal application access. It has not been applied to production or any database.
