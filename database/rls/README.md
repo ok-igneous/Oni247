@@ -50,3 +50,25 @@ For two users and two businesses, verify:
 - public routes expose only explicitly approved published data.
 
 Do not run this migration against the Floot production database or any production database during development.
+
+## Public checkout: blocked pending a narrow database operation
+
+The existing public checkout handlers are not compatible with the staged tenant RLS policies yet. This is intentional: do not add broad anonymous policies to `orders`, `customers`, or `payment_gateways` to make checkout appear to work.
+
+The current `endpoints/storefront/order_POST.ts` flow:
+
+- Reads product rows including `costPrice`, `stockQuantity`, and `variants`. The public product SELECT policy is row-level only; it does not hide columns. An RLS policy cannot make those private columns invisible to the same database role while still allowing the endpoint to select them.
+- Reserves inventory with row locks, upserts a customer by business/phone, and inserts the order in one transaction. Current tenant policies correctly deny anonymous customer/order writes.
+- Checks gateway availability and later calls `startOrderPayment`, which reads the gateway's encrypted secret. Anonymous access to that table must remain denied.
+
+The public `orderPay_POST.ts` handler also reads the order and joined customer email, verifies/retries payment, and may initiate a hosted checkout. It must not be enabled for the anonymous database role by granting broad order/customer/gateway reads. The payment helper must continue to obtain amount/currency from the persisted order and credentials only on the server.
+
+### Required implementation before RLS activation
+
+1. Move public order creation into a narrowly scoped SECURITY DEFINER database operation (or a rigorously isolated privileged service boundary). It must resolve a published business, independently validate every product belongs to that business and is available, validate variant selections/prices against stored variant data, recompute totals, enforce quantity and delivery/payment constraints, reserve tracked stock with row locks, upsert only the intended customer fields, and insert the order atomically. Never accept client-supplied prices, costs, totals, business IDs, payment status, or stock values.
+2. Do not expose product `costPrice` or stock counts through public SQL reads. The endpoint's existing server-side projection is not sufficient protection because PostgreSQL RLS is row-level, not column-level. Use a public-safe projection/helper for storefront reads and keep inventory/cost reads inside the trusted order operation.
+3. Provide a narrow order-payment lookup/claim operation keyed by published business slug plus tracking code. Return only the minimum order fields needed by the payment service; retrieve customer email and gateway secrets only inside the trusted server boundary. Do not create a public SELECT policy on `orders`, `customers`, or `payment_gateways`.
+4. Make first-time checkout initiation concurrency-safe. The existing retry check prevents a second checkout only after a gateway reference is persisted; simultaneous requests can both observe no reference. Add an atomic payment-attempt claim/idempotency state before calling the provider, with a recovery policy for abandoned claims. Do not hold a database transaction open across a slow provider network call unless the design explicitly accounts for timeouts and lock contention.
+5. Test stock contention (two buyers, one remaining unit), duplicate product lines, invalid/cross-business product IDs, tampered variant prices, customer upsert isolation, tracking-code collisions, provider timeouts, simultaneous payment-start requests, retry after confirmed failure, and no leakage of customer email, cost, stock, or gateway secrets.
+
+Until these requirements are implemented and tested against a disposable clone of the real schema, public checkout remains a rollout blocker and `RLS_ENABLED=true` must remain off.
