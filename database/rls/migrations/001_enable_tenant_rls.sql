@@ -44,6 +44,67 @@ $$;
 
 REVOKE ALL ON FUNCTION app_private.can_access_business(text) FROM PUBLIC;
 
+-- Invitation acceptance is deliberately a separate, narrow SECURITY DEFINER
+-- operation. Pending invitations do not grant tenant reads; this function may
+-- activate only an invitation matching the authenticated user's verified
+-- account email and, when supplied, the requested business.
+CREATE OR REPLACE FUNCTION app_private.activate_invited_team_member(target_business_id text DEFAULT NULL)
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $
+DECLARE
+  current_user_id text := NULLIF(current_setting('app.user_id', true), '');
+  current_email text;
+  matching_count integer;
+  selected_business_id text;
+  updated_count integer;
+BEGIN
+  IF current_user_id IS NULL THEN
+    RETURN false;
+  END IF;
+
+  SELECT lower(u.email)
+    INTO current_email
+    FROM public.users u
+    WHERE u.id::text = current_user_id;
+
+  IF current_email IS NULL THEN
+    RETURN false;
+  END IF;
+
+  IF target_business_id IS NULL THEN
+    SELECT count(*), min(tm.business_id::text)
+      INTO matching_count, selected_business_id
+      FROM public.team_members tm
+      WHERE tm.user_id IS NULL
+        AND lower(tm.status) = 'invited'
+        AND lower(tm.email) = current_email;
+
+    -- Do not silently accept multiple unrelated invitations at once.
+    IF matching_count <> 1 THEN
+      RETURN false;
+    END IF;
+    target_business_id := selected_business_id;
+  END IF;
+
+  UPDATE public.team_members tm
+    SET user_id = current_user_id::integer,
+        status = 'active',
+        updated_at = now()
+    WHERE tm.business_id::text = target_business_id
+      AND tm.user_id IS NULL
+      AND lower(tm.status) = 'invited'
+      AND lower(tm.email) = current_email;
+
+  GET DIAGNOSTICS updated_count = ROW_COUNT;
+  RETURN updated_count = 1;
+END;
+$;
+
+REVOKE ALL ON FUNCTION app_private.activate_invited_team_member(text) FROM PUBLIC;
+
 -- Tenant-owned tables verified in the generated Kysely schema.
 DO $migration$
 DECLARE
