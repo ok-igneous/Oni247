@@ -13,11 +13,19 @@ const optionalText = (max: number) =>
     .nullish()
     .transform((value) => (value && value.length > 0 ? value : null));
 
+const optionalEmail = z
+  .string()
+  .trim()
+  .max(120)
+  .email("Enter a valid email address")
+  .nullish()
+  .transform((value) => (value && value.length > 0 ? value : null));
+
 export const schema = z.object({
   slug: z.string().min(1).max(120),
   customerName: z.string().trim().min(1, "Enter your name").max(80),
   customerPhone: z.string().trim().min(4, "Enter your phone number").max(30),
-  customerEmail: optionalText(120),
+  customerEmail: optionalEmail,
   items: z
     .array(
       z.object({
