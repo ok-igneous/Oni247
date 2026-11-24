@@ -243,6 +243,14 @@ function storefrontSnapshot(data: any, pathname: string, origin: string, customD
   };
 }
 
+function sendCrawlerUnavailable(reply: FastifyReply) {
+  reply.header("Cache-Control", "no-store");
+  reply.header("Retry-After", "30");
+  return reply.code(503).type("text/html; charset=utf-8").send(
+    "<!doctype html><title>Storefront temporarily unavailable</title><meta name=\"robots\" content=\"noindex\"><h1>Storefront temporarily unavailable</h1>",
+  );
+}
+
 async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyReply) {
   const userAgent = String(request.headers["user-agent"] ?? "");
   if (!isCrawlerUserAgent(userAgent)) return;
@@ -270,7 +278,7 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
       }
     } catch (error) {
       request.log.warn({ err: error, host: url.hostname }, "Custom-domain crawler lookup failed");
-      return;
+      return sendCrawlerUnavailable(reply);
     }
   }
   if (!customDomain) {
@@ -281,8 +289,9 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
     const endpoint = await import("../endpoints/storefront_GET");
     const response = await endpoint.handle(new Request(`http://localhost/_api/storefront?slug=${encodeURIComponent(slug)}`));
     if (!response.ok) {
-      if (response.status === 404) return reply.code(404).type("text/html; charset=utf-8").send("<!doctype html><title>Storefront not found</title><h1>Storefront not found</h1>");
-      return;
+      if (response.status === 404) return reply.code(404).type("text/html; charset=utf-8").send("<!doctype html><title>Storefront not found</title><meta name=\"robots\" content=\"noindex\"><h1>Storefront not found</h1>");
+      request.log.warn({ status: response.status, slug }, "Crawler storefront endpoint returned an unexpected status");
+      return sendCrawlerUnavailable(reply);
     }
     const superjson = (await import("superjson")).default;
     const data = superjson.parse<any>(await response.text());
@@ -332,7 +341,8 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
     if (["Public product not found", "Public article not found", "Public event not found", "Public page not found"].includes(message)) {
       return reply.code(404).type("text/html; charset=utf-8").send("<!doctype html><title>Page not found</title><h1>Page not found</h1>");
     }
-    request.log.warn({ err: error, path: url.pathname }, "Crawler storefront snapshot unavailable; serving SPA fallback");
+    request.log.warn({ err: error, path: url.pathname }, "Crawler storefront snapshot unavailable");
+    return sendCrawlerUnavailable(reply);
   }
 }
 
