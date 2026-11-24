@@ -24,7 +24,7 @@ END $$;
 -- Anonymous context: published storefront content is readable, while private
 -- submissions and payment-gateway configuration remain hidden.
 SELECT set_config('app.user_id', '', true);
-DO $
+DO $anon$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM public.businesses WHERE status = 'published') THEN
     RAISE EXCEPTION 'Fixture missing a published business or public read policy denied it';
@@ -38,7 +38,7 @@ BEGIN
   IF EXISTS (SELECT 1 FROM public.payment_gateways) THEN
     RAISE EXCEPTION 'RLS failure: anonymous visitor can read payment gateway rows';
   END IF;
-END $$;
+END $anon$;
 
 -- Platform-admin fixture: user 9001 must have users.role = 'admin'.
 -- The admin context must see another tenant and may perform platform moderation.
