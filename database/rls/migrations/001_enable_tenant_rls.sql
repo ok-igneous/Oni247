@@ -7,6 +7,26 @@ BEGIN;
 CREATE SCHEMA IF NOT EXISTS app_private;
 REVOKE ALL ON SCHEMA app_private FROM PUBLIC;
 
+-- Platform administrators are authenticated users with users.role = 'admin'.
+-- Keep this check inside a fixed-search-path SECURITY DEFINER function because
+-- users is intentionally excluded from tenant RLS.
+CREATE OR REPLACE FUNCTION app_private.is_platform_admin()
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.users u
+    WHERE u.id::text = NULLIF(current_setting('app.user_id', true), '')
+      AND u.role = 'admin'
+  );
+$;
+
+REVOKE ALL ON FUNCTION app_private.is_platform_admin() FROM PUBLIC;
+
 -- SECURITY DEFINER is intentional: this function reads the ownership and team
 -- membership tables while policies on those same tables are being evaluated.
 -- The function owner must own these tables; the application runtime must NOT.
@@ -21,7 +41,8 @@ AS $$
     NULLIF(current_setting('app.user_id', true), '') IS NOT NULL
     AND target_business_id IS NOT NULL
     AND (
-      EXISTS (
+      app_private.is_platform_admin()
+      OR EXISTS (
         SELECT 1
         FROM public.businesses b
         WHERE b.id::text = target_business_id
@@ -175,6 +196,13 @@ CREATE POLICY oni247_business_owner_write ON public.businesses
   FOR ALL
   USING (owner_id::text = current_setting('app.user_id', true))
   WITH CHECK (owner_id::text = current_setting('app.user_id', true));
+
+-- Platform administrators may manage business records across tenants.
+-- Team members still cannot mutate the business row itself.
+CREATE POLICY oni247_business_admin_write ON public.businesses
+  FOR ALL
+  USING (app_private.is_platform_admin())
+  WITH CHECK (app_private.is_platform_admin());
 
 -- Child rows inherit tenant access through their parent gallery.
 ALTER TABLE public.gallery_images ENABLE ROW LEVEL SECURITY;
