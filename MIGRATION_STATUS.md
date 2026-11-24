@@ -18,7 +18,9 @@ The snapshot comparison verifies path coverage, not byte-for-byte content parity
 - Replaced the Floot database environment variable with required `DATABASE_URL`.
 - Replaced the Floot session cookie name with `oni247_session`, aligned JWT expiry with the seven-day cookie lifetime, and made Secure cookie behavior environment-aware.
 - Replaced the `@floot/storage` upload integration with an S3-compatible presigned-upload adapter.
-- Added `.env.example`, local setup instructions and migration runbook.
+- Added `.env.example`, local setup instructions, S3 storage configuration guide and migration runbook.
+- Added a source audit script for remaining Floot package, database, cookie, CDN and native URL references.
+- Migrated the existing Jasmine-style tests to Vitest and configured a jsdom test environment.
 
 ## Not yet verified
 
