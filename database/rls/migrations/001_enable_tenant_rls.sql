@@ -16,14 +16,14 @@ LANGUAGE sql
 STABLE
 SECURITY DEFINER
 SET search_path = pg_catalog, public
-AS $
+AS $admin$
   SELECT EXISTS (
     SELECT 1
     FROM public.users u
     WHERE u.id::text = NULLIF(current_setting('app.user_id', true), '')
       AND u.role = 'admin'
   );
-$;
+$admin$;
 
 REVOKE ALL ON FUNCTION app_private.is_platform_admin() FROM PUBLIC;
 
@@ -184,6 +184,7 @@ $migration$;
 ALTER TABLE public.businesses ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS oni247_business_select ON public.businesses;
 DROP POLICY IF EXISTS oni247_business_owner_write ON public.businesses;
+DROP POLICY IF EXISTS oni247_business_admin_write ON public.businesses;
 
 -- Team members may resolve/read a business they belong to, but the tenant
 -- backstop does not let a team member bypass application permissions to mutate
