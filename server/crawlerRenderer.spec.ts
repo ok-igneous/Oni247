@@ -68,6 +68,38 @@ describe("production crawler renderer factory", () => {
     });
   });
 
+  it("resolves a published business subdomain at its root and nested storefront paths", async () => {
+    vi.stubEnv("APP_BASE_URL", "https://oni247.example.com");
+    const loadSnapshot = vi.fn(async ({ slug, pathname, customDomain }: CrawlerSnapshotRequest) => ({
+      title: slug,
+      description: "Platform subdomain",
+      body: `<main>${slug}:${pathname}:${customDomain ? "root-domain" : "vanity"}</main>`,
+    }));
+    const app = await makeApp({ loadSnapshot });
+    const response = await app.inject({
+      method: "GET", url: "/products", headers: { host: "nesmage.oni247.example.com", "user-agent": "Googlebot" },
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toContain("<main>nesmage:/products:root-domain</main>");
+    expect(loadSnapshot).toHaveBeenCalledWith({
+      slug: "nesmage", pathname: "/products", origin: "http://nesmage.oni247.example.com", customDomain: true,
+    });
+  });
+
+  it("does not treat nested or reserved platform hosts as business subdomains", async () => {
+    vi.stubEnv("APP_BASE_URL", "https://oni247.example.com");
+    const resolveCustomDomain = vi.fn(async () => null);
+    const app = await makeApp({ resolveCustomDomain });
+    await app.inject({
+      method: "GET", url: "/", headers: { host: "www.oni247.example.com", "user-agent": "Googlebot" },
+    });
+    await app.inject({
+      method: "GET", url: "/", headers: { host: "a.b.oni247.example.com", "user-agent": "Googlebot" },
+    });
+    expect(resolveCustomDomain).toHaveBeenCalledTimes(1);
+    expect(resolveCustomDomain).toHaveBeenCalledWith("a.b.oni247.example.com");
+  });
+
   it("leaves ordinary visitors and reserved paths on the SPA fallback", async () => {
     const app = await makeApp();
     const visitor = await app.inject({ method: "GET", url: "/nesmage", headers: { "user-agent": "Mozilla/5.0" } });
