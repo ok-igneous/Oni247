@@ -83,7 +83,7 @@ const merge=(a:Record<string,unknown>|undefined):ThemeState=>({
   footerPages:Array.isArray(a?.footerPages)?(a.footerPages as unknown[]).filter((x):x is string=>typeof x==="string"):[],
 });
 const ColorField=({label,value,onChange}:{label:string;value:string;onChange:(v:string)=>void})=><label className={styles.colorField}><span>{label}</span><input type="color" value={value} onChange={e=>onChange(e.target.value)}/><code>{value}</code></label>;
-const Choice=({label,value,options,onChange}:{label:string;value:string;options:Array<[string,string]>;onChange:(v:string)=>void})=><label>{label}<Select value={value} onValueChange={onChange}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{options.map(([v,t])=><SelectItem key={v} value={v}>{t}</SelectItem>)}</SelectContent></Select></label>;
+const Choice=({label,value,options,onChange,disabled=false}:{label:string;value:string;options:Array<[string,string]>;onChange:(v:string)=>void;disabled?:boolean})=><label>{label}<Select disabled={disabled} value={value} onValueChange={onChange}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{options.map(([v,t])=><SelectItem key={v} value={v}>{t}</SelectItem>)}</SelectContent></Select></label>;
 
 const ThemePage=()=>{
   const {data,isFetching}=useMyBusiness(); const {data:subscription}=useSubscriptionStatus(); const saveBusiness=useSaveBusiness(); const business=data?.business??null;
@@ -140,8 +140,8 @@ const ThemePage=()=>{
         <p className={styles.hint}>Add up to five homepage slides. Each slide can have an image, headline, supporting text and its own action. Slides are shown on the published homepage after saving. Premium Plus feature.</p>
         {!premiumPlus&&<p className={styles.hint}>Upgrade to Premium Plus to edit advanced homepage media. Existing saved slides remain on your site.</p>}
         <div className={tabStyles.group}>
-          <label>Slider placement<select disabled={!premiumPlus} value={contentSettings.homepageSliderPlacement==="section"?"section":"hero"} onChange={e=>updateContent("homepageSliderPlacement",e.target.value)}><option value="hero">At the top / hero area</option><option value="section">As its own section</option></select></label>
-          <label>Automatic slide change<select disabled={!premiumPlus} value={String(typeof contentSettings.homepageSliderInterval==="number"?contentSettings.homepageSliderInterval:5)} onChange={e=>updateContent("homepageSliderInterval",Number(e.target.value))}><option value="3">Every 3 seconds</option><option value="5">Every 5 seconds</option><option value="7">Every 7 seconds</option><option value="10">Every 10 seconds</option></select></label>
+          <Choice disabled={!premiumPlus} label="Slider placement" value={contentSettings.homepageSliderPlacement==="section"?"section":"hero"} onChange={v=>updateContent("homepageSliderPlacement",v)} options={[["hero","At the top / hero area"],["section","As its own section"]]}/>
+          <Choice disabled={!premiumPlus} label="Automatic slide change" value={String(typeof contentSettings.homepageSliderInterval==="number"?contentSettings.homepageSliderInterval:5)} onChange={v=>updateContent("homepageSliderInterval",Number(v))} options={[["3","Every 3 seconds"],["5","Every 5 seconds"],["7","Every 7 seconds"],["10","Every 10 seconds"]]}/>
         </div>
         {slides.map((slide,index)=><div key={typeof slide.id==="string"?slide.id:index} style={{border:"1px solid var(--border)",borderRadius:10,padding:12,marginTop:12,display:"grid",gap:9}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8}}><strong>Slide {index+1}</strong><Button type="button" size="sm" variant="ghost" disabled={!premiumPlus} onClick={()=>updateContent("homepageSlides",slides.filter((_,i)=>i!==index))}><Trash2 size={14}/> Remove</Button></div>
@@ -161,7 +161,7 @@ const ThemePage=()=>{
           <label>Direct video file URL (optional)<Input disabled={!premiumPlus} value={typeof contentSettings.homepageVideoFileUrl==="string"?contentSettings.homepageVideoFileUrl:""} onChange={e=>updateContent("homepageVideoFileUrl",e.target.value)} placeholder="https://…/video.mp4"/></label>
           <label>Section title<Input disabled={!premiumPlus} maxLength={100} value={typeof contentSettings.homepageVideoTitle==="string"?contentSettings.homepageVideoTitle:""} onChange={e=>updateContent("homepageVideoTitle",e.target.value)} placeholder="Watch our video"/></label>
           <label>Description<Input disabled={!premiumPlus} maxLength={300} value={typeof contentSettings.homepageVideoDescription==="string"?contentSettings.homepageVideoDescription:""} onChange={e=>updateContent("homepageVideoDescription",e.target.value)} placeholder="What visitors will see"/></label>
-          <label>Video placement<select disabled={!premiumPlus} value={contentSettings.homepageVideoPlacement==="hero"?"hero":"section"} onChange={e=>updateContent("homepageVideoPlacement",e.target.value)}><option value="hero">At the top / hero area</option><option value="section">As its own section</option></select></label>
+          <Choice disabled={!premiumPlus} label="Video placement" value={contentSettings.homepageVideoPlacement==="hero"?"hero":"section"} onChange={v=>updateContent("homepageVideoPlacement",v)} options={[["hero","At the top / hero area"],["section","As its own section"]]}/>
         </div>
         {!premiumPlus&&<p className={styles.hint}>Upgrade to Premium Plus to change homepage video settings. Existing video settings are retained.</p>}
       </section>
