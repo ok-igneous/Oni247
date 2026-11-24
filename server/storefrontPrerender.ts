@@ -85,24 +85,11 @@ export function resolvePlatformSubdomainSlug(
 }
 
 
-/** Return a safe single-label business subdomain for the configured platform host. */
-export function resolvePlatformSubdomainSlug(hostname: string, platformHost: string | null): string | null {
-  if (!platformHost) return null;
-  const host = hostname.toLowerCase().replace(/\\.$/, "");
-  const base = platformHost.toLowerCase().replace(/^www\\./, "").replace(/\\.$/, "");
-  if (host === base || host === `www.${base}`) return null;
-  const suffix = `.${base}`;
-  if (!host.endsWith(suffix)) return null;
-  const label = host.slice(0, -suffix.length);
-  if (!label || label.includes(".") || label === "www" || !/^[a-z0-9][a-z0-9-]{0,119}$/.test(label)) return null;
-  return label;
-}
-
-
 /** True for the platform apex and its conventional www alias. */
 export function isPlatformHostname(hostname: string, platformHost: string | null): boolean {
-  if (!platformHost) return false;
-  const host = hostname.toLowerCase().replace(/\\.$/, "");
-  const base = platformHost.toLowerCase().replace(/^www\\./, "").replace(/\\.$/, "");
+  const host = normalizeDomainHost(hostname);
+  const root = normalizeDomainHost(platformHost);
+  if (!host || !root) return false;
+  const base = root.replace(/^www\./, "");
   return host === base || host === `www.${base}`;
 }
