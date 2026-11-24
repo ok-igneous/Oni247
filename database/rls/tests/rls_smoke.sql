@@ -24,8 +24,11 @@ END $$;
 -- Anonymous context: published storefront content is readable, while private
 -- submissions and payment-gateway configuration remain hidden.
 SELECT set_config('app.user_id', '', true);
-DO $$
+DO $
 BEGIN
+  IF NOT EXISTS (SELECT 1 FROM public.businesses WHERE status = 'published') THEN
+    RAISE EXCEPTION 'Fixture missing a published business or public read policy denied it';
+  END IF;
   IF EXISTS (SELECT 1 FROM public.businesses WHERE status <> 'published') THEN
     RAISE EXCEPTION 'RLS failure: anonymous visitor can read an unpublished business';
   END IF;
