@@ -6,10 +6,10 @@ import { readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { escapeHtml, isCrawlerUserAgent, isPublicStorefrontPath, isPublicCustomDomainPath, normalizeDomainHost } from "./storefrontPrerender";
+import { escapeHtml, normalizeDomainHost } from "./storefrontPrerender";
 import { storefrontSnapshot } from "./storefrontSnapshot";
 import { registerCrawlerStorefrontRoutes } from "./crawlerRoutes";
-import { renderCrawlerDocument } from "./crawlerDocument";
+import { createCrawlerStorefrontRenderer } from "./crawlerRenderer";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(here, "..");
@@ -180,98 +180,71 @@ function sendCrawlerUnavailable(reply: FastifyReply) {
   );
 }
 
-async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyReply) {
-  const userAgent = String(request.headers["user-agent"] ?? "");
-  if (!isCrawlerUserAgent(userAgent)) return;
-  if (!hasProductionBuild) return;
-  const url = new URL(request.url, `${request.protocol}://${request.host}`);
-  let customDomain = false;
-  let slug = "";
-  const parts = url.pathname.split("/").filter(Boolean);
-  const configuredPlatformHost = normalizeDomainHost(process.env.APP_BASE_URL);
-  if (!configuredPlatformHost || configuredPlatformHost !== url.hostname.toLowerCase()) {
-    try {
-      const { db } = await import("../helpers/db");
-      const customDomainBusinesses = await db.selectFrom("businesses")
-        .select(["slug", "customDomain"])
-        .where("status", "=", "published")
-        .where("customDomainStatus", "=", "verified")
-        .execute();
-      const matchedBusiness = customDomainBusinesses.find(
-        (business) => normalizeDomainHost(business.customDomain) === url.hostname.toLowerCase(),
-      );
-      if (matchedBusiness) {
-        if (!isPublicCustomDomainPath(url.pathname)) return;
-        customDomain = true;
-        slug = matchedBusiness.slug;
-      }
-    } catch (error) {
-      request.log.warn({ err: error, host: url.hostname }, "Custom-domain crawler lookup failed");
-      return sendCrawlerUnavailable(reply);
-    }
-  }
-  if (!customDomain) {
-    if (!isPublicStorefrontPath(url.pathname)) return;
-    slug = decodeURIComponent(parts[0]);
-  }
-  try {
+const distDir = path.join(projectRoot, "dist");
+const hasProductionBuild = existsSync(path.join(distDir, "index.html"));
+
+const renderCrawlerStorefront = createCrawlerStorefrontRenderer({
+  hasProductionBuild,
+  resolveCustomDomain: async (hostname) => {
+    const { db } = await import("../helpers/db");
+    const businesses = await db.selectFrom("businesses")
+      .select(["slug", "customDomain"])
+      .where("status", "=", "published")
+      .where("customDomainStatus", "=", "verified")
+      .execute();
+    return businesses.find((business) =>
+      normalizeDomainHost(business.customDomain) === hostname,
+    )?.slug ?? null;
+  },
+  loadSnapshot: async ({ slug, pathname, origin, customDomain }) => {
     const endpoint = await import("../endpoints/storefront_GET");
     const response = await endpoint.handle(new Request(`http://localhost/_api/storefront?slug=${encodeURIComponent(slug)}`));
     if (!response.ok) {
-      if (response.status === 404) return reply.code(404).type("text/html; charset=utf-8").send("<!doctype html><title>Storefront not found</title><meta name=\"robots\" content=\"noindex\"><h1>Storefront not found</h1>");
-      request.log.warn({ status: response.status, slug }, "Crawler storefront endpoint returned an unexpected status");
-      return sendCrawlerUnavailable(reply);
+      if (response.status === 404) throw new Error("Public storefront not found");
+      throw new Error(`Storefront endpoint returned ${response.status}`);
     }
     const superjson = (await import("superjson")).default;
     const data = superjson.parse<any>(await response.text());
-    let snapshot: { title: string; description: string; body: string; image?: string; jsonLd?: unknown };
+    const parts = pathname.split("/").filter(Boolean);
     const section = customDomain ? parts[0] : parts[1];
     const detailSlug = customDomain ? parts[1] : parts[2];
+
     if (section === "gallery" && !detailSlug) {
       const galleryListEndpoint = await import("../endpoints/galleries/publicList_GET");
-      const galleryListResponse = await galleryListEndpoint.handle(new Request(`http://localhost/_api/galleries/publicList?slug=${encodeURIComponent(slug)}`));
-      if (!galleryListResponse.ok) return reply.code(404).type("text/html; charset=utf-8").send("<!doctype html><title>Gallery not found</title><h1>Gallery not found</h1>");
-      const galleryListData = superjson.parse<any>(await galleryListResponse.text());
-      const galleries = galleryListData.galleries ?? [];
+      const galleryResponse = await galleryListEndpoint.handle(new Request(`http://localhost/_api/galleries/publicList?slug=${encodeURIComponent(slug)}`));
+      if (!galleryResponse.ok) throw new Error("Public gallery not found");
+      const galleryData = superjson.parse<any>(await galleryResponse.text());
+      const galleries = galleryData.galleries ?? [];
       const description = `Photos and project galleries from ${data.business.name}.`;
-      snapshot = {
+      return {
         title: `Gallery — ${data.business.name}`,
         description,
         image: galleries.find((gallery: any) => gallery.coverImageUrl)?.coverImageUrl || undefined,
         body: `<main><h1>Gallery</h1><p>${escapeHtml(description)}</p><ul>${galleries.map((gallery: any) => `<li><a href="${customDomain ? `/g/${encodeURIComponent(gallery.slug)}` : `/${encodeURIComponent(slug)}/g/${encodeURIComponent(gallery.slug)}`}">${escapeHtml(gallery.name)}</a>${gallery.description ? `<p>${escapeHtml(gallery.description)}</p>` : ""}${gallery.coverImageUrl ? `<img src="${escapeHtml(gallery.coverImageUrl)}" alt="${escapeHtml(gallery.name)}" />` : ""}</li>`).join("")}</ul></main>`,
-        jsonLd: { "@context": "https://schema.org", "@type": "CollectionPage", name: `Gallery — ${data.business.name}`, description, url: `${url.origin}${url.pathname}` },
+        jsonLd: { "@context": "https://schema.org", "@type": "CollectionPage", name: `Gallery — ${data.business.name}`, description, url: `${origin}${pathname}` },
       };
-    } else if (section === "g" && detailSlug) {
+    }
+    if (section === "g" && detailSlug) {
       const galleryEndpoint = await import("../endpoints/galleries/public_GET");
       const galleryResponse = await galleryEndpoint.handle(new Request(`http://localhost/_api/galleries/public?slug=${encodeURIComponent(slug)}&gallerySlug=${encodeURIComponent(decodeURIComponent(detailSlug))}`));
-      if (!galleryResponse.ok) return reply.code(404).type("text/html; charset=utf-8").send("<!doctype html><title>Gallery not found</title><h1>Gallery not found</h1>");
+      if (!galleryResponse.ok) throw new Error("Public gallery not found");
       const galleryData = superjson.parse<any>(await galleryResponse.text());
       const gallery = galleryData.gallery;
       const description = gallery.description || `Photos from ${gallery.name} at ${galleryData.business.name}.`;
-      snapshot = {
+      return {
         title: `${gallery.name} — ${galleryData.business.name}`,
         description,
         image: gallery.coverImageUrl || gallery.images[0]?.imageUrl || undefined,
         body: `<main><nav><a href="${customDomain ? "/" : `/${encodeURIComponent(slug)}`}">${escapeHtml(galleryData.business.name)}</a> / <a href="${customDomain ? "/gallery" : `/${encodeURIComponent(slug)}/gallery`}">Gallery</a></nav><h1>${escapeHtml(gallery.name)}</h1>${description ? `<p>${escapeHtml(description)}</p>` : ""}<div>${gallery.images.map((image: any) => `<figure><img src="${escapeHtml(image.imageUrl)}" alt="${escapeHtml(image.altText || image.caption || gallery.name)}" />${image.caption ? `<figcaption>${escapeHtml(image.caption)}</figcaption>` : ""}</figure>`).join("")}</div></main>`,
-        jsonLd: { "@context": "https://schema.org", "@type": "CollectionPage", name: gallery.name, description, url: `${url.origin}${url.pathname}`, image: gallery.images.slice(0, 10).map((image: any) => image.imageUrl) },
+        jsonLd: { "@context": "https://schema.org", "@type": "CollectionPage", name: gallery.name, description, url: `${origin}${pathname}`, image: gallery.images.slice(0, 10).map((image: any) => image.imageUrl) },
       };
-    } else {
-      snapshot = storefrontSnapshot(data, url.pathname, url.origin, customDomain, url.pathname);
     }
-    const canonical = `${url.origin}${url.pathname}`;
-    const indexHtml = await (await import("node:fs/promises")).readFile(path.join(distDir, "index.html"), "utf8");
-    const html = renderCrawlerDocument({ indexHtml, snapshot, canonicalUrl: canonical });
-    reply.header("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
-    return reply.type("text/html; charset=utf-8").send(html);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "";
-    if (["Public product not found", "Public article not found", "Public event not found", "Public page not found"].includes(message)) {
-      return reply.code(404).type("text/html; charset=utf-8").send("<!doctype html><title>Page not found</title><h1>Page not found</h1>");
-    }
-    request.log.warn({ err: error, path: url.pathname }, "Crawler storefront snapshot unavailable");
-    return sendCrawlerUnavailable(reply);
-  }
-}
+    return storefrontSnapshot(data, pathname, origin, customDomain, pathname);
+  },
+  readIndexHtml: () => import("node:fs/promises").then(({ readFile }) =>
+    readFile(path.join(distDir, "index.html"), "utf8"),
+  ),
+});
 
 
 // Intercept only crawler requests for public storefront paths. Human visitors
@@ -279,8 +252,6 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
 registerCrawlerStorefrontRoutes(app, renderCrawlerStorefront);
 
 
-const distDir = path.join(projectRoot, "dist");
-const hasProductionBuild = existsSync(path.join(distDir, "index.html"));
 if (hasProductionBuild) {
   await app.register(fastifyStatic, {
     root: distDir,
