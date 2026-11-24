@@ -340,6 +340,9 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
 // Intercept only crawler requests for public storefront paths. Human visitors
 // continue through the unchanged SPA fallback.
 const crawlerStorefrontRoute = async (request: FastifyRequest, reply: FastifyReply) => {
+  // The same URL intentionally serves crawler HTML or the normal SPA shell.
+  // Shared caches must not reuse one representation for the other user agent.
+  reply.header("Vary", "User-Agent");
   const rendered = await renderCrawlerStorefront(request, reply);
   return rendered ?? reply.callNotFound();
 };
