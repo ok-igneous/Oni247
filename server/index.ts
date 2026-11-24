@@ -6,7 +6,7 @@ import { readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { escapeHtml, injectCrawlerHtml, isCrawlerUserAgent, isPublicStorefrontPath, isPublicCustomDomainPath, normalizeDomainHost } from "./storefrontPrerender";
+import { escapeHtml, isCrawlerUserAgent, isPublicStorefrontPath, isPublicCustomDomainPath, normalizeDomainHost } from "./storefrontPrerender";
 import { storefrontSnapshot } from "./storefrontSnapshot";
 import { registerCrawlerStorefrontRoutes } from "./crawlerRoutes";
 import { renderCrawlerDocument } from "./crawlerDocument";
