@@ -128,34 +128,11 @@ CREATE POLICY oni247_gallery_image_isolation ON public.gallery_images
     )
   );
 
--- User-owned authentication data. These policies do not replace session/token
--- validation in the application; they add database-level user scoping.
-ALTER TABLE public.sessions ENABLE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS oni247_user_isolation ON public.sessions;
-CREATE POLICY oni247_user_isolation ON public.sessions
-  FOR ALL
-  USING (user_id::text = current_setting('app.user_id', true))
-  WITH CHECK (user_id::text = current_setting('app.user_id', true));
-
-ALTER TABLE public.auth_tokens ENABLE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS oni247_user_isolation ON public.auth_tokens;
-CREATE POLICY oni247_user_isolation ON public.auth_tokens
-  FOR ALL
-  USING (user_id::text = current_setting('app.user_id', true))
-  WITH CHECK (user_id::text = current_setting('app.user_id', true));
-
-ALTER TABLE public.user_passwords ENABLE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS oni247_user_isolation ON public.user_passwords;
-CREATE POLICY oni247_user_isolation ON public.user_passwords
-  FOR ALL
-  USING (user_id::text = current_setting('app.user_id', true))
-  WITH CHECK (user_id::text = current_setting('app.user_id', true));
-
-ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS oni247_user_isolation ON public.users;
-CREATE POLICY oni247_user_isolation ON public.users
-  FOR ALL
-  USING (id::text = current_setting('app.user_id', true))
-  WITH CHECK (id::text = current_setting('app.user_id', true));
+-- Authentication tables are deliberately excluded from this first RLS migration.
+-- Session resolution must read a session cookie before the application knows the
+-- authenticated user_id. Applying user_id-based RLS to sessions here would create
+-- an authentication bootstrap deadlock. Password resets, token verification,
+-- user-profile access, and session cleanup need dedicated narrowly-scoped access
+-- paths and policies before those tables can be protected by RLS.
 
 COMMIT;
