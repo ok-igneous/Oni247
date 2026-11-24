@@ -15,7 +15,7 @@ const endpointsRoot = path.join(projectRoot, "endpoints");
 const trustProxySetting = process.env.TRUST_PROXY?.trim().toLowerCase();
 const trustProxy = trustProxySetting === "true"
   ? true
-  : trustProxySetting && /^\\d+$/.test(trustProxySetting)
+  : trustProxySetting && /^\d+$/.test(trustProxySetting)
     ? Number(trustProxySetting)
     : false;
 
@@ -111,7 +111,12 @@ async function invokeEndpoint(
         : Buffer.from(await response.arrayBuffer());
       return { response, responseBody };
     };
-    const { response, responseBody } = authenticatedUserId
+    // Authentication endpoints operate only on bootstrap/auth tables, which are
+    // deliberately excluded from tenant RLS. Keep them outside the request
+    // transaction because several use their own atomic Kysely transactions.
+    // Nesting a transaction builder on a Kysely Transaction is not supported.
+    const isAuthenticationRoute = route.startsWith("auth/");
+    const { response, responseBody } = authenticatedUserId && !isAuthenticationRoute
       ? await withUserDatabaseContext(authenticatedUserId, executeEndpoint)
       : await executeEndpoint();
     reply.code(response.status);
