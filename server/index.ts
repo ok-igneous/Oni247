@@ -6,7 +6,7 @@ import { readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { escapeHtml, injectCrawlerHtml, isCrawlerUserAgent, isPublicStorefrontPath, normalizeDomainHost } from "./storefrontPrerender";
+import { escapeHtml, injectCrawlerHtml, isCrawlerUserAgent, isPublicStorefrontPath, isPublicCustomDomainPath, normalizeDomainHost } from "./storefrontPrerender";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(here, "..");
@@ -169,10 +169,11 @@ app.get("/robots.txt", async (request, reply) => {
 // Serve database-backed public storefront HTML to crawlers while keeping the SPA
 // for human visitors. Route matching and HTML injection are covered by unit tests.
 
-function storefrontSnapshot(data: any, pathname: string, origin: string): { title: string; description: string; body: string; image?: string; jsonLd?: unknown } {
+function storefrontSnapshot(data: any, pathname: string, origin: string, customDomain = false, canonicalPath = pathname): { title: string; description: string; body: string; image?: string; jsonLd?: unknown } {
   const business = data.business;
-  const base = `${origin}/${encodeURIComponent(business.slug)}`;
-  const segments = pathname.split("/").filter(Boolean).slice(1);
+  const base = customDomain ? origin : `${origin}/${encodeURIComponent(business.slug)}`;
+  const pathSegments = pathname.split("/").filter(Boolean);
+  const segments = customDomain ? pathSegments : pathSegments.slice(1);
   const [kind, contentSlug] = segments;
   const links = (data.products ?? []).filter((item: any) => item.available).map((item: any) =>
     `<li><a href="${base}/p/${encodeURIComponent(item.slug)}">${escapeHtml(item.name)}</a>${item.description ? `<p>${escapeHtml(item.description)}</p>` : ""}</li>`).join("");
@@ -208,7 +209,7 @@ function storefrontSnapshot(data: any, pathname: string, origin: string): { titl
       description,
       image: post.coverImageUrl || undefined,
       body: `<main><nav><a href="${base}">${escapeHtml(business.name)}</a> / <a href="${base}/blog">Blog</a></nav><article><h1>${escapeHtml(post.title)}</h1>${post.coverImageUrl ? `<img src="${escapeHtml(post.coverImageUrl)}" alt="${escapeHtml(post.title)}" />` : ""}<p>${escapeHtml(description)}</p><div>${post.content ?? ""}</div></article></main>`,
-      jsonLd: { "@context": "https://schema.org", "@type": "BlogPosting", headline: post.title, description, datePublished: post.publishedAt || undefined, image: post.coverImageUrl ? [post.coverImageUrl] : undefined, author: { "@type": "Organization", name: business.name }, mainEntityOfPage: `${origin}${pathname}` },
+      jsonLd: { "@context": "https://schema.org", "@type": "BlogPosting", headline: post.title, description, datePublished: post.publishedAt || undefined, image: post.coverImageUrl ? [post.coverImageUrl] : undefined, author: { "@type": "Organization", name: business.name }, mainEntityOfPage: `${origin}${canonicalPath}` },
     };
   }
   if (kind === "e") {
@@ -238,7 +239,7 @@ function storefrontSnapshot(data: any, pathname: string, origin: string): { titl
     title: `${pageTitle} — ${business.name}`,
     description: business.description || `${pageTitle} from ${business.name}.`,
     body: `<main><nav><a href="${base}">${escapeHtml(business.name)}</a></nav><h1>${escapeHtml(pageTitle)}</h1>${kind === "products" || kind === "services" || kind === "blog" || kind === "events" ? `<ul>${body}</ul>` : body}</main>`,
-    jsonLd: { "@context": "https://schema.org", "@type": "WebPage", name: `${pageTitle} — ${business.name}`, url: `${origin}${pathname}`, isPartOf: { "@type": "WebSite", name: business.name, url: base } },
+    jsonLd: { "@context": "https://schema.org", "@type": "WebPage", name: `${pageTitle} — ${business.name}`, url: `${origin}${canonicalPath}`, isPartOf: { "@type": "WebSite", name: business.name, url: base } },
   };
 }
 
@@ -247,22 +248,36 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
   if (!isCrawlerUserAgent(userAgent)) return;
   if (!hasProductionBuild) return;
   const url = new URL(request.url, `${request.protocol}://${request.host}`);
-  const isCustomDomainRoot = url.pathname === "/";
-  if (!isCustomDomainRoot && !isPublicStorefrontPath(url.pathname)) return;
-  const parts = url.pathname.split("/").filter(Boolean);
-  let slug = parts[0] ? decodeURIComponent(parts[0]) : "";
-  if (isCustomDomainRoot) {
-    const { db } = await import("../helpers/db");
-    const customDomainBusinesses = await db.selectFrom("businesses")
-      .select(["slug", "customDomain"])
-      .where("status", "=", "published")
-      .where("customDomainStatus", "=", "verified")
-      .execute();
-    const matchedBusiness = customDomainBusinesses.find(
-      (business) => normalizeDomainHost(business.customDomain) === url.hostname.toLowerCase(),
-    );
-    if (!matchedBusiness) return;
-    slug = matchedBusiness.slug;
+  let customDomain = false;
+  let slug = "";
+  let routePath = url.pathname;
+  let parts = url.pathname.split("/").filter(Boolean);
+  const configuredPlatformHost = normalizeDomainHost(process.env.APP_BASE_URL);
+  if (!configuredPlatformHost || configuredPlatformHost !== url.hostname.toLowerCase()) {
+    try {
+      const { db } = await import("../helpers/db");
+      const customDomainBusinesses = await db.selectFrom("businesses")
+        .select(["slug", "customDomain"])
+        .where("status", "=", "published")
+        .where("customDomainStatus", "=", "verified")
+        .execute();
+      const matchedBusiness = customDomainBusinesses.find(
+        (business) => normalizeDomainHost(business.customDomain) === url.hostname.toLowerCase(),
+      );
+      if (matchedBusiness) {
+        if (!isPublicCustomDomainPath(url.pathname)) return;
+        customDomain = true;
+        slug = matchedBusiness.slug;
+        routePath = `/${encodeURIComponent(slug)}${url.pathname === "/" ? "" : url.pathname}`;
+      }
+    } catch (error) {
+      request.log.warn({ err: error, host: url.hostname }, "Custom-domain crawler lookup failed");
+      return;
+    }
+  }
+  if (!customDomain) {
+    if (!isPublicStorefrontPath(url.pathname)) return;
+    slug = decodeURIComponent(parts[0]);
   }
   try {
     const endpoint = await import("../endpoints/storefront_GET");
@@ -274,7 +289,9 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
     const superjson = (await import("superjson")).default;
     const data = superjson.parse<any>(await response.text());
     let snapshot: { title: string; description: string; body: string; image?: string; jsonLd?: unknown };
-    if (parts[1] === "gallery" && !parts[2]) {
+    const section = customDomain ? parts[0] : parts[1];
+    const detailSlug = customDomain ? parts[1] : parts[2];
+    if (section === "gallery" && !detailSlug) {
       const galleryListEndpoint = await import("../endpoints/galleries/publicList_GET");
       const galleryListResponse = await galleryListEndpoint.handle(new Request(`http://localhost/_api/galleries/publicList?slug=${encodeURIComponent(slug)}`));
       if (!galleryListResponse.ok) return reply.code(404).type("text/html; charset=utf-8").send("<!doctype html><title>Gallery not found</title><h1>Gallery not found</h1>");
@@ -287,9 +304,9 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
         body: `<main><h1>Gallery</h1><p>${escapeHtml(description)}</p><ul>${galleries.map((gallery: any) => `<li><a href="/${encodeURIComponent(slug)}/g/${encodeURIComponent(gallery.slug)}">${escapeHtml(gallery.name)}</a>${gallery.description ? `<p>${escapeHtml(gallery.description)}</p>` : ""}${gallery.coverImageUrl ? `<img src="${escapeHtml(gallery.coverImageUrl)}" alt="${escapeHtml(gallery.name)}" />` : ""}</li>`).join("")}</ul></main>`,
         jsonLd: { "@context": "https://schema.org", "@type": "CollectionPage", name: `Gallery — ${data.business.name}`, description, url: `${url.origin}${url.pathname}` },
       };
-    } else if (parts[1] === "g" && parts[2]) {
+    } else if (section === "g" && detailSlug) {
       const galleryEndpoint = await import("../endpoints/galleries/public_GET");
-      const galleryResponse = await galleryEndpoint.handle(new Request(`http://localhost/_api/galleries/public?slug=${encodeURIComponent(slug)}&gallerySlug=${encodeURIComponent(decodeURIComponent(parts[2]))}`));
+      const galleryResponse = await galleryEndpoint.handle(new Request(`http://localhost/_api/galleries/public?slug=${encodeURIComponent(slug)}&gallerySlug=${encodeURIComponent(decodeURIComponent(detailSlug))}`));
       if (!galleryResponse.ok) return reply.code(404).type("text/html; charset=utf-8").send("<!doctype html><title>Gallery not found</title><h1>Gallery not found</h1>");
       const galleryData = superjson.parse<any>(await galleryResponse.text());
       const gallery = galleryData.gallery;
@@ -298,11 +315,11 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
         title: `${gallery.name} — ${galleryData.business.name}`,
         description,
         image: gallery.coverImageUrl || gallery.images[0]?.imageUrl || undefined,
-        body: `<main><nav><a href="/${encodeURIComponent(slug)}">${escapeHtml(galleryData.business.name)}</a> / <a href="/${encodeURIComponent(slug)}/gallery">Gallery</a></nav><h1>${escapeHtml(gallery.name)}</h1>${description ? `<p>${escapeHtml(description)}</p>` : ""}<div>${gallery.images.map((image: any) => `<figure><img src="${escapeHtml(image.imageUrl)}" alt="${escapeHtml(image.altText || image.caption || gallery.name)}" />${image.caption ? `<figcaption>${escapeHtml(image.caption)}</figcaption>` : ""}</figure>`).join("")}</div></main>`,
+        body: `<main><nav><a href="${customDomain ? "/" : `/${encodeURIComponent(slug)}`}">${escapeHtml(galleryData.business.name)}</a> / <a href="${customDomain ? "/gallery" : `/${encodeURIComponent(slug)}/gallery`}">Gallery</a></nav><h1>${escapeHtml(gallery.name)}</h1>${description ? `<p>${escapeHtml(description)}</p>` : ""}<div>${gallery.images.map((image: any) => `<figure><img src="${escapeHtml(image.imageUrl)}" alt="${escapeHtml(image.altText || image.caption || gallery.name)}" />${image.caption ? `<figcaption>${escapeHtml(image.caption)}</figcaption>` : ""}</figure>`).join("")}</div></main>`,
         jsonLd: { "@context": "https://schema.org", "@type": "CollectionPage", name: gallery.name, description, url: `${url.origin}${url.pathname}`, image: gallery.images.slice(0, 10).map((image: any) => image.imageUrl) },
       };
     } else {
-      snapshot = storefrontSnapshot(data, url.pathname, url.origin);
+      snapshot = storefrontSnapshot(data, routePath, url.origin, customDomain, url.pathname);
     }
     const canonical = `${url.origin}${url.pathname}`;
     const jsonLd = JSON.stringify(snapshot.jsonLd ?? {}).replace(/</g, "\\u003c");
