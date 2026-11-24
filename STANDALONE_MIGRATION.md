@@ -22,7 +22,7 @@ This branch is the working migration target. The Floot-hosted production app is 
 
 ## Required migration work still outstanding
 
-- Export and import the production PostgreSQL database and verify schema/version parity.
+- Export and import the production PostgreSQL database and verify schema/version parity using [the database migration procedure](./docs/DATABASE_MIGRATION.md).
 - Copy Floot-hosted uploaded media to the configured object bucket and rewrite legacy media URLs.
 - Audit every source file for remaining Floot SDK/runtime references.
 - Verify every endpoint's method/path mapping and exercise authentication, email, payments, uploads, events, and storefront flows.
