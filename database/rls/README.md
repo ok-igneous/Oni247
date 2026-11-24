@@ -21,14 +21,14 @@ This directory contains an RLS policy foundation, not a production-ready activat
 - Tenant-owned tables receive a single all-commands policy using their `business_id`.
 - `gallery_images` derives ownership through its parent gallery.
 - `businesses` derives ownership from its ID and `owner_id`.
-- User-owned auth tables are scoped to the matching `users.id`.
+- Authentication tables (`sessions`, `auth_tokens`, `user_passwords`, and `users`) are deliberately excluded from this first migration. Session lookup must happen before the server knows the user ID; applying a user-ID policy to session lookup would create an authentication bootstrap deadlock. Add dedicated policies only after designing narrow auth access paths.
 - `login_attempts` and `platform_settings` are deliberately not covered by these tenant policies; their authentication/platform access patterns need separate review.
 
 ## Security boundaries and caveats
 
 A custom PostgreSQL setting is trusted application context, not an unforgeable identity token. A database client able to execute arbitrary SQL as the runtime role can generally set custom GUCs. This design protects against omitted tenant predicates and accidental cross-tenant queries; it does not make SQL injection harmless. Continue using parameterized queries, strict input validation, least-privilege grants, and a non-owner runtime role.
 
-The SECURITY DEFINER helper must be owned by a controlled migration/table-owner role. Its fixed search path and revoked PUBLIC execute privilege are deliberate. Grant execute only to the runtime role after role provisioning. Do not use FORCE ROW LEVEL SECURITY on the referenced tables without redesigning and testing the helper: its owner needs controlled visibility of ownership and membership rows to avoid recursive policy evaluation.
+The SECURITY DEFINER helper must be owned by a controlled migration/table-owner role. Its fixed search path and revoked PUBLIC execute privilege are deliberate. The runtime role also needs `USAGE` on `app_private` and `EXECUTE` on this function; grant these explicitly to the provisioned runtime role after role provisioning. Do not grant either privilege to `PUBLIC`. Do not use FORCE ROW LEVEL SECURITY on the referenced tables without redesigning and testing the helper: its owner needs controlled visibility of ownership and membership rows to avoid recursive policy evaluation.
 
 ## Required automated tests
 
@@ -39,7 +39,7 @@ For two users and two businesses, verify:
 - inserts with another business ID fail;
 - updates cannot move rows to another business;
 - gallery images cannot be read or inserted through another business's gallery;
-- user A cannot read or mutate user B's sessions, tokens, passwords, or profile;
+- authentication/session/token/password/profile operations are tested against their separately designed access controls before any auth-table RLS is enabled;
 - missing or empty `app.user_id` returns no tenant rows and rejects writes;
 - connection reuse after a transaction does not retain the previous user's context;
 - public routes expose only explicitly approved published data.
