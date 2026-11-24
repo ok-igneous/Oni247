@@ -48,7 +48,7 @@ RETURNS boolean
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = pg_catalog, public
-AS $
+AS $function$
 DECLARE
   current_user_id text := NULLIF(current_setting('app.user_id', true), '');
   current_email text;
@@ -97,7 +97,7 @@ BEGIN
   GET DIAGNOSTICS updated_count = ROW_COUNT;
   RETURN updated_count = 1;
 END;
-$;
+$function$;
 
 REVOKE ALL ON FUNCTION app_private.activate_invited_team_member(text) FROM PUBLIC;
 
