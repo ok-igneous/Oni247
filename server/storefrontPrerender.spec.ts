@@ -5,7 +5,8 @@ import {
   isCrawlerUserAgent,
   isPublicStorefrontPath,
   isPublicCustomDomainPath,
-  normalizeDomainHost,\n  resolvePlatformSubdomainSlug,
+  normalizeDomainHost,
+  resolvePlatformSubdomainSlug,
 } from "./storefrontPrerender";
 
 describe("crawler storefront helpers", () => {
