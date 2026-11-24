@@ -30,3 +30,7 @@ This branch is the working migration target. The Floot-hosted production app is 
 - Add automated integration tests and deployment health checks.
 
 Do not cut over production until the above checks pass. Never copy Floot secrets into Git.
+
+## Hosting compatibility
+
+The current extraction targets a conventional Node.js host because the existing endpoint handlers use Node-compatible PostgreSQL, crypto, SMTP and filesystem-based module discovery. Cloudflare R2 is supported for object storage, but this Fastify server is **not** a Cloudflare Workers/Pages deployment yet. A Cloudflare deployment must use a supported container runtime for this Node server, or a separately engineered Worker-native API adapter. Do not attempt a direct Workers upload until that runtime decision is made and tested.
