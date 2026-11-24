@@ -43,7 +43,12 @@ export function createCrawlerStorefrontRenderer(deps: CrawlerRendererDependencie
       let customDomain = false;
       let slug = "";
 
-      if (!configuredPlatformHost || configuredPlatformHost !== url.hostname.toLowerCase()) {
+      const platformSubdomainSlug = resolvePlatformSubdomainSlug(url.hostname, configuredPlatformHost);
+      if (platformSubdomainSlug) {
+        if (!isPublicCustomDomainPath(url.pathname)) return;
+        customDomain = true;
+        slug = platformSubdomainSlug;
+      } else if (!isPlatformHostname(url.hostname, configuredPlatformHost)) {
         const matchedSlug = await deps.resolveCustomDomain(url.hostname.toLowerCase());
         if (matchedSlug) {
           if (!isPublicCustomDomainPath(url.pathname)) return;
