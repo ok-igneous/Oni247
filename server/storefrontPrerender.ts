@@ -65,3 +65,21 @@ export function normalizeDomainHost(value: string | null | undefined): string | 
     return null;
   }
 }
+
+
+/** Resolve a single-label business subdomain under the configured platform root. */
+export function resolvePlatformSubdomainSlug(
+  hostname: string | null | undefined,
+  platformRoot: string | null | undefined,
+): string | null {
+  const host = normalizeDomainHost(hostname);
+  const root = normalizeDomainHost(platformRoot);
+  if (!host || !root || host === root) return null;
+
+  const suffix = `.${root}`;
+  if (!host.endsWith(suffix)) return null;
+  const slug = host.slice(0, -suffix.length);
+  if (!/^[a-z0-9][a-z0-9-]{0,119}$/.test(slug)) return null;
+  if (RESERVED_ROOTS.has(slug)) return null;
+  return slug;
+}
