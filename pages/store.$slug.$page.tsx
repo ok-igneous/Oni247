@@ -21,6 +21,7 @@ import { EventsList } from "../components/EventsList";
 import { parseBlogSettings } from "../helpers/parseBlogSettings";
 import { useStoreCart } from "../helpers/useStoreCart";
 import { getPublicEvents, type PublicEventItem } from "../endpoints/events/publicList_GET.schema";
+import { getStorefrontBaseUrl } from "../helpers/storefrontCanonical";
 
 export default function StoreSectionPage(){
   const {slug,page}=useParams<{slug:string;page:string}>();
@@ -75,7 +76,7 @@ export default function StoreSectionPage(){
         <meta property="og:image" content={(typeof b.appearanceSettings.shareImageUrl==="string"&&b.appearanceSettings.shareImageUrl)||b.heroImageUrl||b.logoUrl||""}/>
         <meta name="twitter:image" content={(typeof b.appearanceSettings.shareImageUrl==="string"&&b.appearanceSettings.shareImageUrl)||b.heroImageUrl||b.logoUrl||""}/>
       </> : null}
-      <script type="application/ld+json">{JSON.stringify({"@context":"https://schema.org","@type":"WebPage","name":title+" — "+b.name,"description":b.description||title+" from "+b.name,"url":typeof window!=="undefined"?window.location.origin+window.location.pathname:"/"+b.slug+"/"+pth,"isPartOf":{"@type":"WebSite","name":b.name,"url":typeof window!=="undefined"?window.location.origin+"/"+b.slug:"/"+b.slug}}).replace(/</g,"\\u003c")}</script>
+      <script type="application/ld+json">{JSON.stringify({"@context":"https://schema.org","@type":"WebPage","name":title+" — "+b.name,"description":b.description||title+" from "+b.name,"url":typeof window!=="undefined"?window.location.origin+window.location.pathname:"/"+b.slug+"/"+pth,"isPartOf":{"@type":"WebSite","name":b.name,"url":typeof window!=="undefined"?getStorefrontBaseUrl(b.slug,window.location.origin,window.location.pathname):"/"+b.slug}}).replace(/</g,"\\u003c")}</script>
     </Helmet>
     <StorefrontHeader businessName={b.name} logoUrl={b.logoUrl} tagline={typeof appearance.headerTagline==="string"?appearance.headerTagline:""} headerBrand={typeof appearance.headerBrand==="string"?appearance.headerBrand:"logo_name"} headerAlignment={t.headerAlignment} menuStyle={t.menuStyle as "bar"|"minimal"|"pills"} menuPosition={t.menuPosition as "left"|"center"|"right"} menuVisibility={t.menuVisibility as "always"|"auto"} navItems={[{label:"Home",href:homePage==="home"?"/"+b.slug:"/"+b.slug+"/"+homePage},...["products","services","about","gallery","blog","events","contact"].filter(x=>x!==homePage&&(x!=="products"||data.products.length>0)&&(x!=="services"||data.services.length>0)&&(x!=="blog"||data.blogPosts.length>0)&&(x!=="events"||(data.events.length>0&&appearance.eventsPageInMenu===true))).map(x=>({label:x[0].toUpperCase()+x.slice(1),href:"/"+b.slug+"/"+x,active:x===pth})),{label:"Track order",href:"/"+b.slug+"/track"}]} />
     <main className={styles.main}><div className={styles.titleRow}><h1>{title}</h1></div>
