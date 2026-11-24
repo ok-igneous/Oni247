@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, it, expect } from "vitest";
 import { switchToDarkMode, switchToLightMode, switchToAutoMode, getCurrentThemeMode } from "./themeMode";
 
 // Helper function to create a mutable MediaQueryList mock.
