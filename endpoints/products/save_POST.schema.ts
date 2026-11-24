@@ -33,6 +33,22 @@ export const schema = z.object({
   stockQuantity: z.number().int().min(0).max(1000000).nullable().optional(),
   images: z.array(z.string().trim().min(1).max(500)).max(8).optional(),
   compareAtPrice: z.number().min(0).max(999999999).nullable().optional(),
+}).superRefine((value, ctx) => {
+  const seen = new Set<string>();
+  for (const [index, option] of (value.variants ?? []).entries()) {
+    // The checkout resolver selects an option by group name and value. Reject
+    // duplicate pairs (including case-only duplicates) instead of making the
+    // charged price depend on which duplicate happens to appear first.
+    const key = `${option.name.trim().toLocaleLowerCase()}\\u0000${option.value.trim().toLocaleLowerCase()}`;
+    if (seen.has(key)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["variants", index],
+        message: "Each option value must be unique within its option group.",
+      });
+    }
+    seen.add(key);
+  }
 });
 
 export type InputType = z.infer<typeof schema>;
