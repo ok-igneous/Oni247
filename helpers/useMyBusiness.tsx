@@ -7,5 +7,5 @@ export const useMyBusiness = () =>
   useQuery({
     queryKey: MY_BUSINESS_QUERY_KEY,
     queryFn: () => getMyBusiness(),
-   10	    retry: false,
-   11	  });
+    retry: false,
+  });
