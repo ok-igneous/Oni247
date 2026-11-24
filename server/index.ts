@@ -9,6 +9,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { escapeHtml, injectCrawlerHtml, isCrawlerUserAgent, isPublicStorefrontPath, isPublicCustomDomainPath, normalizeDomainHost } from "./storefrontPrerender";
 import { storefrontSnapshot } from "./storefrontSnapshot";
 import { registerCrawlerStorefrontRoutes } from "./crawlerRoutes";
+import { renderCrawlerDocument } from "./crawlerDocument";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(here, "..");
@@ -258,10 +259,8 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
       snapshot = storefrontSnapshot(data, url.pathname, url.origin, customDomain, url.pathname);
     }
     const canonical = `${url.origin}${url.pathname}`;
-    const jsonLd = JSON.stringify(snapshot.jsonLd ?? {}).replace(/</g, "\\u003c");
-    const metadata = `<title>${escapeHtml(snapshot.title)}</title><meta name="description" content="${escapeHtml(snapshot.description.slice(0, 160))}"><link rel="canonical" href="${escapeHtml(canonical)}"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:title" content="${escapeHtml(snapshot.title)}"><meta property="og:description" content="${escapeHtml(snapshot.description.slice(0, 200))}"><meta property="og:site_name" content="Oni247"><meta name="twitter:title" content="${escapeHtml(snapshot.title)}"><meta name="twitter:description" content="${escapeHtml(snapshot.description.slice(0, 200))}"><meta property="og:url" content="${escapeHtml(canonical)}">${snapshot.image ? `<meta property="og:image" content="${escapeHtml(snapshot.image)}"><meta name="twitter:image" content="${escapeHtml(snapshot.image)}">` : ""}<meta name="twitter:card" content="summary_large_image"><script type="application/ld+json">${jsonLd}</script>`;
     const indexHtml = await (await import("node:fs/promises")).readFile(path.join(distDir, "index.html"), "utf8");
-    const html = injectCrawlerHtml(indexHtml, metadata, snapshot.body);
+    const html = renderCrawlerDocument({ indexHtml, snapshot, canonicalUrl: canonical });
     reply.header("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
     return reply.type("text/html; charset=utf-8").send(html);
   } catch (error) {
