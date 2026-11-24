@@ -1,6 +1,6 @@
 import Fastify from "fastify";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createCrawlerStorefrontRenderer } from "./crawlerRenderer";
+import { createCrawlerStorefrontRenderer, type CrawlerSnapshotRequest } from "./crawlerRenderer";
 import { registerCrawlerStorefrontRoutes } from "./crawlerRoutes";
 
 const shell = '<!doctype html><html><head></head><body><div id="root"></div></body></html>';
@@ -29,6 +29,7 @@ async function makeApp(overrides: Partial<Parameters<typeof createCrawlerStorefr
 }
 
 afterEach(async () => {
+  vi.unstubAllEnvs();
   await Promise.all(apps.splice(0).map((app) => app.close()));
 });
 
@@ -47,7 +48,8 @@ describe("production crawler renderer factory", () => {
   });
 
   it("resolves verified custom-domain routes and passes their identity to snapshot loading", async () => {
-    const loadSnapshot = vi.fn(async ({ slug, customDomain }) => ({
+    vi.stubEnv("APP_BASE_URL", "https://platform.example.com");
+    const loadSnapshot = vi.fn(async ({ slug, customDomain }: CrawlerSnapshotRequest) => ({
       title: slug,
       description: "Custom domain",
       body: `<main>${customDomain ? "custom" : "platform"}</main>`,
