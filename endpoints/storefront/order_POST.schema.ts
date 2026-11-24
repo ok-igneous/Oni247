@@ -1,53 +1,100 @@
 import { z } from "zod";
 import superjson from "superjson";
+import {
+  OrderPaymentMethodArrayValues,
+  type OrderPaymentMethod,
+} from "../../helpers/schema";
+
+const optionalText = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .nullish()
+    .transform((value) => (value && value.length > 0 ? value : null));
 
 export const schema = z.object({
   slug: z.string().min(1).max(120),
   customerName: z.string().trim().min(1, "Enter your name").max(80),
   customerPhone: z.string().trim().min(4, "Enter your phone number").max(30),
+  customerEmail: optionalText(120),
   items: z
     .array(
-   10	      z.object({
-   11	        productId: z.string().uuid(),
-   12	        quantity: z.number().int().min(1).max(999),
-   13	      }),
-   14	    )
-   15	    .min(1)
-   16	    .max(50),
-   17	  deliveryAddress: z
-   18	    .string()
-   19	    .trim()
-   20	    .max(200)
-   21	    .nullish()
-   22	    .transform((value) => (value && value.length > 0 ? value : null)),
-   23	});
-   24	
-   25	export type InputType = z.infer<typeof schema>;
-   26	
-   27	export type OutputType = {
-   28	  orderId: string;
-   29	  trackingCode: string | null;
-   30	  total: number;
-   31	  currency: string;
-   32	};
-   33	
-   34	export const postStorefrontOrder = async (
-   35	  body: InputType,
-   36	  init?: RequestInit,
-   37	): Promise<OutputType> => {
-   38	  const validatedInput = schema.parse(body);
-   39	  const result = await fetch(`/_api/storefront/order`, {
-   40	    method: "POST",
-   41	    body: superjson.stringify(validatedInput),
-   42	    ...init,
-   43	    headers: {
-   44	      "Content-Type": "application/json",
-   45	      ...(init?.headers ?? {}),
-   46	    },
-   47	  });
-   48	  if (!result.ok) {
-   49	    const errorObject = superjson.parse<{ error: string }>(await result.text());
-   50	    throw new Error(errorObject.error);
-   51	  }
-   52	  return superjson.parse<OutputType>(await result.text());
-   53	};
+      z.object({
+        productId: z.string().uuid(),
+        quantity: z.number().int().min(1).max(999),
+        /** Chosen options, e.g. [{name:"Size",value:"L"}]. Omitted by older clients. */
+        variants: z
+          .array(
+            z.object({
+              name: z.string().trim().min(1).max(80),
+              value: z.string().trim().min(1).max(80),
+            }),
+          )
+          .max(10)
+          .optional(),
+      }),
+    )
+    .min(1)
+    .max(50),
+  deliveryAddress: optionalText(200),
+  /** Omitted by older clients, which get the old behaviour (no fee, no payment choice). */
+  deliveryMethod: z.enum(["delivery", "pickup"]).optional(),
+  deliveryZone: optionalText(80),
+  paymentMethod: z.enum(OrderPaymentMethodArrayValues).nullish(),
+  customerNote: optionalText(500),
+});
+
+export type InputType = z.infer<typeof schema>;
+
+export type OrderConfirmationLine = {
+  name: string;
+  variantLabel: string | null;
+  quantity: number;
+  unitPrice: number;
+  lineTotal: number;
+};
+
+export type OutputType = {
+  orderId: string;
+  /** Tracking code, only when the shop's plan includes tracking links. */
+  trackingCode: string | null;
+  /** Always present: the reference to quote to the shop. */
+  orderRef: string;
+  /** Items total plus delivery fee. */
+  total: number;
+  subtotal: number;
+  deliveryFee: number;
+  deliveryZone: string | null;
+  paymentMethod: OrderPaymentMethod | null;
+  /** Only returned when the customer chose bank transfer. */
+  bank: { bankName: string; accountName: string; accountNumber: string } | null;
+  lines: OrderConfirmationLine[];
+  currency: string;
+  /** Set for online payments: where to send the customer to pay. Older clients ignore it. */
+  paymentUrl?: string | null;
+  /** Why the payment page could not be opened. The order exists; the customer can retry. */
+  paymentError?: string | null;
+};
+
+export const postStorefrontOrder = async (
+  body: z.input<typeof schema>,
+  init?: RequestInit,
+): Promise<OutputType> => {
+  const validatedInput = schema.parse(body);
+  const result = await fetch(`/_api/storefront/order`, {
+    method: "POST",
+    body: superjson.stringify(validatedInput),
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      ...(init?.headers ?? {}),
+    },
+  });
+  if (!result.ok) {
+    const errorObject = superjson.parse<{ error: string }>(await result.text());
+    throw new Error(errorObject.error);
+  }
+  return superjson.parse<OutputType>(await result.text());
+};
+
