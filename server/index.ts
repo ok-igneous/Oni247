@@ -30,6 +30,7 @@ async function discoverEndpoints(directory: string): Promise<void> {
 
 await discoverEndpoints(endpointsRoot);
 
+app.removeAllContentTypeParsers();
 app.addContentTypeParser("*", { parseAs: "buffer" }, (_request, body, done) => done(null, body));
 app.get("/healthz", async () => ({ ok: true, service: "oni247-api", endpoints: endpointFiles.size }));
 app.all("/_api/*", async (request, reply) => {
