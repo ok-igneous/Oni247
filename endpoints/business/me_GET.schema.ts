@@ -7,17 +7,17 @@ export type OutputType = {
 };
 
 export const getMyBusiness = async (init?: RequestInit): Promise<OutputType> => {
-   10	  const result = await fetch(`/_api/business/me`, {
-   11	    method: "GET",
-   12	    ...init,
-   13	    headers: {
-   14	      "Content-Type": "application/json",
-   15	      ...(init?.headers ?? {}),
-   16	    },
-   17	  });
-   18	  if (!result.ok) {
-   19	    const errorObject = superjson.parse<{ error: string }>(await result.text());
-   20	    throw new Error(errorObject.error);
-   21	  }
-   22	  return superjson.parse<OutputType>(await result.text());
-   23	};
+  const result = await fetch(`/_api/business/me`, {
+    method: "GET",
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      ...(init?.headers ?? {}),
+    },
+  });
+  if (!result.ok) {
+    const errorObject = superjson.parse<{ error: string }>(await result.text());
+    throw new Error(errorObject.error);
+  }
+  return superjson.parse<OutputType>(await result.text());
+};
