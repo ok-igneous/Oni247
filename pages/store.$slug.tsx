@@ -57,6 +57,7 @@ import { StoreServiceCard } from "../components/StoreServiceCard";
 import type { StorefrontProduct } from "../endpoints/storefront_GET.schema";
 import styles from "./store.$slug.module.css";
 import { shareLink } from "../endpoints/share/page_GET.schema";
+import { getStorefrontBaseUrl } from "../helpers/storefrontCanonical";
 
 const safeContentLink = (value: string): string | null => {
   const trimmed = value.trim();
@@ -348,7 +349,7 @@ const StorePage = () => {
           "@context": "https://schema.org",
           "@type": "LocalBusiness",
           name: business.name,
-          url: typeof window !== "undefined" ? window.location.origin + "/" + business.slug : "/" + business.slug,
+          url: typeof window !== "undefined" ? getStorefrontBaseUrl(business.slug, window.location.origin, window.location.pathname) : "/" + business.slug,
           description: (typeof appearance.seoDescription === "string" && appearance.seoDescription) || shareDescription,
           ...(business.phone ? { telephone: business.phone } : {}),
           ...(business.email ? { email: business.email } : {}),
