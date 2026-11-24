@@ -40,7 +40,7 @@ export function createCrawlerStorefrontRenderer(deps: CrawlerRendererDependencie
     try {
       const url = new URL(request.url, `${request.protocol}://${request.host}`);
       const parts = url.pathname.split("/").filter(Boolean);
-      const configuredPlatformHost = normalizeDomainHost(process.env.APP_BASE_URL);
+      const configuredPlatformHost = normalizeDomainHost(process.env.PLATFORM_ROOT_DOMAIN || process.env.APP_BASE_URL);
       let customDomain = false;
       let slug = "";
 
