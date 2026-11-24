@@ -10,6 +10,7 @@ export async function handle(request: Request) {
       .where("slug", "=", slug)
       .where("status", "=", "published")
       .executeTakeFirst();
+
     if (!business) {
       return new Response(superjson.stringify({ error: "Not found" }), { status: 404 });
     }
@@ -23,21 +24,33 @@ export async function handle(request: Request) {
       .orderBy("createdAt", "asc")
       .execute();
 
-    const galleries = [];
-    for (const row of rows) {
-      const images = await db
-        .selectFrom("galleryImages")
-        .select(["id", "imageUrl"])
-        .where("galleryId", "=", row.id)
-        .orderBy("sortOrder", "asc")
-        .orderBy("createdAt", "asc")
-        .execute();
-      galleries.push({
-        ...row,
-        coverImageUrl: row.coverImageUrl ?? images[0]?.imageUrl ?? null,
-        imageCount: images.length,
-      });
+    // Fetch every gallery's images in one query instead of issuing one query per gallery.
+    const galleryIds = rows.map((gallery) => gallery.id);
+    const images = galleryIds.length
+      ? await db
+          .selectFrom("galleryImages")
+          .select(["id", "galleryId", "imageUrl"])
+          .where("galleryId", "in", galleryIds)
+          .orderBy("sortOrder", "asc")
+          .orderBy("createdAt", "asc")
+          .execute()
+      : [];
+
+    const imagesByGallery = new Map<string, typeof images>();
+    for (const image of images) {
+      const group = imagesByGallery.get(image.galleryId) ?? [];
+      group.push(image);
+      imagesByGallery.set(image.galleryId, group);
     }
+
+    const galleries = rows.map((gallery) => {
+      const galleryImages = imagesByGallery.get(gallery.id) ?? [];
+      return {
+        ...gallery,
+        coverImageUrl: gallery.coverImageUrl ?? galleryImages[0]?.imageUrl ?? null,
+        imageCount: galleryImages.length,
+      };
+    });
 
     return new Response(superjson.stringify({ galleries }), {
       headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
@@ -47,4 +60,3 @@ export async function handle(request: Request) {
     return new Response(superjson.stringify({ error: "Could not load galleries." }), { status: 500 });
   }
 }
-
