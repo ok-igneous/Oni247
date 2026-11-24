@@ -172,14 +172,6 @@ app.get("/robots.txt", async (request, reply) => {
 // Serve database-backed public storefront HTML to crawlers while keeping the SPA
 // for human visitors. Route matching and HTML injection are covered by unit tests.
 
-function sendCrawlerUnavailable(reply: FastifyReply) {
-  reply.header("Cache-Control", "no-store");
-  reply.header("Retry-After", "30");
-  return reply.code(503).type("text/html; charset=utf-8").send(
-    "<!doctype html><title>Storefront temporarily unavailable</title><meta name=\"robots\" content=\"noindex\"><h1>Storefront temporarily unavailable</h1>",
-  );
-}
-
 const distDir = path.join(projectRoot, "dist");
 const hasProductionBuild = existsSync(path.join(distDir, "index.html"));
 
