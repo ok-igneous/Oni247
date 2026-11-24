@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, MessageCircle, Phone, ShoppingBag, X } from "lucide-react";
 import { Button } from "./Button";
@@ -25,6 +25,16 @@ type StorefrontHeaderProps = {
 
 export const StorefrontHeader = ({ businessName, logoUrl, tagline, headerBrand = "logo_name", headerAlignment = "split", navItems, whatsappUrl, phone, showActions = true, menuStyle = "bar", menuPosition = "center", menuVisibility = "always", navVisible = true, cartCount, onCartClick }: StorefrontHeaderProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const navId = useId();
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [menuOpen]);
   const showLogo = headerBrand === "logo" || headerBrand === "logo_name" || headerBrand === "logo_name_tagline";
   const showName = headerBrand !== "logo";
   const showTagline = Boolean(tagline) && (headerBrand === "logo" || headerBrand === "logo_name_tagline" || headerBrand === "name_tagline");
@@ -43,9 +53,9 @@ export const StorefrontHeader = ({ businessName, logoUrl, tagline, headerBrand =
             {showActions && whatsappUrl && <Button asChild size="sm"><a href={whatsappUrl} target="_blank" rel="noopener noreferrer"><MessageCircle size={16} /><span>WhatsApp</span></a></Button>}
             {showActions && phone && <Button asChild size="sm" variant="outline"><a href={`tel:${phone.replace(/\s/g, "")}`}><Phone size={16} /><span>Call</span></a></Button>}
           </div>
-          <button type="button" className={styles.menuToggle} aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"} aria-expanded={menuOpen} onClick={() => setMenuOpen(value => !value)}>{menuOpen ? <X size={22} /> : <Menu size={22} />}</button>
+          <button type="button" className={styles.menuToggle} aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"} aria-expanded={menuOpen} aria-controls={navId} onClick={() => setMenuOpen(value => !value)}>{menuOpen ? <X size={22} /> : <Menu size={22} />}</button>
         </div>
-        <nav className={`${styles.nav} ${styles[`menu_${menuStyle}`]} ${styles[`menuPos_${menuPosition}`]} ${menuVisibility === "auto" && !navVisible && !menuOpen ? styles.navHidden : ""} ${menuOpen ? styles.navOpen : ""}`} aria-label="Business website navigation">
+        <nav id={navId} className={`${styles.nav} ${styles[`menu_${menuStyle}`]} ${styles[`menuPos_${menuPosition}`]} ${menuVisibility === "auto" && !navVisible && !menuOpen ? styles.navHidden : ""} ${menuOpen ? styles.navOpen : ""}`} aria-label="Business website navigation">
           {navItems.map(item => item.href.startsWith("#") ? <a key={item.href + item.label} className={`${styles.navLink} ${item.active ? styles.active : ""}`} href={item.href} onClick={() => setMenuOpen(false)}>{item.label}</a> : <Link key={item.href + item.label} className={`${styles.navLink} ${item.active ? styles.active : ""}`} to={item.href} onClick={() => setMenuOpen(false)}>{item.label}</Link>)}
         </nav>
       </div>
