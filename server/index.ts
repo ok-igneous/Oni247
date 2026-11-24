@@ -110,7 +110,7 @@ app.all("/_api/*", async (request, reply) => {
 
 // The existing sitemap handler is now exposed at the conventional public URL.
 app.get("/sitemap.xml", async (request, reply) =>
-  invokeEndpoint("GET", "sitemap", request, reply, process.env.APP_BASE_URL?.replace(/\\/+$/, "")),
+  invokeEndpoint("GET", "sitemap", request, reply, process.env.APP_BASE_URL?.replace(/\/+$/, "")),
 );
 app.get("/robots.txt", async (request, reply) => {
   const baseUrl = process.env.APP_BASE_URL?.trim() || `${request.protocol}://${request.host}`;
