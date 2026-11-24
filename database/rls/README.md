@@ -10,10 +10,14 @@ This directory contains an RLS policy foundation and an initial request-context 
 2. Provision a dedicated runtime login that is not a superuser, does not have `BYPASSRLS`, and does not own application tables. Keep migration/owner credentials separate.
 3. Grant the runtime role only the required schema usage and table/sequence privileges. Do not grant it membership that permits `SET ROLE` to the owner.
 4. The standalone API now verifies the signed/session-backed user before endpoint execution, then wraps authenticated endpoint execution in `withUserDatabaseContext`. That helper sets `app.user_id` transaction-locally and uses `AsyncLocalStorage` so existing `db` calls in the endpoint resolve to the same Kysely transaction. This is an implementation milestone, not yet validated by a runtime test.
-5. Before activation, test this context propagation under concurrent requests, nested transactions, errors/rollback, and connection reuse. Any DB access started after an endpoint returns (for example, a lazy response stream) must not depend on the request transaction.
+5. The API now consumes each endpoint response body before leaving the authenticated request transaction, so lazy response streams cannot accidentally perform database reads after tenant context has closed. This still needs a regression test with a lazy DB-backed response. Before activation, test context propagation under concurrent requests, nested transactions, errors/rollback, and connection reuse.
 6. Cover non-dashboard flows explicitly: public storefront reads, order/enquiry/form submissions, media upload signing, payment callbacks, email webhooks, scheduled jobs, login/session/token flows, and platform administration. Do not grant blanket public access to tenant tables.
 7. Add explicit public-read policies or narrow database functions only for published storefront fields and records. Never expose payment secrets, private customer data, drafts, internal notes, email credentials, or unpublished content.
 8. Apply the migration to a disposable clone, run the isolation suite, inspect query plans and logs, and only then plan a controlled staging rollout.
+
+
+
+Authentication hardening: `JWT_SECRET` validation is performed outside the invalid-token catch. A missing or undersized secret therefore fails as a server configuration error instead of being downgraded to an unauthenticated request. A focused regression spec covers both invalid configuration and invalid tokens; it has not yet been executed.
 
 ## Policy model
 
