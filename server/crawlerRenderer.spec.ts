@@ -11,6 +11,7 @@ async function makeApp(overrides: Partial<Parameters<typeof createCrawlerStorefr
   apps.push(app);
   const renderer = createCrawlerStorefrontRenderer({
     hasProductionBuild: true,
+    resolvePlatformSubdomain: async () => null,
     resolveCustomDomain: async () => null,
     loadSnapshot: async ({ slug, pathname, customDomain }) => ({
       title: `${slug} storefront`,
@@ -75,11 +76,13 @@ describe("production crawler renderer factory", () => {
       description: "Platform subdomain",
       body: `<main>${slug}:${pathname}:${customDomain ? "root-domain" : "vanity"}</main>`,
     }));
-    const app = await makeApp({ loadSnapshot });
+    const resolvePlatformSubdomain = vi.fn(async (slug: string) => slug === "nesmage" ? "nesmage" : null);
+    const app = await makeApp({ resolvePlatformSubdomain, loadSnapshot });
     const response = await app.inject({
       method: "GET", url: "/products", headers: { host: "nesmage.oni247.example.com", "user-agent": "Googlebot" },
     });
     expect(response.statusCode).toBe(200);
+    expect(resolvePlatformSubdomain).toHaveBeenCalledWith("nesmage");
     expect(response.body).toContain("<main>nesmage:/products:root-domain</main>");
     expect(loadSnapshot).toHaveBeenCalledWith({
       slug: "nesmage", pathname: "/products", origin: "http://nesmage.oni247.example.com", customDomain: true,
