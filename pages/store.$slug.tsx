@@ -101,12 +101,24 @@ const StorePage = () => {
     if (data?.business) trackStoreEvent("store_view", { businessSlug: data.business.slug });
   }, [data?.business]);
   useEffect(() => {
-    const slides = Array.isArray(data?.business.contentSettings?.homepageSlides) ? data.business.contentSettings.homepageSlides : [];
-    if (slides.length < 2 || data?.business.appearanceSettings?.siteType === "online_store") return;
-    const interval = typeof data?.business.contentSettings?.homepageSliderInterval === "number" ? Math.min(10,Math.max(3,data.business.contentSettings.homepageSliderInterval)) : 5;
-    const timer = window.setInterval(() => setActiveSlideIndex(current => (current + 1) % slides.length), interval * 1000);
+    const content = data?.business.contentSettings;
+    const slides = Array.isArray(content?.homepageSlides) ? content.homepageSlides : [];
+    setActiveSlideIndex((current) => (slides.length > 0 ? Math.min(current, slides.length - 1) : 0));
+    if (slides.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const interval =
+      typeof content?.homepageSliderInterval === "number"
+        ? Math.min(10, Math.max(3, content.homepageSliderInterval))
+        : 5;
+    const timer = window.setInterval(
+      () => setActiveSlideIndex((current) => (current + 1) % slides.length),
+      interval * 1000,
+    );
     return () => window.clearInterval(timer);
-  }, [data?.business.contentSettings?.homepageSlides]);
+  }, [
+    data?.business.contentSettings?.homepageSlides,
+    data?.business.contentSettings?.homepageSliderInterval,
+  ]);
 
   const cart = useStoreCart(slug ?? "unknown");
   const myOrders = useMyOrders(slug);
