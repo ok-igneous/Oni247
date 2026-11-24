@@ -40,3 +40,15 @@ export function injectCrawlerHtml(indexHtml: string, metadata: string, body: str
     .replace("</head>", `${metadata}</head>`)
     .replace(/<div id="root">\\s*<\\/div>/i, `<div id="root">${body}</div>`);
 }
+
+/** Normalize a configured HTTPS custom domain for exact Host-header matching. */
+export function normalizeDomainHost(value: string | null | undefined): string | null {
+  if (!value) return null;
+  try {
+    const url = new URL(value.includes("://") ? value : `https://${value}`);
+    if (url.protocol !== "https:" || !url.hostname || url.username || url.password) return null;
+    return url.hostname.toLowerCase();
+  } catch {
+    return null;
+  }
+}
