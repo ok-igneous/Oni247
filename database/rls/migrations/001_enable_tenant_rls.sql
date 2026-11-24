@@ -31,8 +31,22 @@ AS $$
         SELECT 1
         FROM public.team_members tm
         WHERE tm.business_id::text = target_business_id
-          AND tm.user_id::text = current_setting('app.user_id', true)
-          AND lower(tm.status) = 'active'
+          AND (
+            (
+              tm.user_id::text = current_setting('app.user_id', true)
+              AND lower(tm.status) = 'active'
+            )
+            OR (
+              tm.user_id IS NULL
+              AND lower(tm.status) = 'invited'
+              AND EXISTS (
+                SELECT 1
+                FROM public.users u
+                WHERE u.id::text = current_setting('app.user_id', true)
+                  AND lower(u.email) = lower(tm.email)
+              )
+            )
+          )
       )
     );
 $$;
