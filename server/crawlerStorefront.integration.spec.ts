@@ -1,7 +1,7 @@
 import Fastify from "fastify";
 import superjson from "superjson";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createCrawlerRenderer } from "./crawlerRenderer";
+import { createCrawlerStorefrontRenderer } from "./crawlerRenderer";
 import { createCrawlerSnapshotLoader } from "./crawlerSnapshotLoader";
 import { registerCrawlerStorefrontRoutes } from "./crawlerRoutes";
 
