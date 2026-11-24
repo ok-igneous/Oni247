@@ -44,7 +44,7 @@ app.addHook("onSend", async (request, reply, payload) => {
   reply.header("X-Content-Type-Options", "nosniff");
   reply.header("Referrer-Policy", "strict-origin-when-cross-origin");
   reply.header("X-Frame-Options", "SAMEORIGIN");
-  if (process.env.NODE_ENV === "production" && request.protocol === "https") {
+  if (process.env.NODE_ENV === "production") {
     reply.header("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
   }
   return payload;
@@ -86,7 +86,7 @@ async function invokeEndpoint(
     const response = await endpoint.handle(webRequest);
     reply.code(response.status);
     const responseHeaders = response.headers as Headers & { getSetCookie?: () => string[] };
-    const setCookies = responseHeaders.getSetCookie?.() ?? [];
+    const setCookies = responseHeaders.getSetCookie?.() ?? (response.headers.get("set-cookie") ? [response.headers.get("set-cookie")!] : []);
     response.headers.forEach((value, key) => {
       if (key.toLowerCase() !== "set-cookie") reply.header(key, value);
     });
