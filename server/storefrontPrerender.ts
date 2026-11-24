@@ -13,7 +13,7 @@ const RESERVED_ROOTS = new Set([
 
 const STOREFRONT_SECTIONS = new Set([
   "p", "b", "e", "g", "products", "services", "about", "gallery", "blog",
-  "events", "contact", "book", "booking", "checkout", "f", "s", "track",
+  "events", "contact",
 ]);
 
 /** Only vanity storefront paths are eligible; static, API and account routes are excluded. */
@@ -24,7 +24,7 @@ export function isPublicStorefrontPath(pathname: string): boolean {
   if (RESERVED_ROOTS.has(slug.toLowerCase()) || !/^[a-z0-9][a-z0-9-]{0,119}$/i.test(slug)) return false;
   if (!section) return true;
   if (!STOREFRONT_SECTIONS.has(section.toLowerCase())) return false;
-  if (["p", "b", "e", "g", "f", "s"].includes(section.toLowerCase())) {
+  if (["p", "b", "e", "g"].includes(section.toLowerCase())) {
     return Boolean(detail && /^[^/]{1,160}$/.test(detail));
   }
   return !detail;
