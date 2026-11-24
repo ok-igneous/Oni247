@@ -344,6 +344,65 @@ CREATE POLICY oni247_gallery_image_isolation ON public.gallery_images
     )
   );
 
+-- Public storefront reads are limited to published businesses and published
+-- content. These SELECT policies do not expose customer submissions or gateway
+-- secrets. Application endpoints must still select an explicit public column set.
+DROP POLICY IF EXISTS oni247_business_public_read ON public.businesses;
+CREATE POLICY oni247_business_public_read ON public.businesses
+  FOR SELECT USING (status = 'published');
+
+DROP POLICY IF EXISTS oni247_categories_public_read ON public.categories;
+CREATE POLICY oni247_categories_public_read ON public.categories
+  FOR SELECT USING (app_private.is_public_business(business_id::text));
+
+DROP POLICY IF EXISTS oni247_products_public_read ON public.products;
+CREATE POLICY oni247_products_public_read ON public.products
+  FOR SELECT USING (app_private.is_public_business(business_id::text));
+
+DROP POLICY IF EXISTS oni247_testimonials_public_read ON public.testimonials;
+CREATE POLICY oni247_testimonials_public_read ON public.testimonials
+  FOR SELECT USING (published = true AND app_private.is_public_business(business_id::text));
+
+DROP POLICY IF EXISTS oni247_portfolio_public_read ON public.portfolio_items;
+CREATE POLICY oni247_portfolio_public_read ON public.portfolio_items
+  FOR SELECT USING (app_private.is_public_business(business_id::text));
+
+DROP POLICY IF EXISTS oni247_blog_public_read ON public.blog_posts;
+CREATE POLICY oni247_blog_public_read ON public.blog_posts
+  FOR SELECT USING (published = true AND app_private.is_public_business(business_id::text));
+
+DROP POLICY IF EXISTS oni247_events_public_read ON public.events;
+CREATE POLICY oni247_events_public_read ON public.events
+  FOR SELECT USING (published = true AND app_private.is_public_business(business_id::text));
+
+DROP POLICY IF EXISTS oni247_forms_public_read ON public.forms;
+CREATE POLICY oni247_forms_public_read ON public.forms
+  FOR SELECT USING (is_active = true AND app_private.is_public_business(business_id::text));
+
+DROP POLICY IF EXISTS oni247_galleries_public_read ON public.galleries;
+CREATE POLICY oni247_galleries_public_read ON public.galleries
+  FOR SELECT USING (published = true AND app_private.is_public_business(business_id::text));
+
+DROP POLICY IF EXISTS oni247_gallery_images_public_read ON public.gallery_images;
+CREATE POLICY oni247_gallery_images_public_read ON public.gallery_images
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM public.galleries g
+      WHERE g.id = gallery_images.gallery_id
+        AND g.published = true
+        AND app_private.is_public_business(g.business_id::text)
+    )
+  );
+
+-- Anonymous visitors may submit to an active form on a published business,
+-- or to its matching, currently open published event. They receive INSERT only;
+-- submitted answers remain invisible to anonymous requests.
+DROP POLICY IF EXISTS oni247_form_submissions_public_insert ON public.form_submissions;
+CREATE POLICY oni247_form_submissions_public_insert ON public.form_submissions
+  FOR INSERT WITH CHECK (
+    app_private.can_submit_public_form(business_id::text, form_id::text, event_id::text)
+  );
+
 -- Authentication tables are deliberately excluded from this first RLS migration.
 -- Session resolution must read a session cookie before the application knows the
 -- authenticated user_id. Applying user_id-based RLS to sessions here would create
