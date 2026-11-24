@@ -4,6 +4,7 @@ import {
   injectCrawlerHtml,
   isCrawlerUserAgent,
   isPublicStorefrontPath,
+  normalizeDomainHost,
 } from "./storefrontPrerender";
 
 describe("crawler storefront helpers", () => {
@@ -49,6 +50,14 @@ describe("crawler storefront helpers", () => {
       "/nesmage/p/item/extra",
       "/nesmage/unknown-section",
     ]) expect(isPublicStorefrontPath(path), path).toBe(false);
+  });
+
+  it("normalizes verified custom-domain hostnames safely", () => {
+    expect(normalizeDomainHost("https://Shop.Example.com/path")).toBe("shop.example.com");
+    expect(normalizeDomainHost("shop.example.com")).toBe("shop.example.com");
+    expect(normalizeDomainHost("http://shop.example.com")).toBeNull();
+    expect(normalizeDomainHost("https://user:pass@shop.example.com")).toBeNull();
+    expect(normalizeDomainHost("not a domain")).toBeNull();
   });
 
   it("injects metadata and crawlable content into the expected SPA shell", () => {
