@@ -97,6 +97,7 @@ const ThemePage=()=>{
   const shareFileRef=useRef<HTMLInputElement>(null);
   const [shareUploading,setShareUploading]=useState(false);
   const [backgroundUploading,setBackgroundUploading]=useState(false);
+  const [uploadingSlideIndex,setUploadingSlideIndex]=useState<number|null>(null);
   useEffect(()=>{if(business){setTheme(merge((business.appearanceSettings??{}) as Record<string,unknown>));setThemeId(business.themeId);setContentSettings((business.contentSettings??{}) as Record<string,unknown>)}},[business]);
   const preview=useMemo(()=>theme?storeThemeEngine(themeId,theme).style:{},[theme,themeId]);
   if(isFetching&&!business)return <div className={styles.page}><Skeleton className={styles.skeleton}/></div>;
@@ -105,6 +106,26 @@ const ThemePage=()=>{
   const updateContent=(key:string,value:unknown)=>setContentSettings(current=>({...current,[key]:value}));
   const slides=Array.isArray(contentSettings.homepageSlides)?contentSettings.homepageSlides.filter((item):item is Record<string,unknown>=>Boolean(item)&&typeof item==="object"&&!Array.isArray(item)):[];
   const updateSlide=(index:number,key:string,value:string)=>updateContent("homepageSlides",slides.map((slide,i)=>i===index?{...slide,[key]:value}:slide));
+  const moveSlide=(index:number,direction:-1|1)=>{
+    const target=index+direction;
+    if(target<0||target>=slides.length)return;
+    const next=[...slides];
+    [next[index],next[target]]=[next[target],next[index]];
+    updateContent("homepageSlides",next);
+  };
+  const uploadSlideImage=async(index:number,file?:File)=>{
+    if(!file)return;
+    setUploadingSlideIndex(index);
+    try{
+      const url=await uploadImage(file,"background");
+      updateSlide(index,"imageUrl",url);
+      toast.success("Slide image uploaded. Save theme to publish it.");
+    }catch(error){
+      toast.error(error instanceof Error?error.message:"Could not upload slide image.");
+    }finally{
+      setUploadingSlideIndex(current=>current===index?null:current);
+    }
+  };
   const moveSection=(key:string,direction:-1|1)=>{setTheme(t=>{if(!t)return t;const order=t.sectionOrder.length?[...t.sectionOrder]:editableSections.map(([k])=>k as string);const from=order.indexOf(key);const to=from+direction;if(from<0||to<0||to>=order.length)return t;[order[from],order[to]]=[order[to],order[from]];return {...t,sectionOrder:order};});setMoved(key);window.setTimeout(()=>setMoved(m=>m===key?null:m),1400);requestAnimationFrame(()=>document.getElementById("sec-"+key)?.scrollIntoView({block:"nearest",behavior:"smooth"}));};
   const pickSiteType=(type:ThemeState["siteType"],base:StoreTheme)=>{setThemeId(base);setTheme(t=>t?{...t,siteType:type,...(type!=="custom"?{sectionOrder:sectionOrders[type]}:{})}:t)};
   const uploadBackground=async(file?:File)=>{if(!file)return;setBackgroundUploading(true);try{const url=await uploadImage(file,"background");update("backgroundImageUrl",url);toast.success("Background image uploaded. Save theme to publish it.");}catch(e){toast.error(e instanceof Error?e.message:"Could not upload background image.");}finally{setBackgroundUploading(false);if(backgroundFileRef.current)backgroundFileRef.current.value="";}};
@@ -144,8 +165,8 @@ const ThemePage=()=>{
           <Choice disabled={!premiumPlus} label="Automatic slide change" value={String(typeof contentSettings.homepageSliderInterval==="number"?contentSettings.homepageSliderInterval:5)} onChange={v=>updateContent("homepageSliderInterval",Number(v))} options={[["3","Every 3 seconds"],["5","Every 5 seconds"],["7","Every 7 seconds"],["10","Every 10 seconds"]]}/>
         </div>
         {slides.map((slide,index)=><div key={typeof slide.id==="string"?slide.id:index} style={{border:"1px solid var(--border)",borderRadius:10,padding:12,marginTop:12,display:"grid",gap:9}}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8}}><strong>Slide {index+1}</strong><Button type="button" size="sm" variant="ghost" disabled={!premiumPlus} onClick={()=>updateContent("homepageSlides",slides.filter((_,i)=>i!==index))}><Trash2 size={14}/> Remove</Button></div>
-          <label>Image URL<Input disabled={!premiumPlus} value={typeof slide.imageUrl==="string"?slide.imageUrl:""} onChange={e=>updateSlide(index,"imageUrl",e.target.value)} placeholder="https://…"/></label>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,flexWrap:"wrap"}}><strong>Slide {index+1}</strong><div style={{display:"flex",gap:6}}><Button type="button" size="sm" variant="outline" disabled={!premiumPlus||index===0} onClick={()=>moveSlide(index,-1)} aria-label={`Move slide ${index+1} up`}><ArrowUp size={14}/></Button><Button type="button" size="sm" variant="outline" disabled={!premiumPlus||index===slides.length-1} onClick={()=>moveSlide(index,1)} aria-label={`Move slide ${index+1} down`}><ArrowDown size={14}/></Button><Button type="button" size="sm" variant="ghost" disabled={!premiumPlus} onClick={()=>updateContent("homepageSlides",slides.filter((_,i)=>i!==index))}><Trash2 size={14}/> Remove</Button></div></div>
+          <label>Slide image<input id={`slide-image-${index}`} hidden type="file" accept="image/png,image/jpeg,image/webp" disabled={!premiumPlus||uploadingSlideIndex===index} onChange={e=>{void uploadSlideImage(index,e.target.files?.[0]);e.currentTarget.value="";}}/><div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}><Button type="button" size="sm" variant="outline" disabled={!premiumPlus||uploadingSlideIndex===index} onClick={()=>document.getElementById(`slide-image-${index}`)?.click()}><ImagePlus size={14}/>{uploadingSlideIndex===index?"Uploading…":typeof slide.imageUrl==="string"&&slide.imageUrl?"Replace image":"Upload image"}</Button>{typeof slide.imageUrl==="string"&&slide.imageUrl&&<img src={slide.imageUrl} alt="" style={{width:88,height:54,objectFit:"cover",borderRadius:6}}/>}</div><Input disabled={!premiumPlus} value={typeof slide.imageUrl==="string"?slide.imageUrl:""} onChange={e=>updateSlide(index,"imageUrl",e.target.value)} placeholder="Or paste an image URL"/></label>
           <label>Headline<Input disabled={!premiumPlus} maxLength={120} value={typeof slide.headline==="string"?slide.headline:""} onChange={e=>updateSlide(index,"headline",e.target.value)} placeholder="A clear headline"/></label>
           <label>Supporting text<Input disabled={!premiumPlus} maxLength={300} value={typeof slide.text==="string"?slide.text:""} onChange={e=>updateSlide(index,"text",e.target.value)} placeholder="Short supporting message"/></label>
           <label>Button label<Input disabled={!premiumPlus} maxLength={40} value={typeof slide.ctaLabel==="string"?slide.ctaLabel:""} onChange={e=>updateSlide(index,"ctaLabel",e.target.value)} placeholder="Shop now"/></label>
