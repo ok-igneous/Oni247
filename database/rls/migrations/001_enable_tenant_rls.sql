@@ -179,6 +179,26 @@ $public_form$;
 
 REVOKE ALL ON FUNCTION app_private.can_submit_public_form(text, text, text) FROM PUBLIC;
 
+CREATE OR REPLACE FUNCTION app_private.increment_public_showcase_view(target_showcase_id text)
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $public_showcase_view$
+BEGIN
+  UPDATE public.showcases s
+    SET view_count = s.view_count + 1
+    FROM public.businesses b
+    WHERE s.id::text = target_showcase_id
+      AND b.id = s.business_id
+      AND b.status = 'published';
+  RETURN FOUND;
+END;
+$public_showcase_view$;
+
+REVOKE ALL ON FUNCTION app_private.increment_public_showcase_view(text) FROM PUBLIC;
+
+
 -- Invitation acceptance is deliberately a separate, narrow SECURITY DEFINER
 -- operation. Pending invitations do not grant tenant reads; this function may
 -- activate only an invitation matching the authenticated user's verified
@@ -343,6 +363,10 @@ CREATE POLICY oni247_gallery_image_isolation ON public.gallery_images
         AND app_private.can_access_business(g.business_id::text)
     )
   );
+
+DROP POLICY IF EXISTS oni247_showcases_public_read ON public.showcases;
+CREATE POLICY oni247_showcases_public_read ON public.showcases
+  FOR SELECT USING (app_private.is_public_business(business_id::text));
 
 -- Public storefront reads are limited to published businesses and published
 -- content. These SELECT policies do not expose customer submissions or gateway
