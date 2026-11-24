@@ -7,9 +7,9 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { escapeHtml, normalizeDomainHost } from "./storefrontPrerender";
-import { storefrontSnapshot } from "./storefrontSnapshot";
 import { registerCrawlerStorefrontRoutes } from "./crawlerRoutes";
 import { createCrawlerStorefrontRenderer } from "./crawlerRenderer";
+import { createCrawlerSnapshotLoader } from "./crawlerSnapshotLoader";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(here, "..");
@@ -188,51 +188,11 @@ const renderCrawlerStorefront = createCrawlerStorefrontRenderer({
       normalizeDomainHost(business.customDomain) === hostname,
     )?.slug ?? null;
   },
-  loadSnapshot: async ({ slug, pathname, origin, customDomain }) => {
-    const endpoint = await import("../endpoints/storefront_GET");
-    const response = await endpoint.handle(new Request(`http://localhost/_api/storefront?slug=${encodeURIComponent(slug)}`));
-    if (!response.ok) {
-      if (response.status === 404) throw new Error("Public storefront not found");
-      throw new Error(`Storefront endpoint returned ${response.status}`);
-    }
-    const superjson = (await import("superjson")).default;
-    const data = superjson.parse<any>(await response.text());
-    const parts = pathname.split("/").filter(Boolean);
-    const section = customDomain ? parts[0] : parts[1];
-    const detailSlug = customDomain ? parts[1] : parts[2];
-
-    if (section === "gallery" && !detailSlug) {
-      const galleryListEndpoint = await import("../endpoints/galleries/publicList_GET");
-      const galleryResponse = await galleryListEndpoint.handle(new Request(`http://localhost/_api/galleries/publicList?slug=${encodeURIComponent(slug)}`));
-      if (!galleryResponse.ok) throw new Error("Public gallery not found");
-      const galleryData = superjson.parse<any>(await galleryResponse.text());
-      const galleries = galleryData.galleries ?? [];
-      const description = `Photos and project galleries from ${data.business.name}.`;
-      return {
-        title: `Gallery — ${data.business.name}`,
-        description,
-        image: galleries.find((gallery: any) => gallery.coverImageUrl)?.coverImageUrl || undefined,
-        body: `<main><h1>Gallery</h1><p>${escapeHtml(description)}</p><ul>${galleries.map((gallery: any) => `<li><a href="${customDomain ? `/g/${encodeURIComponent(gallery.slug)}` : `/${encodeURIComponent(slug)}/g/${encodeURIComponent(gallery.slug)}`}">${escapeHtml(gallery.name)}</a>${gallery.description ? `<p>${escapeHtml(gallery.description)}</p>` : ""}${gallery.coverImageUrl ? `<img src="${escapeHtml(gallery.coverImageUrl)}" alt="${escapeHtml(gallery.name)}" />` : ""}</li>`).join("")}</ul></main>`,
-        jsonLd: { "@context": "https://schema.org", "@type": "CollectionPage", name: `Gallery — ${data.business.name}`, description, url: `${origin}${pathname}` },
-      };
-    }
-    if (section === "g" && detailSlug) {
-      const galleryEndpoint = await import("../endpoints/galleries/public_GET");
-      const galleryResponse = await galleryEndpoint.handle(new Request(`http://localhost/_api/galleries/public?slug=${encodeURIComponent(slug)}&gallerySlug=${encodeURIComponent(decodeURIComponent(detailSlug))}`));
-      if (!galleryResponse.ok) throw new Error("Public gallery not found");
-      const galleryData = superjson.parse<any>(await galleryResponse.text());
-      const gallery = galleryData.gallery;
-      const description = gallery.description || `Photos from ${gallery.name} at ${galleryData.business.name}.`;
-      return {
-        title: `${gallery.name} — ${galleryData.business.name}`,
-        description,
-        image: gallery.coverImageUrl || gallery.images[0]?.imageUrl || undefined,
-        body: `<main><nav><a href="${customDomain ? "/" : `/${encodeURIComponent(slug)}`}">${escapeHtml(galleryData.business.name)}</a> / <a href="${customDomain ? "/gallery" : `/${encodeURIComponent(slug)}/gallery`}">Gallery</a></nav><h1>${escapeHtml(gallery.name)}</h1>${description ? `<p>${escapeHtml(description)}</p>` : ""}<div>${gallery.images.map((image: any) => `<figure><img src="${escapeHtml(image.imageUrl)}" alt="${escapeHtml(image.altText || image.caption || gallery.name)}" />${image.caption ? `<figcaption>${escapeHtml(image.caption)}</figcaption>` : ""}</figure>`).join("")}</div></main>`,
-        jsonLd: { "@context": "https://schema.org", "@type": "CollectionPage", name: gallery.name, description, url: `${origin}${pathname}`, image: gallery.images.slice(0, 10).map((image: any) => image.imageUrl) },
-      };
-    }
-    return storefrontSnapshot(data, pathname, origin, customDomain, pathname);
-  },
+  loadSnapshot: createCrawlerSnapshotLoader({
+    storefront: async (request) => (await import("../endpoints/storefront_GET")).handle(request),
+    galleryList: async (request) => (await import("../endpoints/galleries/publicList_GET")).handle(request),
+    gallery: async (request) => (await import("../endpoints/galleries/public_GET")).handle(request),
+  }),
   readIndexHtml: () => import("node:fs/promises").then(({ readFile }) =>
     readFile(path.join(distDir, "index.html"), "utf8"),
   ),
