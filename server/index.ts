@@ -83,7 +83,27 @@ async function invokeEndpoint(
         ? { body: Buffer.isBuffer(body) ? body : Buffer.from(String(body)) }
         : {}),
     });
-    const response = await endpoint.handle(webRequest);
+    // Resolve identity before entering the transaction: session lookup is the
+    // authentication bootstrap and remains outside tenant RLS.
+    // Only a genuine unauthenticated result may continue without user context.
+    const [{ getServerUserSession }, { NotAuthenticatedError }, { withUserDatabaseContext }] =
+      await Promise.all([
+        import("../helpers/getServerUserSession"),
+        import("../helpers/getSetServerSession"),
+        import("../helpers/db"),
+      ]);
+
+    let authenticatedUserId: number | undefined;
+    try {
+      const auth = await getServerUserSession(webRequest);
+      authenticatedUserId = auth.user.id;
+    } catch (error) {
+      if (!(error instanceof NotAuthenticatedError)) throw error;
+    }
+
+    const response = authenticatedUserId
+      ? await withUserDatabaseContext(authenticatedUserId, () => endpoint.handle!(webRequest))
+      : await endpoint.handle(webRequest);
     reply.code(response.status);
     const responseHeaders = response.headers as Headers & { getSetCookie?: () => string[] };
     const setCookies = responseHeaders.getSetCookie?.() ?? (response.headers.get("set-cookie") ? [response.headers.get("set-cookie")!] : []);
