@@ -258,7 +258,23 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
     if (!response.ok) return;
     const superjson = (await import("superjson")).default;
     const data = superjson.parse<any>(await response.text());
-    const snapshot = storefrontSnapshot(data, url.pathname, url.origin);
+    let snapshot: { title: string; description: string; body: string; jsonLd?: unknown };
+    if (parts[1] === "g" && parts[2]) {
+      const galleryEndpoint = await import("../endpoints/galleries/public_GET");
+      const galleryResponse = await galleryEndpoint.handle(new Request(`http://localhost/_api/galleries/public?slug=${encodeURIComponent(slug)}&gallerySlug=${encodeURIComponent(decodeURIComponent(parts[2]))}`));
+      if (!galleryResponse.ok) return reply.code(404).type("text/html; charset=utf-8").send("<!doctype html><title>Gallery not found</title><h1>Gallery not found</h1>");
+      const galleryData = superjson.parse<any>(await galleryResponse.text());
+      const gallery = galleryData.gallery;
+      const description = gallery.description || `Photos from ${gallery.name} at ${galleryData.business.name}.`;
+      snapshot = {
+        title: `${gallery.name} — ${galleryData.business.name}`,
+        description,
+        body: `<main><nav><a href="/${encodeURIComponent(slug)}">${htmlEscape(galleryData.business.name)}</a> / <a href="/${encodeURIComponent(slug)}/gallery">Gallery</a></nav><h1>${htmlEscape(gallery.name)}</h1>${description ? `<p>${htmlEscape(description)}</p>` : ""}<div>${gallery.images.map((image: any) => `<figure><img src="${htmlEscape(image.imageUrl)}" alt="${htmlEscape(image.altText || image.caption || gallery.name)}" />${image.caption ? `<figcaption>${htmlEscape(image.caption)}</figcaption>` : ""}</figure>`).join("")}</div></main>`,
+        jsonLd: { "@context": "https://schema.org", "@type": "CollectionPage", name: gallery.name, description, url: `${url.origin}${url.pathname}`, image: gallery.images.slice(0, 10).map((image: any) => image.imageUrl) },
+      };
+    } else {
+      snapshot = storefrontSnapshot(data, url.pathname, url.origin);
+    }
     const canonical = `${url.origin}${url.pathname}`;
     const jsonLd = JSON.stringify(snapshot.jsonLd ?? {}).replace(/</g, "\\u003c");
     const metadata = `<title>${htmlEscape(snapshot.title)}</title><meta name="description" content="${htmlEscape(snapshot.description.slice(0, 160))}"><link rel="canonical" href="${htmlEscape(canonical)}"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:title" content="${htmlEscape(snapshot.title)}"><meta property="og:description" content="${htmlEscape(snapshot.description.slice(0, 200))}"><meta property="og:url" content="${htmlEscape(canonical)}"><meta name="twitter:card" content="summary_large_image"><script type="application/ld+json">${jsonLd}</script>`;
