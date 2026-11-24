@@ -72,6 +72,7 @@ describe("crawler storefront helpers", () => {
 
   it("resolves only a single business subdomain under the configured platform root", () => {
     expect(resolvePlatformSubdomainSlug("nesmage.oni247.com", "https://oni247.com")).toBe("nesmage");
+    expect(resolvePlatformSubdomainSlug("nesmage.oni247.com", "https://www.oni247.com")).toBe("nesmage");
     expect(resolvePlatformSubdomainSlug("NESMAGE.ONI247.COM", "oni247.com")).toBe("nesmage");
     expect(resolvePlatformSubdomainSlug("oni247.com", "oni247.com")).toBeNull();
     expect(resolvePlatformSubdomainSlug("www.oni247.com", "oni247.com")).toBeNull();
