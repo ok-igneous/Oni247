@@ -35,16 +35,16 @@ export async function handle(request: Request) {
       const locked = await trx.selectFrom("events").selectAll().where("id", "=", event.id).where("businessId", "=", business.id).forUpdate().executeTakeFirst();
       const lockedNow = new Date();
       if (!locked || !locked.published || !locked.registrationEnabled || locked.formId !== form.id || locked.startsAt <= lockedNow || (locked.registrationClosesAt && locked.registrationClosesAt <= lockedNow)) throw new Error("REGISTRATION_CLOSED");
-      const current = await trx.selectFrom("formSubmissions").select(({ fn }) => fn.countAll<number>().as("count")).where("eventId", "=", event.id).where("status", "!=", "declined").executeTakeFirstOrThrow();
-      if (locked.capacity !== null && Number(current.count) >= locked.capacity) throw new Error("CAPACITY_FULL");
+      const current = await sql<{ count: string }>`select app_private.public_event_registration_count(${event.id})::text as count`.execute(trx);
+      if (locked.capacity !== null && Number(current.rows[0]?.count ?? 0) >= locked.capacity) throw new Error("CAPACITY_FULL");
       const identityFields = fields.filter(field => field.type === "email" || field.type === "phone");
       for (const field of identityFields) {
         const raw = clean[field.id];
         if (typeof raw !== "string" || !raw.trim()) continue;
         const identity = field.type === "email" ? raw.trim().toLowerCase() : raw.replace(/\D/g, "");
         if (!identity) continue;
-        const duplicate = field.type === "email" ? await sql<{ found: number }>`SELECT 1 AS found FROM form_submissions WHERE event_id = ${event.id}::uuid AND lower(answers ->> ${field.id}) = ${identity} LIMIT 1`.execute(trx) : await sql<{ found: number }>`SELECT 1 AS found FROM form_submissions WHERE event_id = ${event.id}::uuid AND regexp_replace(answers ->> ${field.id}, '\\D', '', 'g') = ${identity} LIMIT 1`.execute(trx);
-        if (duplicate.rows.length) throw new Error("DUPLICATE_REGISTRATION");
+        const duplicate = await sql<{ found: boolean }>`select app_private.public_event_has_duplicate(${event.id}, ${field.id}, ${identity}, ${field.type}) as found`.execute(trx);
+        if (duplicate.rows[0]?.found) throw new Error("DUPLICATE_REGISTRATION");
       }
       await sql`INSERT INTO form_submissions (business_id, form_id, event_id, answers) VALUES (${business.id}::uuid, ${form.id}::uuid, ${event.id}::uuid, ${clean}::jsonb)`.execute(trx);
     });
