@@ -4,6 +4,7 @@ import {
   injectCrawlerHtml,
   isCrawlerUserAgent,
   isPublicStorefrontPath,
+  isPublicCustomDomainPath,
   normalizeDomainHost,
 } from "./storefrontPrerender";
 
@@ -50,6 +51,15 @@ describe("crawler storefront helpers", () => {
       "/nesmage/p/item/extra",
       "/nesmage/unknown-section",
     ]) expect(isPublicStorefrontPath(path), path).toBe(false);
+  });
+
+  it("allows only public vanity routes on custom-domain roots", () => {
+    for (const path of ["/", "/products", "/p/solar-inverter", "/b/news", "/e/open-day", "/g/projects", "/contact"]) {
+      expect(isPublicCustomDomainPath(path), path).toBe(true);
+    }
+    for (const path of ["/dashboard", "/_api/storefront", "/assets/app.js", "/checkout", "/track", "/p", "/p/item/extra"]) {
+      expect(isPublicCustomDomainPath(path), path).toBe(false);
+    }
   });
 
   it("normalizes verified custom-domain hostnames safely", () => {
