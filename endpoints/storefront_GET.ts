@@ -145,12 +145,16 @@ export async function handle(request: Request) {
           !Array.isArray(business.appearanceSettings)
             ? (business.appearanceSettings as Record<string, unknown>)
             : {},
-        contentSettings:
-          business.contentSettings &&
-          typeof business.contentSettings === "object" &&
-          !Array.isArray(business.contentSettings)
-            ? (business.contentSettings as Record<string, unknown>)
-            : {},
+        contentSettings: (() => {
+          const settings =
+            business.contentSettings &&
+            typeof business.contentSettings === "object" &&
+            !Array.isArray(business.contentSettings)
+              ? (business.contentSettings as Record<string, unknown>)
+              : {};
+          // Do not ship unpublished service drafts inside the raw settings blob.
+          return { ...settings, services };
+        })(),
         canUseProductLinks: resolvedPlan.canUseProductLinks,
         canUseMultiPage: resolvedPlan.canUseMultiPage,
         blogSettings: parseBlogSettings(blogSettings),
