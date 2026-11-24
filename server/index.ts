@@ -2,6 +2,7 @@ import "dotenv/config";
 import Fastify from "fastify";
 import fastifyStatic from "@fastify/static";
 import { readdir } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -65,10 +66,14 @@ app.all("/_api/*", async (request, reply) => {
 });
 
 const distDir = path.join(projectRoot, "dist");
-await app.register(fastifyStatic, { root: distDir, prefix: "/", wildcard: false, decorateReply: true });
+const hasProductionBuild = existsSync(path.join(distDir, "index.html"));
+if (hasProductionBuild) {
+  await app.register(fastifyStatic, { root: distDir, prefix: "/", wildcard: false, decorateReply: true });
+}
 app.setNotFoundHandler((request, reply) => {
   if (request.url.startsWith("/_api/")) return reply.code(404).send({ error: "Not found" });
   if (request.method !== "GET" && request.method !== "HEAD") return reply.code(404).send({ error: "Not found" });
+  if (!hasProductionBuild) return reply.code(404).send({ error: "Frontend build not found. Run npm run build." });
   return reply.type("text/html; charset=utf-8").sendFile("index.html");
 });
 
