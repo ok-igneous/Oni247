@@ -144,10 +144,32 @@ export default function PublicEventPage() {
     <main className={styles.page} style={{ ...theme.style, "--brand": "var(--store-primary)" } as React.CSSProperties}>
       <Helmet>
         <title>{`${event.title} — ${data.business.name}`}</title>
-        <meta name="description" content={event.description.slice(0, 155)} />
+        <meta name="description" content={event.description.slice(0, 160)} />
+        <link rel="canonical" href={window.location.origin + window.location.pathname} />
+        <meta property="og:url" content={window.location.origin + window.location.pathname} />
+        <meta property="og:type" content="event" />
         <meta property="og:title" content={`${event.title} — ${data.business.name}`} />
-        <meta property="og:description" content={event.description.slice(0, 155)} />
+        <meta property="og:description" content={event.description.slice(0, 200)} />
         {event.coverImageUrl && <meta property="og:image" content={event.coverImageUrl} />}
+        <meta name="twitter:card" content={event.coverImageUrl ? "summary_large_image" : "summary"} />
+        <meta name="twitter:title" content={`${event.title} — ${data.business.name}`} />
+        <meta name="twitter:description" content={event.description.slice(0, 200)} />
+        {event.coverImageUrl && <meta name="twitter:image" content={event.coverImageUrl} />}
+        <meta name="robots" content="index,follow,max-image-preview:large" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Event",
+          name: event.title,
+          description: event.description,
+          startDate: event.startsAt,
+          endDate: event.endsAt || undefined,
+          eventStatus: "https://schema.org/EventScheduled",
+          eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+          location: event.venue ? { "@type": "Place", name: event.venue } : undefined,
+          image: event.coverImageUrl ? [event.coverImageUrl] : undefined,
+          organizer: { "@type": "Organization", name: data.business.name },
+          url: window.location.origin + window.location.pathname,
+        }).replace(/</g, "\\u003c")}</script>
       </Helmet>
 
       <StorefrontHeader
