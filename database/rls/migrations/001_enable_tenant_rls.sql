@@ -99,14 +99,20 @@ $migration$;
 
 -- businesses has owner_id rather than business_id.
 ALTER TABLE public.businesses ENABLE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS oni247_business_isolation ON public.businesses;
-CREATE POLICY oni247_business_isolation ON public.businesses
+DROP POLICY IF EXISTS oni247_business_select ON public.businesses;
+DROP POLICY IF EXISTS oni247_business_owner_write ON public.businesses;
+
+-- Team members may resolve/read a business they belong to, but the tenant
+-- backstop does not let a team member bypass application permissions to mutate
+-- the business record itself. Only its owner may write this row.
+CREATE POLICY oni247_business_select ON public.businesses
+  FOR SELECT
+  USING (app_private.can_access_business(id::text));
+
+CREATE POLICY oni247_business_owner_write ON public.businesses
   FOR ALL
-  USING (app_private.can_access_business(id::text))
-  WITH CHECK (
-    owner_id::text = current_setting('app.user_id', true)
-    OR app_private.can_access_business(id::text)
-  );
+  USING (owner_id::text = current_setting('app.user_id', true))
+  WITH CHECK (owner_id::text = current_setting('app.user_id', true));
 
 -- Child rows inherit tenant access through their parent gallery.
 ALTER TABLE public.gallery_images ENABLE ROW LEVEL SECURITY;
