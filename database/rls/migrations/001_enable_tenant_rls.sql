@@ -226,6 +226,10 @@ BEGIN
     RETURN 'not_found';
   END IF;
 
+  -- Serialize submissions per business so concurrent requests cannot bypass
+  -- the hourly cap by observing the same pre-insert count.
+  PERFORM pg_advisory_xact_lock(hashtextextended(target_business_id, 0));
+
   SELECT count(*) INTO recent_count
   FROM public.enquiries e
   WHERE e.business_id::text = target_business_id
