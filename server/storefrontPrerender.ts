@@ -41,6 +41,19 @@ export function injectCrawlerHtml(indexHtml: string, metadata: string, body: str
     .replace(/<div id="root">\\s*<\\/div>/i, `<div id="root">${body}</div>`);
 }
 
+/** Public paths served from a verified custom-domain root (without a business slug). */
+export function isPublicCustomDomainPath(pathname: string): boolean {
+  if (pathname === "/") return true;
+  const segments = pathname.split("/").filter(Boolean);
+  if (segments.length < 1 || segments.length > 2) return false;
+  const [section, detail] = segments;
+  if (!STOREFRONT_SECTIONS.has(section.toLowerCase())) return false;
+  if (["p", "b", "e", "g"].includes(section.toLowerCase())) {
+    return Boolean(detail && /^[^/]{1,160}$/.test(detail));
+  }
+  return !detail;
+}
+
 /** Normalize a configured HTTPS custom domain for exact Host-header matching. */
 export function normalizeDomainHost(value: string | null | undefined): string | null {
   if (!value) return null;
