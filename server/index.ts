@@ -179,14 +179,20 @@ const renderCrawlerStorefront = createCrawlerStorefrontRenderer({
   hasProductionBuild,
   resolveCustomDomain: async (hostname) => {
     const { db } = await import("../helpers/db");
-    const businesses = await db.selectFrom("businesses")
-      .select(["slug", "customDomain"])
+    // Normalize the stored domain in PostgreSQL so we return only one matching
+    // published business instead of loading every verified domain into Node.
+    const normalizedStoredHost = sql<string | null>`case
+      when lower("custom_domain") like 'http://%' then null
+      else lower(split_part(split_part(regexp_replace("custom_domain", '^https?://', '', 'i'), '/', 1), ':', 1))
+    end`;
+    const business = await db.selectFrom("businesses")
+      .select("slug")
       .where("status", "=", "published")
       .where("customDomainStatus", "=", "verified")
-      .execute();
-    return businesses.find((business) =>
-      normalizeDomainHost(business.customDomain) === hostname,
-    )?.slug ?? null;
+      .where(normalizedStoredHost, "=", hostname)
+      .limit(1)
+      .executeTakeFirst();
+    return business?.slug ?? null;
   },
   loadSnapshot: createCrawlerSnapshotLoader({
     storefront: async (request) => (await import("../endpoints/storefront_GET")).handle(request),
