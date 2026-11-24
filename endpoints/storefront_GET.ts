@@ -133,7 +133,7 @@ export async function handle(request: Request) {
       resolvedPlan.canUseEvents ? db.selectFrom("events").select(["id","title","slug","description","coverImageUrl","startsAt","endsAt","venue","registrationEnabled"]).where("businessId","=",business.id).where("published","=",true).where("startsAt",">",new Date()).orderBy("startsAt","asc").limit(6).execute() : Promise.resolve([]),
     ]);
 
-    const { checkoutSettings, blogSettings, ...businessPublic } = business;
+    const { checkoutSettings, blogSettings, trialEndsAt: _trialEndsAt, planRenewsAt: _planRenewsAt, ...businessPublic } = business;
     const checkout = parseCheckoutSettings(checkoutSettings);
 
     const output: OutputType = {
