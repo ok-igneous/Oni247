@@ -1,16 +1,34 @@
-# Oni247 source migration
+# Oni247 source and standalone migration
 
-Status: **not yet transferred**.
+## Source snapshot
 
-The current Floot source inventory was inspected on 2026-11-21. The Floot project exposes 811 text/source files (approximately 2.11 million characters) at project version 1795237281286. The GitHub baseline on main contains 487 files total: 484 paths also present in Floot, plus three GitHub-specific files.
+- Floot source inventory: 811 files.
+- Floot-listed files missing from the GitHub snapshot: 0 after transfer.
+- Source snapshot branch: `floot-source-snapshot-2026-11-21`.
+- Working branch: `standalone-migration`.
+- Floot production and GitHub `main` have not been modified by standalone work.
 
-The Floot-to-GitHub bulk read was blocked by the account's daily Floot build-action limit. Floot counts file reads as build actions. No source files were transferred in this attempt, and no claim is made that this branch is a complete snapshot.
+The snapshot comparison verifies path coverage, not byte-for-byte content parity or runtime readiness.
 
-The branch `floot-source-snapshot-2026-11-21` was created from the existing main branch to preserve the baseline and provide a safe destination for the next transfer. Do not merge it as a completed source migration.
+## Standalone work started
 
-Next steps after the Floot action limit resets:
-1. Read the 811 current Floot files in bounded batches without invoking any Floot write/build action.
-2. Compare each retrieved file against the existing GitHub path and content, not just file sizes.
-3. Commit the full Floot source snapshot to this branch while preserving GitHub-specific files.
-4. Verify file counts, content hashes, required project configuration, and build/test viability.
-5. Separately account for Floot-hosted uploads, secrets/environment variables, and database export; they are not included in this source-file inventory.
+- Added a Vite + React entry point and dynamic page/layout route loader.
+- Added a Fastify server that discovers existing `endpoints/**` handlers and dispatches them under `/_api/**`.
+- Added Node/TypeScript project configuration and package manifest.
+- Replaced the Floot database environment variable with required `DATABASE_URL`.
+- Replaced the Floot session cookie name with `oni247_session`, aligned JWT expiry with the seven-day cookie lifetime, and made Secure cookie behavior environment-aware.
+- Replaced the `@floot/storage` upload integration with an S3-compatible presigned-upload adapter.
+- Added `.env.example`, local setup instructions and migration runbook.
+
+## Not yet verified
+
+No claim is made that the application currently builds or is production-ready. The next required work is:
+
+1. Install dependencies and run TypeScript/build checks; resolve all missing dependencies and type errors.
+2. Audit all application source files for remaining Floot SDK, URL, cookie, native-app and runtime assumptions.
+3. Implement and validate the standalone database schema migration using an authorized database export; do not synthesize production schema or data.
+4. Migrate existing uploaded media and replace legacy `/_cdn/` URLs.
+5. Test authentication, registration, verification, password reset, tenant isolation, uploads, storefront, checkout, payment webhooks, email and all dashboard routes.
+6. Add operational logging, security headers, rate limits, backup/restore and deployment configuration.
+
+The new runtime is a first implementation, not a completed migration. Keep Floot production live until the full acceptance checklist passes.
