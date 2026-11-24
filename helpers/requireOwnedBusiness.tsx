@@ -1,4 +1,5 @@
 import { db } from "./db";
+import { sql } from "kysely";
 import { getServerUserSession } from "./getServerUserSession";
 import { loadPlanConfig } from "./planConfig";
 import { ADDONS, isAddonEnabled } from "./addons";
@@ -32,6 +33,13 @@ export const requireOwnedBusiness = async (request: Request, requestedBusinessId
   let access: BusinessAccess = { isOwner: true, roleName: "Owner", permissions: ALL_PERMISSIONS };
 
   if (!business) {
+    // Once tenant RLS is enabled, pending invitations are intentionally hidden
+    // by normal membership policies. Activate only the signed-in user's matching
+    // invitation through the narrowly scoped SECURITY DEFINER function.
+    if (process.env.RLS_ENABLED === "true") {
+      await sql`select app_private.activate_invited_team_member(${requestedBusinessId ?? null})`.execute(db);
+    }
+
     const email = String(user.email ?? "").trim().toLowerCase();
     let memberQuery = db
       .selectFrom("teamMembers")
@@ -58,7 +66,7 @@ export const requireOwnedBusiness = async (request: Request, requestedBusinessId
       (target.kind === "module" && permits(permissions, target.module, actionForRequest(request.method, url.pathname)));
     if (!allowed) throw new Error("FORBIDDEN");
 
-    if (memberStatus === "invited") {
+    if (memberStatus === "invited" && process.env.RLS_ENABLED !== "true") {
       await db.updateTable("teamMembers").set({ status: "active", userId: user.id, updatedAt: new Date() }).where("id", "=", memberId).execute();
     }
   }
