@@ -19,7 +19,27 @@ BEGIN
   IF EXISTS (SELECT 1 FROM public.businesses WHERE owner_id = 2002) THEN
     RAISE EXCEPTION 'RLS failure: user 1001 can read user 2002 business';
   END IF;
-END $$;
+END $;
+
+-- Platform-admin fixture: user 9001 must have users.role = 'admin'.
+-- The admin context must see another tenant and may perform platform moderation.
+SELECT set_config('app.user_id', '9001', true);
+DO $
+DECLARE
+  affected integer;
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM public.businesses WHERE owner_id = 2002) THEN
+    RAISE EXCEPTION 'RLS failure: platform admin cannot read another tenant';
+  END IF;
+
+  UPDATE public.businesses
+    SET updated_at = updated_at
+    WHERE owner_id = 2002;
+  GET DIAGNOSTICS affected = ROW_COUNT;
+  IF affected = 0 THEN
+    RAISE EXCEPTION 'RLS failure: platform admin cannot perform business moderation write';
+  END IF;
+END $;
 
 ROLLBACK;
 
