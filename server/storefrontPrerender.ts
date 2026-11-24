@@ -38,5 +38,5 @@ export function injectCrawlerHtml(indexHtml: string, metadata: string, body: str
   const withoutTitle = indexHtml.replace(/<title>[^<]*<\/title>/i, "");
   return withoutTitle
     .replace("</head>", `${metadata}</head>`)
-    .replace('<div id="root"></div>', `<div id="root">${body}</div>`);
+    .replace(/<div id="root">\\s*<\\/div>/i, `<div id="root">${body}</div>`);
 }
