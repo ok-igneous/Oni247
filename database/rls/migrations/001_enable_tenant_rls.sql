@@ -60,6 +60,125 @@ $$;
 
 REVOKE ALL ON FUNCTION app_private.can_access_business(text) FROM PUBLIC;
 
+-- Public storefront helpers deliberately expose only booleans/counts, never
+-- payment credentials or submitted form answers.
+CREATE OR REPLACE FUNCTION app_private.is_public_business(target_business_id text)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $public_business$
+  SELECT EXISTS (
+    SELECT 1 FROM public.businesses b
+    WHERE b.id::text = target_business_id
+      AND b.status = 'published'
+  );
+$public_business$;
+
+REVOKE ALL ON FUNCTION app_private.is_public_business(text) FROM PUBLIC;
+
+CREATE OR REPLACE FUNCTION app_private.has_public_payment_gateway(target_business_id text)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $public_gateway$
+  SELECT app_private.is_public_business(target_business_id)
+    AND EXISTS (
+      SELECT 1 FROM public.payment_gateways pg
+      WHERE pg.business_id::text = target_business_id
+        AND pg.enabled = true
+    );
+$public_gateway$;
+
+REVOKE ALL ON FUNCTION app_private.has_public_payment_gateway(text) FROM PUBLIC;
+
+CREATE OR REPLACE FUNCTION app_private.public_event_registration_count(target_event_id text)
+RETURNS bigint
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $public_event_count$
+  SELECT count(*)
+  FROM public.form_submissions fs
+  JOIN public.events e ON e.id = fs.event_id
+  JOIN public.businesses b ON b.id = e.business_id
+  WHERE e.id::text = target_event_id
+    AND e.published = true
+    AND b.status = 'published'
+    AND fs.status <> 'declined';
+$public_event_count$;
+
+REVOKE ALL ON FUNCTION app_private.public_event_registration_count(text) FROM PUBLIC;
+
+CREATE OR REPLACE FUNCTION app_private.public_event_has_duplicate(
+  target_event_id text,
+  target_field_id text,
+  target_value text,
+  target_kind text
+)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $public_event_duplicate$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.form_submissions fs
+    JOIN public.events e ON e.id = fs.event_id
+    JOIN public.businesses b ON b.id = e.business_id
+    WHERE e.id::text = target_event_id
+      AND e.published = true
+      AND b.status = 'published'
+      AND (
+        (target_kind = 'email' AND lower(fs.answers ->> target_field_id) = lower(target_value))
+        OR
+        (target_kind = 'phone' AND regexp_replace(fs.answers ->> target_field_id, '\\D', '', 'g') = target_value)
+      )
+  );
+$public_event_duplicate$;
+
+REVOKE ALL ON FUNCTION app_private.public_event_has_duplicate(text, text, text, text) FROM PUBLIC;
+
+CREATE OR REPLACE FUNCTION app_private.can_submit_public_form(
+  target_business_id text,
+  target_form_id text,
+  target_event_id text DEFAULT NULL
+)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = pg_catalog, public
+AS $public_form$
+  SELECT app_private.is_public_business(target_business_id)
+    AND EXISTS (
+      SELECT 1 FROM public.forms f
+      WHERE f.id::text = target_form_id
+        AND f.business_id::text = target_business_id
+        AND f.is_active = true
+    )
+    AND (
+      target_event_id IS NULL
+      OR EXISTS (
+        SELECT 1 FROM public.events e
+        WHERE e.id::text = target_event_id
+          AND e.business_id::text = target_business_id
+          AND e.form_id::text = target_form_id
+          AND e.published = true
+          AND e.registration_enabled = true
+          AND e.starts_at > now()
+          AND (e.registration_closes_at IS NULL OR e.registration_closes_at > now())
+      )
+    );
+$public_form$;
+
+REVOKE ALL ON FUNCTION app_private.can_submit_public_form(text, text, text) FROM PUBLIC;
+
 -- Invitation acceptance is deliberately a separate, narrow SECURITY DEFINER
 -- operation. Pending invitations do not grant tenant reads; this function may
 -- activate only an invitation matching the authenticated user's verified
