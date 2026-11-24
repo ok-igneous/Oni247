@@ -137,7 +137,7 @@ AS $public_event_duplicate$
       AND (
         (target_kind = 'email' AND lower(fs.answers ->> target_field_id) = lower(target_value))
         OR
-        (target_kind = 'phone' AND regexp_replace(fs.answers ->> target_field_id, '\\D', '', 'g') = target_value)
+        (target_kind = 'phone' AND regexp_replace(fs.answers ->> target_field_id, '[^0-9]', '', 'g') = target_value)
       )
   );
 $public_event_duplicate$;
