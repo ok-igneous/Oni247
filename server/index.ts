@@ -106,13 +106,9 @@ app.get("/healthz", async () => ({
   service: "oni247-api",
   endpoints: endpointFiles.size,
 }));
-let closeDatabase: (() => Promise<void>) | undefined;
-
 app.get("/readyz", async (request, reply) => {
   try {
-    const database = await import("../helpers/db");
-    closeDatabase = database.closeDatabase;
-    const { db } = database;
+    const { db } = await import("../helpers/db");
     await sql`select 1`.execute(db);
     return { ok: true, database: true };
   } catch (error) {
@@ -156,7 +152,10 @@ app.setNotFoundHandler((request, reply) => {
 });
 
 app.addHook("onClose", async () => {
-  await closeDatabase?.();
+  if (process.env.DATABASE_URL) {
+    const { closeDatabase } = await import("../helpers/db");
+    await closeDatabase();
+  }
 });
 
 const port = Number.parseInt(process.env.PORT ?? "3001", 10);
