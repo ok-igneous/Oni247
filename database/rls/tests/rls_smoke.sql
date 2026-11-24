@@ -19,12 +19,12 @@ BEGIN
   IF EXISTS (SELECT 1 FROM public.businesses WHERE owner_id = 2002) THEN
     RAISE EXCEPTION 'RLS failure: user 1001 can read user 2002 business';
   END IF;
-END $;
+END $$;
 
 -- Anonymous context: published storefront content is readable, while private
 -- submissions and payment-gateway configuration remain hidden.
 SELECT set_config('app.user_id', '', true);
-DO $
+DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM public.businesses WHERE status <> 'published') THEN
     RAISE EXCEPTION 'RLS failure: anonymous visitor can read an unpublished business';
@@ -35,12 +35,12 @@ BEGIN
   IF EXISTS (SELECT 1 FROM public.payment_gateways) THEN
     RAISE EXCEPTION 'RLS failure: anonymous visitor can read payment gateway rows';
   END IF;
-END $;
+END $$;
 
 -- Platform-admin fixture: user 9001 must have users.role = 'admin'.
 -- The admin context must see another tenant and may perform platform moderation.
 SELECT set_config('app.user_id', '9001', true);
-DO $
+DO $$
 DECLARE
   affected integer;
 BEGIN
@@ -55,7 +55,7 @@ BEGIN
   IF affected = 0 THEN
     RAISE EXCEPTION 'RLS failure: platform admin cannot perform business moderation write';
   END IF;
-END $;
+END $$;
 
 ROLLBACK;
 
