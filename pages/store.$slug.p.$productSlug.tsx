@@ -273,11 +273,18 @@ const ProductDetailPage = () => {
     <div className={styles.page} style={theme.style as React.CSSProperties}>
       <Helmet>
         <title>{`${product.name} — ${business.name}`}</title>
-        <meta name="description" content={description} />
+        <meta name="description" content={description.slice(0, 160)} />
+        <link rel="canonical" href={window.location.origin + window.location.pathname} />
+        <meta property="og:url" content={window.location.origin + window.location.pathname} />
         <meta property="og:title" content={`${product.name} — ${business.name}`} />
-        <meta property="og:description" content={description} />
+        <meta property="og:description" content={description.slice(0, 200)} />
         <meta property="og:type" content="product" />
         {mainImage && <meta property="og:image" content={mainImage} />}
+        <meta name="twitter:card" content={mainImage ? "summary_large_image" : "summary"} />
+        <meta name="twitter:title" content={`${product.name} — ${business.name}`} />
+        <meta name="twitter:description" content={description.slice(0, 200)} />
+        {mainImage && <meta name="twitter:image" content={mainImage} />}
+        <meta name="robots" content="index,follow,max-image-preview:large" />
         <script type="application/ld+json">{jsonLd}</script>
       </Helmet>
 
