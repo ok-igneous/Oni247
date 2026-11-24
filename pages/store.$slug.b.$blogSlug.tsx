@@ -45,10 +45,29 @@ export default function BlogArticlePage() {
     <div className={styles.site} style={theme.style as React.CSSProperties}>
       <Helmet>
         <title>{`${post.title} — ${business.name}`}</title>
-        <meta name="description" content={post.excerpt || post.title} />
+        <meta name="description" content={(post.excerpt || post.title).slice(0, 160)} />
+        <link rel="canonical" href={window.location.origin + window.location.pathname} />
+        <meta property="og:url" content={window.location.origin + window.location.pathname} />
+        <meta property="og:type" content="article" />
         <meta property="og:title" content={`${post.title} — ${business.name}`} />
-        <meta property="og:description" content={post.excerpt || post.title} />
+        <meta property="og:description" content={(post.excerpt || post.title).slice(0, 200)} />
         {post.coverImageUrl && <meta property="og:image" content={post.coverImageUrl} />}
+        <meta name="twitter:card" content={post.coverImageUrl ? "summary_large_image" : "summary"} />
+        <meta name="twitter:title" content={`${post.title} — ${business.name}`} />
+        <meta name="twitter:description" content={(post.excerpt || post.title).slice(0, 200)} />
+        {post.coverImageUrl && <meta name="twitter:image" content={post.coverImageUrl} />}
+        <meta name="robots" content="index,follow,max-image-preview:large" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          headline: post.title,
+          description: post.excerpt || post.title,
+          image: post.coverImageUrl ? [post.coverImageUrl] : undefined,
+          datePublished: post.publishedAt,
+          author: { "@type": "Organization", name: business.name },
+          publisher: { "@type": "Organization", name: business.name, logo: business.logoUrl ? { "@type": "ImageObject", url: business.logoUrl } : undefined },
+          mainEntityOfPage: window.location.origin + window.location.pathname,
+        }).replace(/</g, "\\u003c")}</script>
       </Helmet>
       <StorefrontHeader
         businessName={business.name}
