@@ -49,8 +49,8 @@ const toRoutePath = (file) => {
   const baseName = path.basename(file, ".tsx");
   if (baseName === "_index") return "/";
   return "/" + baseName
-    .replace(/\\./g, "/")
-    .replace(/\\$([A-Za-z0-9_]+)/g, ":$1")
+    .replace(/\./g, "/")
+    .replace(/\$([A-Za-z0-9_]+)/g, ":$1")
     .replace(/^_/, "");
 };
 const routeGroups = new Map();
@@ -60,10 +60,10 @@ for (const file of pageFiles) {
 }
 const duplicateRoutes = [...routeGroups.entries()].filter(([, files]) => files.length > 1);
 for (const [route, files] of duplicateRoutes) {
-  process.stdout.write(`[ERROR] Duplicate frontend route ${route}: ${files.join(", ")}\\n`);
+  process.stdout.write(`[ERROR] Duplicate frontend route ${route}: ${files.join(", ")}\n`);
 }
 
-const endpointPattern = /_(GET|POST|PUT|PATCH|DELETE)\\.ts$/;
+const endpointPattern = /_(GET|POST|PUT|PATCH|DELETE)\.ts$/;
 const endpointKeys = new Map();
 for (const file of sourceFiles.filter((item) => item.startsWith("endpoints/"))) {
   const relative = file.slice("endpoints/".length);
@@ -74,10 +74,10 @@ for (const file of sourceFiles.filter((item) => item.startsWith("endpoints/"))) 
 }
 const duplicateEndpoints = [...endpointKeys.entries()].filter(([, files]) => files.length > 1);
 for (const [key, files] of duplicateEndpoints) {
-  process.stdout.write(`[ERROR] Duplicate API handler ${key}: ${files.join(", ")}\\n`);
+  process.stdout.write(`[ERROR] Duplicate API handler ${key}: ${files.join(", ")}\n`);
 }
-process.stdout.write(`Frontend routes: ${pageFiles.length}; API handlers: ${endpointKeys.size}.\\n`);
+process.stdout.write(`Frontend routes: ${pageFiles.length}; API handlers: ${endpointKeys.size}.\n`);
 
 const errors = findings.filter((item) => item.severity === "error").length + duplicateRoutes.length + duplicateEndpoints.length;
-process.stdout.write(`\\nStandalone audit: ${errors} blocking issue(s), ${findings.length - findings.filter((item) => item.severity === "error").length} migration warning(s).\\n`);
+process.stdout.write(`\nStandalone audit: ${errors} blocking issue(s), ${findings.length - findings.filter((item) => item.severity === "error").length} migration warning(s).\n`);
 if (errors) process.exitCode = 1;
