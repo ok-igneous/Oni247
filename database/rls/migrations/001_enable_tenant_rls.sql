@@ -68,7 +68,8 @@ BEGIN
   SELECT lower(u.email)
     INTO current_email
     FROM public.users u
-    WHERE u.id::text = current_user_id;
+    WHERE u.id::text = current_user_id
+      AND u.email_verified_at IS NOT NULL;
 
   IF current_email IS NULL THEN
     RETURN false;
