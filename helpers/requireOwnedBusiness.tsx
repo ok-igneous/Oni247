@@ -47,7 +47,7 @@ export const requireOwnedBusiness = async (request: Request, requestedBusinessId
       .leftJoin("teamRoles", "teamRoles.id", "teamMembers.roleId")
       .selectAll("businesses")
       .select(["teamMembers.id as memberId", "teamMembers.status as memberStatus", "teamRoles.name as roleName", "teamRoles.permissions as rolePermissions"])
-      .where("teamMembers.email", "=", email)
+      .where(sql`lower(${sql.ref("teamMembers.email")})`, "=", email)
       .where("teamMembers.status", "!=", "disabled");
     if (requestedBusinessId) memberQuery = memberQuery.where("businesses.id", "=", requestedBusinessId);
     const row = email ? await memberQuery.limit(1).executeTakeFirst() : undefined;
