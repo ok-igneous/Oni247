@@ -43,6 +43,8 @@ describe("crawler storefront helpers", () => {
       "/robots.txt",
       "/sitemap.xml",
       "/nesmage/checkout",
+      "/nesmage/track",
+      "/nesmage/book/service-id",
       "/nesmage/p",
       "/nesmage/p/item/extra",
       "/nesmage/unknown-section",
