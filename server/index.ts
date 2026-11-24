@@ -44,7 +44,9 @@ app.all("/_api/*", async (request, reply) => {
     const endpoint = await import(pathToFileURL(file).href) as EndpointModule;
     if (typeof endpoint.handle !== "function") throw new Error(`Endpoint ${route} does not export handle()`);
     const headers = new Headers();
+    const hopByHopHeaders = new Set(["host", "connection", "content-length", "transfer-encoding", "expect", "upgrade"]);
     for (const [key, value] of Object.entries(request.headers)) {
+      if (hopByHopHeaders.has(key.toLowerCase())) continue;
       if (Array.isArray(value)) headers.set(key, value.join(", "));
       else if (value !== undefined) headers.set(key, value);
     }
