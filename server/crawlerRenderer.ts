@@ -11,6 +11,7 @@ export type CrawlerSnapshotRequest = {
 
 export type CrawlerRendererDependencies = {
   hasProductionBuild: boolean;
+  resolvePlatformSubdomain(slug: string): Promise<string | null>;
   resolveCustomDomain(hostname: string): Promise<string | null>;
   loadSnapshot(input: CrawlerSnapshotRequest): Promise<CrawlerSnapshot>;
   readIndexHtml(): Promise<string>;
@@ -45,15 +46,23 @@ export function createCrawlerStorefrontRenderer(deps: CrawlerRendererDependencie
 
       const platformSubdomainSlug = resolvePlatformSubdomainSlug(url.hostname, configuredPlatformHost);
       if (platformSubdomainSlug) {
-        if (!isPublicCustomDomainPath(url.pathname)) return;
-        customDomain = true;
-        slug = platformSubdomainSlug;
-      } else if (!isPlatformHostname(url.hostname, configuredPlatformHost)) {
-        const matchedSlug = await deps.resolveCustomDomain(url.hostname.toLowerCase());
+        const matchedSlug = await deps.resolvePlatformSubdomain(platformSubdomainSlug);
         if (matchedSlug) {
           if (!isPublicCustomDomainPath(url.pathname)) return;
           customDomain = true;
           slug = matchedSlug;
+        }
+      }
+
+      if (!customDomain && !isPlatformHostname(url.hostname, configuredPlatformHost)) {
+        const requestHost = normalizeDomainHost(`https://${url.hostname}`);
+        if (requestHost) {
+          const matchedSlug = await deps.resolveCustomDomain(requestHost);
+          if (matchedSlug) {
+            if (!isPublicCustomDomainPath(url.pathname)) return;
+            customDomain = true;
+            slug = matchedSlug;
+          }
         }
       }
 
