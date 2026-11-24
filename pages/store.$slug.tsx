@@ -327,7 +327,7 @@ const StorePage = () => {
 
       <StorefrontHeader businessName={business.name} logoUrl={business.logoUrl} tagline={headerTagline} headerBrand={headerBrand} headerAlignment={themeEngine.headerAlignment} showActions={showHeaderActions} whatsappUrl={whatsappNumber ? enquiryUrl : undefined} phone={business.phone} navItems={siteMode === "multi_page" ? [
         { label: "Home", href: selectedHomePage === "home" ? `/${business.slug}` : `/${business.slug}/${selectedHomePage}` },
-        { label: "Products", href: `/${business.slug}/products` }, { label: "Services", href: `/${business.slug}/services` },
+        ...(products.length ? [{ label: "Products", href: `/${business.slug}/products` }] : []), ...(services.length ? [{ label: "Services", href: `/${business.slug}/services` }] : []),
         { label: "About", href: `/${business.slug}/about` }, ...(blogPosts.length ? [{ label: "Blog", href: `/${business.slug}/blog` }] : []),
         { label: "Gallery", href: `/${business.slug}/gallery` }, ...(events.length && appearance.eventsPageInMenu === true ? [{ label: "Events", href: `/${business.slug}/events` }] : []),
         { label: "Contact", href: `/${business.slug}/contact` }, { label: "Track order", href: `/${business.slug}/track` },
