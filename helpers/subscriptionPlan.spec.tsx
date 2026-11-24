@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import { subscriptionPlan } from "./subscriptionPlan";
 
 describe("subscriptionPlan", () => {
@@ -13,10 +14,10 @@ describe("subscriptionPlan", () => {
     }, now);
 
     expect(result.source).toBe("trial");
-    expect(result.isPremiumPlus).toBeTrue();
-    expect(result.canUseBlog).toBeTrue();
-    expect(result.canUseMultiPage).toBeTrue();
-    expect(result.trialUsed).toBeTrue();
+    expect(result.isPremiumPlus).toBe(true);
+    expect(result.canUseBlog).toBe(true);
+    expect(result.canUseMultiPage).toBe(true);
+    expect(result.trialUsed).toBe(true);
   });
 
   it("returns an expired trial to Free without removing the saved content", () => {
@@ -29,10 +30,10 @@ describe("subscriptionPlan", () => {
     }, now);
 
     expect(result.source).toBe("free");
-    expect(result.isPremium).toBeFalse();
+    expect(result.isPremium).toBe(false);
     expect(result.productLimit).toBe(5);
-    expect(result.canUseGalleries).toBeFalse();
-    expect(result.canUseMultiPage).toBeFalse();
+    expect(result.canUseGalleries).toBe(false);
+    expect(result.canUseMultiPage).toBe(false);
   });
 
   it("does not grant Premium Plus features to a paid One-Page subscription", () => {
@@ -45,11 +46,11 @@ describe("subscriptionPlan", () => {
     }, now);
 
     expect(result.source).toBe("paid");
-    expect(result.isPremium).toBeTrue();
-    expect(result.isPremiumPlus).toBeFalse();
-    expect(result.canUseBlog).toBeFalse();
-    expect(result.canUseServices).toBeFalse();
-    expect(result.canUseMultiPage).toBeFalse();
+    expect(result.isPremium).toBe(true);
+    expect(result.isPremiumPlus).toBe(false);
+    expect(result.canUseBlog).toBe(false);
+    expect(result.canUseServices).toBe(false);
+    expect(result.canUseMultiPage).toBe(false);
   });
 
   it("treats an expired paid subscription as Free", () => {
@@ -62,9 +63,9 @@ describe("subscriptionPlan", () => {
     }, now);
 
     expect(result.source).toBe("free");
-    expect(result.isPremium).toBeFalse();
-    expect(result.isPremiumPlus).toBeFalse();
-    expect(result.lapsed).toBeTrue();
+    expect(result.isPremium).toBe(false);
+    expect(result.isPremiumPlus).toBe(false);
+    expect(result.lapsed).toBe(true);
   });
 
   it("applies the 50% registration promo to the selected duration", () => {
