@@ -39,6 +39,7 @@ export async function createPresignedUpload(input: PresignInput): Promise<{ pres
     Bucket: bucket,
     Key: input.key,
     ContentType: input.contentType,
+    ContentLength: input.sizeBytes,
   });
   const presignedUrl = await getSignedUrl(getClient(), command, { expiresIn: 300 });
   return { presignedUrl, url: publicUrl(input.key) };
