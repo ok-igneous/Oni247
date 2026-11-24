@@ -49,7 +49,13 @@ export async function handle(request: Request) {
     if (order.paymentReference) {
       const checked = await refreshOrderPayment(order);
       if (checked === "paid") return respond("paid", null);
-      if (input.op === "check") return respond(checked === "failed" ? "failed" : "unpaid", null);
+      if (checked === "pending") {
+        // An existing gateway reference may still settle. Never create a second
+        // checkout while the first reference is pending, even for op="start".
+        return respond("unpaid", null);
+      }
+      if (input.op === "check") return respond("failed", null);
+      // A confirmed failed reference may be retried with a new checkout below.
     } else if (input.op === "check") {
       return respond("unpaid", null);
     }
