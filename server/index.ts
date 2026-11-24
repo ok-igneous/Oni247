@@ -250,8 +250,7 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
   const url = new URL(request.url, `${request.protocol}://${request.host}`);
   let customDomain = false;
   let slug = "";
-  let routePath = url.pathname;
-  let parts = url.pathname.split("/").filter(Boolean);
+  const parts = url.pathname.split("/").filter(Boolean);
   const configuredPlatformHost = normalizeDomainHost(process.env.APP_BASE_URL);
   if (!configuredPlatformHost || configuredPlatformHost !== url.hostname.toLowerCase()) {
     try {
@@ -268,7 +267,6 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
         if (!isPublicCustomDomainPath(url.pathname)) return;
         customDomain = true;
         slug = matchedBusiness.slug;
-        routePath = `/${encodeURIComponent(slug)}${url.pathname === "/" ? "" : url.pathname}`;
       }
     } catch (error) {
       request.log.warn({ err: error, host: url.hostname }, "Custom-domain crawler lookup failed");
@@ -301,6 +299,7 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
       snapshot = {
         title: `Gallery — ${data.business.name}`,
         description,
+        image: galleries.find((gallery: any) => gallery.coverImageUrl)?.coverImageUrl || undefined,
         body: `<main><h1>Gallery</h1><p>${escapeHtml(description)}</p><ul>${galleries.map((gallery: any) => `<li><a href="${customDomain ? `/g/${encodeURIComponent(gallery.slug)}` : `/${encodeURIComponent(slug)}/g/${encodeURIComponent(gallery.slug)}`}">${escapeHtml(gallery.name)}</a>${gallery.description ? `<p>${escapeHtml(gallery.description)}</p>` : ""}${gallery.coverImageUrl ? `<img src="${escapeHtml(gallery.coverImageUrl)}" alt="${escapeHtml(gallery.name)}" />` : ""}</li>`).join("")}</ul></main>`,
         jsonLd: { "@context": "https://schema.org", "@type": "CollectionPage", name: `Gallery — ${data.business.name}`, description, url: `${url.origin}${url.pathname}` },
       };
