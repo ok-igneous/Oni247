@@ -1,25 +1,33 @@
-import {type GeneratedAlways, Kysely, CamelCasePlugin} from 'kysely'
-import {PostgresJSDialect} from 'kysely-postgres-js'
-import {DB, kyselyIdentifierOverrides} from './schema'
-import postgres from 'postgres'
+import { Kysely, CamelCasePlugin } from "kysely";
+import { PostgresJSDialect } from "kysely-postgres-js";
+import { DB, kyselyIdentifierOverrides } from "./schema";
+import postgres from "postgres";
 
-// kysely's CamelCasePlugin can't recover a snake_case name that has an
-// underscore directly before a digit (reminder_48h_sent -> reminder48hSent ->
-// reminder48h_sent). The generated schema exports the exact spelling for such
-// identifiers; everything else falls through to the default mapping.
-class FlootCamelCasePlugin extends CamelCasePlugin {
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) {
+  throw new Error("DATABASE_URL is required. Configure your standalone PostgreSQL connection.");
+}
+
+// Kysely's default camel-case conversion loses underscores immediately before
+// digits. Keep the generated schema's explicit overrides for those columns.
+class Oni247CamelCasePlugin extends CamelCasePlugin {
   protected override snakeCase(str: string): string {
-    return kyselyIdentifierOverrides[str] ?? super.snakeCase(str)
+    return kyselyIdentifierOverrides[str] ?? super.snakeCase(str);
   }
 }
 
+const sql = postgres(databaseUrl, {
+  prepare: false,
+  idle_timeout: 10,
+  connect_timeout: 15,
+  max: Number.parseInt(process.env.DATABASE_POOL_MAX ?? "10", 10),
+});
+
 export const db = new Kysely<DB>({
-plugins: [new FlootCamelCasePlugin()],
-dialect: new PostgresJSDialect({
-postgres: postgres(process.env.FLOOT_DATABASE_URL, {
-prepare: false,
-idle_timeout: 10,
-max: 3,
-}),
-}),
-})
+  plugins: [new Oni247CamelCasePlugin()],
+  dialect: new PostgresJSDialect({ postgres: sql }),
+});
+
+export async function closeDatabase(): Promise<void> {
+  await db.destroy();
+}
