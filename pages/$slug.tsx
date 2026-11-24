@@ -7,6 +7,6 @@
  */
 import StorePage from "./store.$slug";
 
-   10	export default function BusinessVanityPage() {
-   11	  return <StorePage />;
-   12	}
+export default function BusinessVanityPage() {
+  return <StorePage />;
+}

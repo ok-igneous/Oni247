@@ -1,0 +1,31 @@
+.page { display: grid; gap: 18px; max-width: 1040px; min-width: 0; }
+.skeleton { height: 280px; border-radius: var(--radius-md); }
+.error { margin: 0; color: var(--destructive); }
+.list { display: grid; gap: 10px; }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; background: var(--card); }
+.rowMain { min-width: 0; display: grid; gap: 4px; }
+.rowName { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-weight: 650; }
+.rowDesc { margin: 0; font-size: 0.86rem; color: var(--muted-foreground); line-height: 1.45; }
+.rowMeta { margin: 0; font-size: 0.82rem; color: var(--foreground); }
+.dialog { max-width: 600px; width: calc(100vw - 24px); max-height: 90vh; display: flex; flex-direction: column; }
+.dialogBody { display: grid; gap: 14px; overflow-y: auto; min-height: 0; }
+.block { display: grid; gap: 10px; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; }
+.blockTitle { margin: 0; font-size: 0.85rem; font-weight: 650; }
+.switchRow { display: flex; align-items: flex-start; gap: 10px; font-size: 0.9rem; }
+.switchRow span { display: grid; gap: 2px; }
+.switchRow small { color: var(--muted-foreground); font-size: 0.8rem; }
+.planChecks { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.check { display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+.roleGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
+.roleCard { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; display: grid; gap: 6px; background: var(--card); align-content: start; }
+.roleCan { margin: 0; padding-left: 18px; font-size: 0.82rem; color: var(--muted-foreground); display: grid; gap: 2px; }
+.matrixWrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-md); }
+.matrix { width: 100%; border-collapse: collapse; font-size: 0.86rem; min-width: 560px; }
+.matrix th, .matrix td { padding: 8px 12px; border-bottom: 1px solid var(--border); text-align: left; }
+.matrix th { font-size: 0.76rem; background: var(--muted); white-space: nowrap; }
+.matrix tr:last-child td { border-bottom: 0; }
+.matrix small { display: block; font-size: 0.72rem; color: var(--muted-foreground); }
+.mono { font-family: var(--font-family-monospace); letter-spacing: 0.1em; white-space: nowrap; }
+.note { margin: 0; font-size: 0.82rem; color: var(--muted-foreground); }
+@media (max-width: 640px) { .row { grid-template-columns: minmax(0, 1fr); } }
+
