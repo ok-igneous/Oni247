@@ -59,7 +59,24 @@ export default function StoreSectionPage(){
   const showFooter=footerMode==="all"||(footerMode==="selected"&&footerPages.includes(pth==="about"?"about":pth));
   const sendEnquiry=async()=>{if(!slug||!enquiry.name.trim()||!enquiry.message.trim()){toast.error("Enter your name and message first.");return;}setSending(true);try{await postStorefrontEnquiry({slug,customerName:enquiry.name,customerPhone:enquiry.phone,customerEmail:enquiry.email,message:enquiry.message});setSent(true);setEnquiry({name:"",phone:"",email:"",message:""});}catch(e){toast.error(e instanceof Error?e.message:"Could not send your enquiry.");}finally{setSending(false);}};
   return <div className={styles.page} style={t.style as React.CSSProperties}>
-    <Helmet><title>{`${title} — ${b.name}`}</title><meta name="description" content={b.description||title+" from "+b.name}/><meta property="og:title" content={title+" — "+b.name}/><meta property="og:description" content={b.description||title+" from "+b.name}/>{(typeof b.appearanceSettings?.shareImageUrl === "string" && b.appearanceSettings.shareImageUrl) || b.heroImageUrl || b.logoUrl ? <meta property="og:image" content={(typeof b.appearanceSettings?.shareImageUrl === "string" && b.appearanceSettings.shareImageUrl) || b.heroImageUrl || b.logoUrl || ""}/> : null}</Helmet>
+    <Helmet>
+      <title>{`${title} — ${b.name}`}</title>
+      <meta name="description" content={b.description||title+" from "+b.name}/>
+      <meta name="robots" content="index,follow,max-image-preview:large"/>
+      <link rel="canonical" href={typeof window!=="undefined"?window.location.origin+window.location.pathname:"/"+b.slug+"/"+pth}/>
+      <meta property="og:type" content="website"/>
+      <meta property="og:title" content={title+" — "+b.name}/>
+      <meta property="og:description" content={b.description||title+" from "+b.name}/>
+      <meta property="og:url" content={typeof window!=="undefined"?window.location.origin+window.location.pathname:"/"+b.slug+"/"+pth}/>
+      <meta name="twitter:card" content={(typeof b.appearanceSettings?.shareImageUrl==="string"&&b.appearanceSettings.shareImageUrl)||b.heroImageUrl||b.logoUrl?"summary_large_image":"summary"}/>
+      <meta name="twitter:title" content={title+" — "+b.name}/>
+      <meta name="twitter:description" content={b.description||title+" from "+b.name}/>
+      {(typeof b.appearanceSettings?.shareImageUrl === "string" && b.appearanceSettings.shareImageUrl) || b.heroImageUrl || b.logoUrl ? <>
+        <meta property="og:image" content={(typeof b.appearanceSettings.shareImageUrl==="string"&&b.appearanceSettings.shareImageUrl)||b.heroImageUrl||b.logoUrl||""}/>
+        <meta name="twitter:image" content={(typeof b.appearanceSettings.shareImageUrl==="string"&&b.appearanceSettings.shareImageUrl)||b.heroImageUrl||b.logoUrl||""}/>
+      </> : null}
+      <script type="application/ld+json">{JSON.stringify({"@context":"https://schema.org","@type":"WebPage","name":title+" — "+b.name,"description":b.description||title+" from "+b.name,"url":typeof window!=="undefined"?window.location.origin+window.location.pathname:"/"+b.slug+"/"+pth,"isPartOf":{"@type":"WebSite","name":b.name,"url":typeof window!=="undefined"?window.location.origin+"/"+b.slug:"/"+b.slug}}).replace(/</g,"\\u003c")}</script>
+    </Helmet>
     <StorefrontHeader businessName={b.name} logoUrl={b.logoUrl} tagline={typeof appearance.headerTagline==="string"?appearance.headerTagline:""} headerBrand={typeof appearance.headerBrand==="string"?appearance.headerBrand:"logo_name"} headerAlignment={t.headerAlignment} menuStyle={t.menuStyle as "bar"|"minimal"|"pills"} menuPosition={t.menuPosition as "left"|"center"|"right"} menuVisibility={t.menuVisibility as "always"|"auto"} navItems={[{label:"Home",href:homePage==="home"?"/"+b.slug:"/"+b.slug+"/"+homePage},...["products","services","about","gallery","blog","events","contact"].filter(x=>x!==homePage&&(x!=="products"||data.products.length>0)&&(x!=="services"||data.services.length>0)&&(x!=="blog"||data.blogPosts.length>0)&&(x!=="events"||(data.events.length>0&&appearance.eventsPageInMenu===true))).map(x=>({label:x[0].toUpperCase()+x.slice(1),href:"/"+b.slug+"/"+x,active:x===pth})),{label:"Track order",href:"/"+b.slug+"/track"}]} />
     <main className={styles.main}><div className={styles.titleRow}><h1>{title}</h1></div>
     {pth==="about"&&<section><p>{b.description||"Learn more about this business."}</p>{b.address&&<p>{b.address}</p>}{b.openingHours&&<p>{b.openingHours}</p>}</section>}
