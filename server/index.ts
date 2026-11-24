@@ -161,7 +161,7 @@ app.get("/robots.txt", async (request, reply) => {
   const baseUrl = process.env.APP_BASE_URL?.trim() || `${request.protocol}://${request.host}`;
   const sitemap = new URL("/sitemap.xml", baseUrl).toString();
   return reply.type("text/plain; charset=utf-8").send(
-    `User-agent: *\nAllow: /\nSitemap: ${sitemap}\n`,
+    `User-agent: *\nAllow: /\nDisallow: /dashboard\nDisallow: /admin\nDisallow: /login\nDisallow: /register\nDisallow: /track\nDisallow: /_api/\nSitemap: ${sitemap}\n`,
   );
 });
 
