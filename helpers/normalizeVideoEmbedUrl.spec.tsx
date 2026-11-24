@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import { normalizeVideoEmbedUrl } from "./normalizeVideoEmbedUrl";
 
 describe("normalizeVideoEmbedUrl", () => {
