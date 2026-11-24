@@ -21,8 +21,6 @@ export type StorefrontProduct = {
   featured: boolean;
   unit?: string | null;
   variants?: Array<{ name: string; value: string; price: number | null }>;
-  /** Units left. null = the shop does not track stock for this product. */
-  stockQuantity?: number | null;
   /** Extra gallery images beyond imageUrl. */
   images?: string[];
   /** The "was" price shown struck through when it is above the current price. */
