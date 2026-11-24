@@ -14,6 +14,7 @@ const checks = [
 ];
 
 const findings = [];
+const sourceFiles = [];
 async function walk(directory) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     if (entry.isDirectory() && ignoredDirectories.has(entry.name)) continue;
@@ -23,6 +24,7 @@ async function walk(directory) {
       continue;
     }
     if (!sourceExtensions.has(path.extname(entry.name))) continue;
+    sourceFiles.push(path.relative(root, fullPath).split(path.sep).join("/"));
     const text = await readFile(fullPath, "utf8");
     const lines = text.split(/\r?\n/);
     lines.forEach((line, index) => {
@@ -40,6 +42,42 @@ await walk(root);
 for (const item of findings) {
   process.stdout.write(`[${item.severity.toUpperCase()}] ${item.file}:${item.line} — ${item.label}\n`);
 }
-const errors = findings.filter((item) => item.severity === "error");
-process.stdout.write(`\nStandalone audit: ${errors.length} blocking reference(s), ${findings.length - errors.length} migration warning(s).\n`);
-if (errors.length) process.exitCode = 1;
+const pageFiles = sourceFiles.filter((file) =>
+  file.startsWith("pages/") && file.endsWith(".tsx") && !file.endsWith(".pageLayout.tsx")
+);
+const toRoutePath = (file) => {
+  const baseName = path.basename(file, ".tsx");
+  if (baseName === "_index") return "/";
+  return "/" + baseName
+    .replace(/\\./g, "/")
+    .replace(/\\$([A-Za-z0-9_]+)/g, ":$1")
+    .replace(/^_/, "");
+};
+const routeGroups = new Map();
+for (const file of pageFiles) {
+  const route = toRoutePath(file);
+  routeGroups.set(route, [...(routeGroups.get(route) ?? []), file]);
+}
+const duplicateRoutes = [...routeGroups.entries()].filter(([, files]) => files.length > 1);
+for (const [route, files] of duplicateRoutes) {
+  process.stdout.write(`[ERROR] Duplicate frontend route ${route}: ${files.join(", ")}\\n`);
+}
+
+const endpointPattern = /_(GET|POST|PUT|PATCH|DELETE)\\.ts$/;
+const endpointKeys = new Map();
+for (const file of sourceFiles.filter((item) => item.startsWith("endpoints/"))) {
+  const relative = file.slice("endpoints/".length);
+  const match = relative.match(endpointPattern);
+  if (!match) continue;
+  const key = `${match[1]} ${relative.replace(endpointPattern, "")}`;
+  endpointKeys.set(key, [...(endpointKeys.get(key) ?? []), file]);
+}
+const duplicateEndpoints = [...endpointKeys.entries()].filter(([, files]) => files.length > 1);
+for (const [key, files] of duplicateEndpoints) {
+  process.stdout.write(`[ERROR] Duplicate API handler ${key}: ${files.join(", ")}\\n`);
+}
+process.stdout.write(`Frontend routes: ${pageFiles.length}; API handlers: ${endpointKeys.size}.\\n`);
+
+const errors = findings.filter((item) => item.severity === "error").length + duplicateRoutes.length + duplicateEndpoints.length;
+process.stdout.write(`\\nStandalone audit: ${errors} blocking issue(s), ${findings.length - findings.filter((item) => item.severity === "error").length} migration warning(s).\\n`);
+if (errors) process.exitCode = 1;
