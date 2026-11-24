@@ -1,17 +1,6 @@
 import { db } from "../helpers/db";
 import { subscriptionPlan } from "../helpers/subscriptionPlan";
 
-type BusinessRow = {
-  id: string;
-  slug: string;
-  plan: string;
-  websitePlan: string;
-  trialEndsAt: Date | null;
-  planRenewsAt: Date | null;
-  customDomain: string | null;
-  customDomainStatus: string;
-};
-
 const xmlEscape = (value: string) =>
   value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;").replaceAll("'", "&apos;");
@@ -32,7 +21,7 @@ export async function handle(request: Request) {
   const businesses = await db.selectFrom("businesses")
     .select(["id", "slug", "plan", "websitePlan", "trialEndsAt", "planRenewsAt", "customDomain", "customDomainStatus"])
     .where("status", "=", "published")
-    .execute() as BusinessRow[];
+    .execute();
 
   const urls = new Set<string>([new URL("/", platformOrigin).toString()]);
   const businessIds = businesses.map((business) => business.id);
@@ -45,7 +34,7 @@ export async function handle(request: Request) {
         .where("businessId", "in", businessIds).where("published", "=", true).execute(),
       db.selectFrom("blogPosts").select(["businessId", "slug"])
         .where("businessId", "in", businessIds).where("published", "=", true).execute(),
-      db.selectFrom("events").select(["businessId", "slug", "startsAt"])
+      db.selectFrom("events").select(["businessId", "slug"])
         .where("businessId", "in", businessIds).where("published", "=", true).execute(),
     ]);
 
