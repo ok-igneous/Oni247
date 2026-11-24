@@ -1,4 +1,5 @@
 import superjson from "superjson";
+import { sql } from "kysely";
 import { db } from "../helpers/db";
 import { schema, type OutputType } from "./storefront_GET.schema";
 import { subscriptionPlan } from "../helpers/subscriptionPlan";
@@ -60,12 +61,13 @@ export async function handle(request: Request) {
     const resolvedPlan = subscriptionPlan.resolve(business);
     await loadPlanConfig();
 
-    const gatewayRow = await db.selectFrom("paymentGateways").select("provider").where("businessId", "=", business.id).where("enabled", "=", true).limit(1).executeTakeFirst();
+    const gatewayResult = await sql<{ enabled: boolean }>`select app_private.has_public_payment_gateway(${business.id}) as enabled`.execute(db);
+    const gatewayEnabled = Boolean(gatewayResult.rows[0]?.enabled);
     const services: OutputType["services"] = readServices(business.contentSettings)
       .filter((s) => s.published)
       .map((s) => {
         const amounts = bookingAmounts(s);
-        return { ...s, published: true, payOnline: Boolean(gatewayRow) && amounts.due !== null, amountDue: amounts.due ?? undefined, amountTotal: amounts.total ?? undefined };
+        return { ...s, published: true, payOnline: gatewayEnabled && amounts.due !== null, amountDue: amounts.due ?? undefined, amountTotal: amounts.total ?? undefined };
       });
 
     const [categories, products, testimonials, portfolio, blogPosts, events] = await Promise.all([
@@ -162,7 +164,7 @@ export async function handle(request: Request) {
           returnPolicy: checkout.returnPolicy,
           paymentMethods: {
             ...checkout.paymentMethods,
-            online: Boolean(gatewayRow),
+            online: gatewayEnabled,
             // Bank transfer is only offered once account details exist.
             bankTransfer:
               checkout.paymentMethods.bankTransfer &&
@@ -181,7 +183,6 @@ export async function handle(request: Request) {
             price,
             // A sold-out product reads as unavailable everywhere, including older clients.
             available: product.available && (stockQuantity === null || stockQuantity > 0),
-            stockQuantity,
             images: Array.isArray(images)
               ? images.filter((url): url is string => typeof url === "string").slice(0, 8)
               : [],
