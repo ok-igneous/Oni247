@@ -301,7 +301,7 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
       snapshot = {
         title: `Gallery — ${data.business.name}`,
         description,
-        body: `<main><h1>Gallery</h1><p>${escapeHtml(description)}</p><ul>${galleries.map((gallery: any) => `<li><a href="/${encodeURIComponent(slug)}/g/${encodeURIComponent(gallery.slug)}">${escapeHtml(gallery.name)}</a>${gallery.description ? `<p>${escapeHtml(gallery.description)}</p>` : ""}${gallery.coverImageUrl ? `<img src="${escapeHtml(gallery.coverImageUrl)}" alt="${escapeHtml(gallery.name)}" />` : ""}</li>`).join("")}</ul></main>`,
+        body: `<main><h1>Gallery</h1><p>${escapeHtml(description)}</p><ul>${galleries.map((gallery: any) => `<li><a href="${customDomain ? `/g/${encodeURIComponent(gallery.slug)}` : `/${encodeURIComponent(slug)}/g/${encodeURIComponent(gallery.slug)}`}">${escapeHtml(gallery.name)}</a>${gallery.description ? `<p>${escapeHtml(gallery.description)}</p>` : ""}${gallery.coverImageUrl ? `<img src="${escapeHtml(gallery.coverImageUrl)}" alt="${escapeHtml(gallery.name)}" />` : ""}</li>`).join("")}</ul></main>`,
         jsonLd: { "@context": "https://schema.org", "@type": "CollectionPage", name: `Gallery — ${data.business.name}`, description, url: `${url.origin}${url.pathname}` },
       };
     } else if (section === "g" && detailSlug) {
@@ -319,7 +319,7 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
         jsonLd: { "@context": "https://schema.org", "@type": "CollectionPage", name: gallery.name, description, url: `${url.origin}${url.pathname}`, image: gallery.images.slice(0, 10).map((image: any) => image.imageUrl) },
       };
     } else {
-      snapshot = storefrontSnapshot(data, routePath, url.origin, customDomain, url.pathname);
+      snapshot = storefrontSnapshot(data, url.pathname, url.origin, customDomain, url.pathname);
     }
     const canonical = `${url.origin}${url.pathname}`;
     const jsonLd = JSON.stringify(snapshot.jsonLd ?? {}).replace(/</g, "\\u003c");
