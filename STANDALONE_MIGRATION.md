@@ -10,6 +10,7 @@ This branch is the working migration target. The Floot-hosted production app is 
 - Database: PostgreSQL through Kysely and postgres.js.
 - Object storage: S3-compatible storage (Cloudflare R2 supported).
 - Sessions: signed JWT in an HTTP-only `oni247_session` cookie.
+- Reverse-proxy headers are untrusted by default; set `TRUST_PROXY` to the verified proxy hop count only when deployed behind a trusted proxy.
 
 ## Local setup
 
