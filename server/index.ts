@@ -177,6 +177,16 @@ const hasProductionBuild = existsSync(path.join(distDir, "index.html"));
 
 const renderCrawlerStorefront = createCrawlerStorefrontRenderer({
   hasProductionBuild,
+  resolvePlatformSubdomain: async (slug) => {
+    const { db } = await import("../helpers/db");
+    const business = await db.selectFrom("businesses")
+      .select("slug")
+      .where("slug", "=", slug)
+      .where("status", "=", "published")
+      .limit(1)
+      .executeTakeFirst();
+    return business?.slug ?? null;
+  },
   resolveCustomDomain: async (hostname) => {
     const { db } = await import("../helpers/db");
     // Normalize the stored domain in PostgreSQL so we return only one matching
