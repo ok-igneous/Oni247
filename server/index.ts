@@ -76,7 +76,12 @@ async function invokeEndpoint(
     });
     const response = await endpoint.handle(webRequest);
     reply.code(response.status);
-    response.headers.forEach((value, key) => reply.header(key, value));
+    const responseHeaders = response.headers as Headers & { getSetCookie?: () => string[] };
+    const setCookies = responseHeaders.getSetCookie?.() ?? [];
+    response.headers.forEach((value, key) => {
+      if (key.toLowerCase() !== "set-cookie") reply.header(key, value);
+    });
+    if (setCookies.length > 0) reply.header("set-cookie", setCookies);
     const responseBody = [204, 304].includes(response.status)
       ? null
       : Buffer.from(await response.arrayBuffer());
@@ -92,9 +97,13 @@ app.get("/healthz", async () => ({
   service: "oni247-api",
   endpoints: endpointFiles.size,
 }));
+let closeDatabase: (() => Promise<void>) | undefined;
+
 app.get("/readyz", async (request, reply) => {
   try {
-    const { db } = await import("../helpers/db");
+    const database = await import("../helpers/db");
+    closeDatabase = database.closeDatabase;
+    const { db } = database;
     await sql`select 1`.execute(db);
     return { ok: true, database: true };
   } catch (error) {
@@ -137,6 +146,25 @@ app.setNotFoundHandler((request, reply) => {
   return reply.type("text/html; charset=utf-8").sendFile("index.html");
 });
 
+app.addHook("onClose", async () => {
+  await closeDatabase?.();
+});
+
 const port = Number.parseInt(process.env.PORT ?? "3001", 10);
 const host = process.env.HOST ?? "0.0.0.0";
 await app.listen({ port, host });
+
+let shutdownStarted = false;
+const shutdown = async (signal: NodeJS.Signals) => {
+  if (shutdownStarted) return;
+  shutdownStarted = true;
+  app.log.info({ signal }, "Shutting down Oni247 API");
+  try {
+    await app.close();
+  } catch (error) {
+    app.log.error({ err: error }, "Graceful shutdown failed");
+    process.exitCode = 1;
+  }
+};
+process.once("SIGINT", () => void shutdown("SIGINT"));
+process.once("SIGTERM", () => void shutdown("SIGTERM"));
