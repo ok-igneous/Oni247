@@ -72,7 +72,7 @@ describe("crawler storefront helpers", () => {
 
   it("injects metadata and crawlable content into the expected SPA shell", () => {
     const html = injectCrawlerHtml(
-      '<!doctype html><html><head><title>Oni247</title></head><body><div id="root"></div></body></html>',
+      '<!doctype html><html><head><title>Oni247</title></head><body><div id="root">  </div></body></html>',
       '<meta name="description" content="Shop">',
       "<main><h1>NesMage</h1></main>",
     );
