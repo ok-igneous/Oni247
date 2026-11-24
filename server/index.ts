@@ -113,8 +113,7 @@ async function invokeEndpoint(
     };
     // Authentication endpoints operate only on bootstrap/auth tables, which are
     // deliberately excluded from tenant RLS. Keep them outside the request
-    // transaction because several use their own atomic Kysely transactions.
-    // Nesting a transaction builder on a Kysely Transaction is not supported.
+    // transaction because they are bootstrap flows over auth tables, not tenant data.
     const isAuthenticationRoute = route.startsWith("auth/");
     const { response, responseBody } = authenticatedUserId && !isAuthenticationRoute
       ? await withUserDatabaseContext(authenticatedUserId, executeEndpoint)
