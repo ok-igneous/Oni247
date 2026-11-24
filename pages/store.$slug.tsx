@@ -328,13 +328,33 @@ const StorePage = () => {
       <Helmet>
         <title>{(typeof appearance.seoTitle === "string" && appearance.seoTitle) || `${business.name} — Products & Services`}</title>
         <meta name="description" content={(typeof appearance.seoDescription === "string" && appearance.seoDescription) || shareDescription} />
+        <meta name="robots" content="index,follow,max-image-preview:large" />
+        <link rel="canonical" href={typeof window !== "undefined" ? window.location.origin + window.location.pathname : `/${business.slug}`} />
         <meta property="og:title" content={(typeof appearance.seoTitle === "string" && appearance.seoTitle) || business.name} />
         <meta property="og:site_name" content={business.name} />
         <meta property="og:description" content={(typeof appearance.seoDescription === "string" && appearance.seoDescription) || shareDescription} />
         <meta property="og:type" content="website" />
+        <meta property="og:url" content={typeof window !== "undefined" ? window.location.origin + window.location.pathname : `/${business.slug}`} />
+        <meta name="twitter:card" content={(typeof appearance.shareImageUrl === "string" && appearance.shareImageUrl) || business.heroImageUrl || business.logoUrl ? "summary_large_image" : "summary"} />
+        <meta name="twitter:title" content={(typeof appearance.seoTitle === "string" && appearance.seoTitle) || business.name} />
+        <meta name="twitter:description" content={(typeof appearance.seoDescription === "string" && appearance.seoDescription) || shareDescription} />
         {(typeof appearance.shareImageUrl === "string" && appearance.shareImageUrl) || business.heroImageUrl || business.logoUrl ? (
           <meta property="og:image" content={(typeof appearance.shareImageUrl === "string" && appearance.shareImageUrl) || business.heroImageUrl || business.logoUrl || ""} />
         ) : null}
+        {(typeof appearance.shareImageUrl === "string" && appearance.shareImageUrl) || business.heroImageUrl || business.logoUrl ? (
+          <meta name="twitter:image" content={(typeof appearance.shareImageUrl === "string" && appearance.shareImageUrl) || business.heroImageUrl || business.logoUrl || ""} />
+        ) : null}
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "LocalBusiness",
+          name: business.name,
+          url: typeof window !== "undefined" ? window.location.origin + "/" + business.slug : "/" + business.slug,
+          description: (typeof appearance.seoDescription === "string" && appearance.seoDescription) || shareDescription,
+          ...(business.phone ? { telephone: business.phone } : {}),
+          ...(business.email ? { email: business.email } : {}),
+          ...(business.address ? { address: { "@type": "PostalAddress", streetAddress: business.address } } : {}),
+          ...((typeof appearance.shareImageUrl === "string" && appearance.shareImageUrl) || business.heroImageUrl || business.logoUrl ? { image: (typeof appearance.shareImageUrl === "string" && appearance.shareImageUrl) || business.heroImageUrl || business.logoUrl } : {}),
+        }).replace(/</g, "\\u003c")}</script>
       </Helmet>
 
       <StorefrontHeader businessName={business.name} logoUrl={business.logoUrl} tagline={headerTagline} headerBrand={headerBrand} headerAlignment={themeEngine.headerAlignment} showActions={showHeaderActions} whatsappUrl={whatsappNumber ? enquiryUrl : undefined} phone={business.phone} navItems={siteMode === "multi_page" ? [
