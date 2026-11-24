@@ -30,6 +30,7 @@ const baseDb = new Kysely<DB>({
 });
 
 const requestTransaction = new AsyncLocalStorage<Transaction<DB>>();
+let nestedSavepointSequence = 0;
 
 /**
  * All database operations inside a user request transparently use its one
@@ -38,6 +39,29 @@ const requestTransaction = new AsyncLocalStorage<Transaction<DB>>();
 export const db = new Proxy(baseDb, {
   get(target, property) {
     const active = requestTransaction.getStore() ?? target;
+
+    // Kysely Transaction does not expose Kysely.transaction(). Existing
+    // endpoint handlers use db.transaction() for atomic multi-step writes.
+    // When already inside a request transaction, emulate nested transactions
+    // with PostgreSQL savepoints on that same connection/context.
+    if (property === "transaction" && active !== target) {
+      return () => ({
+        execute: async <T>(callback: (trx: Transaction<DB>) => Promise<T>): Promise<T> => {
+          const savepoint = `oni_nested_${++nestedSavepointSequence}`;
+          await sql.raw(`SAVEPOINT "${savepoint}"`).execute(active);
+          try {
+            const result = await callback(active);
+            await sql.raw(`RELEASE SAVEPOINT "${savepoint}"`).execute(active);
+            return result;
+          } catch (error) {
+            await sql.raw(`ROLLBACK TO SAVEPOINT "${savepoint}"`).execute(active);
+            await sql.raw(`RELEASE SAVEPOINT "${savepoint}"`).execute(active);
+            throw error;
+          }
+        },
+      }) as ReturnType<Kysely<DB>["transaction"]>;
+    }
+
     const value = Reflect.get(active, property, active);
     return typeof value === "function" ? value.bind(active) : value;
   },
