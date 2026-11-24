@@ -17,7 +17,10 @@ const optionalEmail = z
   .string()
   .trim()
   .max(120)
-  .email("Enter a valid email address")
+  .refine(
+    (value) => value.length === 0 || z.string().email().safeParse(value).success,
+    "Enter a valid email address",
+  )
   .nullish()
   .transform((value) => (value && value.length > 0 ? value : null));
 
