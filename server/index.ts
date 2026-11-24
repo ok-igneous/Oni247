@@ -93,7 +93,7 @@ app.get("/healthz", async () => ({
 }));
 app.get("/readyz", async (request, reply) => {
   try {
-    const { db } = await import("../helpers/db.tsx");
+    const { db } = await import("../helpers/db");
     await sql`select 1`.execute(db);
     return { ok: true, database: true };
   } catch (error) {
