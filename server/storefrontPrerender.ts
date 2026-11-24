@@ -1,0 +1,42 @@
+export const isCrawlerUserAgent = (value: string): boolean =>
+  /googlebot|bingbot|duckduckbot|yandexbot|baiduspider|slurp|facebookexternalhit|twitterbot|linkedinbot/i.test(value);
+
+export const escapeHtml = (value: unknown): string => String(value ?? "")
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+  .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+
+const RESERVED_ROOTS = new Set([
+  "_api", "assets", "src", "static", "dashboard", "admin", "login", "register",
+  "logout", "forgot-password", "reset-password", "track", "healthz", "readyz",
+  "robots.txt", "sitemap.xml", "favicon.ico", "manifest.webmanifest",
+]);
+
+const STOREFRONT_SECTIONS = new Set([
+  "p", "b", "e", "g", "products", "services", "about", "gallery", "blog",
+  "events", "contact", "book", "booking", "checkout", "f", "s", "track",
+]);
+
+/** Only vanity storefront paths are eligible; static, API and account routes are excluded. */
+export function isPublicStorefrontPath(pathname: string): boolean {
+  const segments = pathname.split("/").filter(Boolean);
+  if (segments.length < 1 || segments.length > 3) return false;
+  const [slug, section, detail] = segments;
+  if (RESERVED_ROOTS.has(slug.toLowerCase()) || !/^[a-z0-9][a-z0-9-]{0,119}$/i.test(slug)) return false;
+  if (!section) return true;
+  if (!STOREFRONT_SECTIONS.has(section.toLowerCase())) return false;
+  if (["p", "b", "e", "g", "f", "s"].includes(section.toLowerCase())) {
+    return Boolean(detail && /^[^/]{1,160}$/.test(detail));
+  }
+  return !detail;
+}
+
+/** Insert metadata and crawlable body into the built SPA shell. */
+export function injectCrawlerHtml(indexHtml: string, metadata: string, body: string): string {
+  if (!/<div id="root"><\/div>/i.test(indexHtml)) {
+    throw new Error('Built HTML is missing the expected React root element');
+  }
+  const withoutTitle = indexHtml.replace(/<title>[^<]*<\/title>/i, "");
+  return withoutTitle
+    .replace("</head>", `${metadata}</head>`)
+    .replace('<div id="root"></div>', `<div id="root">${body}</div>`);
+}
