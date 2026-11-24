@@ -2,15 +2,15 @@
 
 ## Status
 
-This directory contains an RLS policy foundation, not a production-ready activation. The migration has **not** been applied to any database. It is intentionally fail-closed: tenant and user policies require a transaction-local `app.user_id` value. Until the application sets that value inside the same transaction as every protected query, normal application operations will be denied.
+This directory contains an RLS policy foundation and an initial request-context integration, not a production-ready activation. The migration has **not** been applied to any database. Tenant policies require a transaction-local `app.user_id`; the API now establishes this for authenticated endpoint execution, but concurrency and integration tests are still outstanding.
 
 ## Required rollout sequence
 
 1. Export and inspect the actual target database schema. The generated Kysely schema is a source inventory, not proof of live table names, types, constraints, or existing policies.
 2. Provision a dedicated runtime login that is not a superuser, does not have `BYPASSRLS`, and does not own application tables. Keep migration/owner credentials separate.
 3. Grant the runtime role only the required schema usage and table/sequence privileges. Do not grant it membership that permits `SET ROLE` to the owner.
-4. Implement a request-scoped database transaction. Verify the signed session first, derive the numeric user ID from the server-side session, then execute `set_config('app.user_id', user_id, true)` inside that transaction. The third argument `true` makes the setting transaction-local.
-5. Ensure every SQL statement for that request uses that same transaction connection. A context set on one pooled connection cannot authorize queries executed on another.
+4. The standalone API now verifies the signed/session-backed user before endpoint execution, then wraps authenticated endpoint execution in `withUserDatabaseContext`. That helper sets `app.user_id` transaction-locally and uses `AsyncLocalStorage` so existing `db` calls in the endpoint resolve to the same Kysely transaction. This is an implementation milestone, not yet validated by a runtime test.
+5. Before activation, test this context propagation under concurrent requests, nested transactions, errors/rollback, and connection reuse. Any DB access started after an endpoint returns (for example, a lazy response stream) must not depend on the request transaction.
 6. Cover non-dashboard flows explicitly: public storefront reads, order/enquiry/form submissions, media upload signing, payment callbacks, email webhooks, scheduled jobs, login/session/token flows, and platform administration. Do not grant blanket public access to tenant tables.
 7. Add explicit public-read policies or narrow database functions only for published storefront fields and records. Never expose payment secrets, private customer data, drafts, internal notes, email credentials, or unpublished content.
 8. Apply the migration to a disposable clone, run the isolation suite, inspect query plans and logs, and only then plan a controlled staging rollout.
@@ -20,7 +20,7 @@ This directory contains an RLS policy foundation, not a production-ready activat
 - `app_private.can_access_business(text)` authorizes a business only when the transaction-local user ID matches its owner or an active team member's `user_id`.
 - Tenant-owned tables receive a single all-commands policy using their `business_id`.
 - `gallery_images` derives ownership through its parent gallery.
-- `businesses` derives ownership from its ID and `owner_id`.
+- `businesses` allows owner/team-member reads through the membership helper, but only the owner may insert, update, or delete the business record.
 - Authentication tables (`sessions`, `auth_tokens`, `user_passwords`, and `users`) are deliberately excluded from this first migration. Session lookup must happen before the server knows the user ID; applying a user-ID policy to session lookup would create an authentication bootstrap deadlock. Add dedicated policies only after designing narrow auth access paths.
 - `login_attempts` and `platform_settings` are deliberately not covered by these tenant policies; their authentication/platform access patterns need separate review.
 
