@@ -32,13 +32,13 @@ export function isPublicStorefrontPath(pathname: string): boolean {
 
 /** Insert metadata and crawlable body into the built SPA shell. */
 export function injectCrawlerHtml(indexHtml: string, metadata: string, body: string): string {
-  if (!/<div id="root"><\/div>/i.test(indexHtml)) {
+  if (!/<div id="root">\s*<\/div>/i.test(indexHtml)) {
     throw new Error('Built HTML is missing the expected React root element');
   }
   const withoutTitle = indexHtml.replace(/<title>[^<]*<\/title>/i, "");
   return withoutTitle
     .replace("</head>", `${metadata}</head>`)
-    .replace(/<div id="root">\\s*<\\/div>/i, `<div id="root">${body}</div>`);
+    .replace(/<div id="root">\s*<\/div>/i, `<div id="root">${body}</div>`);
 }
 
 /** Public paths served from a verified custom-domain root (without a business slug). */
