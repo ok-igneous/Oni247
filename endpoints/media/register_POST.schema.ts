@@ -1,0 +1,2 @@
+import superjson from "superjson";
+export const postRegisterMedia=async(body:{kind:"logo"|"product"|"gallery"|"background"|"video";fileUrl:string;contentType:string;sizeBytes:number},init?:RequestInit)=>{const r=await fetch("/_api/media/register",{method:"POST",body:superjson.stringify(body),...init,headers:{"Content-Type":"application/json",...(init?.headers??{})}});if(!r.ok){const e=superjson.parse<{error:string}>(await r.text());throw new Error(e.error)}return superjson.parse<{saved:boolean}>(await r.text())};

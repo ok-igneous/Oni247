@@ -7,52 +7,52 @@ export const schema = z.object({
     .string()
     .trim()
     .max(30)
-   10	    .nullish()
-   11	    .transform((value) => (value && value.length > 0 ? value : null)),
-   12	  items: z
-   13	    .array(
-   14	      z.object({
-   15	        productId: z.string().uuid(),
-   16	        quantity: z.number().int().min(1).max(999),
-   17	      }),
-   18	    )
-   19	    .min(1, "Add at least one item")
-   20	    .max(50),
-   21	  deliveryAddress: z
-   22	    .string()
-   23	    .trim()
-   24	    .max(200)
-   25	    .nullish()
-   26	    .transform((value) => (value && value.length > 0 ? value : null)),
-   27	  markCompleted: z.boolean(),
-   28	});
-   29	
-   30	export type InputType = z.infer<typeof schema>;
-   31	
-   32	export type OutputType = {
-   33	  orderId: string;
-   34	  trackingCode: string | null;
-   35	  total: number;
-   36	  currency: string;
-   37	};
-   38	
-   39	export const postCreateOrder = async (
-   40	  body: InputType,
-   41	  init?: RequestInit,
-   42	): Promise<OutputType> => {
-   43	  const validatedInput = schema.parse(body);
-   44	  const result = await fetch(`/_api/orders/create`, {
-   45	    method: "POST",
-   46	    body: superjson.stringify(validatedInput),
-   47	    ...init,
-   48	    headers: {
-   49	      "Content-Type": "application/json",
-   50	      ...(init?.headers ?? {}),
-   51	    },
-   52	  });
-   53	  if (!result.ok) {
-   54	    const errorObject = superjson.parse<{ error: string }>(await result.text());
-   55	    throw new Error(errorObject.error);
-   56	  }
-   57	  return superjson.parse<OutputType>(await result.text());
-   58	};
+    .nullish()
+    .transform((value) => (value && value.length > 0 ? value : null)),
+  items: z
+    .array(
+      z.object({
+        productId: z.string().uuid(),
+        quantity: z.number().int().min(1).max(999),
+      }),
+    )
+    .min(1, "Add at least one item")
+    .max(50),
+  deliveryAddress: z
+    .string()
+    .trim()
+    .max(200)
+    .nullish()
+    .transform((value) => (value && value.length > 0 ? value : null)),
+  markCompleted: z.boolean(),
+});
+
+export type InputType = z.infer<typeof schema>;
+
+export type OutputType = {
+  orderId: string;
+  trackingCode: string | null;
+  total: number;
+  currency: string;
+};
+
+export const postCreateOrder = async (
+  body: InputType,
+  init?: RequestInit,
+): Promise<OutputType> => {
+  const validatedInput = schema.parse(body);
+  const result = await fetch(`/_api/orders/create`, {
+    method: "POST",
+    body: superjson.stringify(validatedInput),
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      ...(init?.headers ?? {}),
+    },
+  });
+  if (!result.ok) {
+    const errorObject = superjson.parse<{ error: string }>(await result.text());
+    throw new Error(errorObject.error);
+  }
+  return superjson.parse<OutputType>(await result.text());
+};
