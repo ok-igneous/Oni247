@@ -80,14 +80,9 @@ export async function handle(request: Request) {
       .filter((row): row is NonNullable<typeof row> => Boolean(row))
       .map((row) => ({ ...row, price: Number.parseFloat(row.price) }));
 
-    void db
-      .updateTable("showcases")
-      .set({ viewCount: sql`view_count + 1` })
-      .where("id", "=", showcase.id)
-      .execute()
-      .catch(() => {
-        /* a view counter must never break the page */
-      });
+    void sql`select app_private.increment_public_showcase_view(${showcase.id})`.execute(db).catch(() => {
+      /* a view counter must never break the page */
+    });
 
     const output: OutputType = {
       showcase: {
