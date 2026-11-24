@@ -10,7 +10,16 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(here, "..");
 const endpointsRoot = path.join(projectRoot, "endpoints");
-const app = Fastify({ logger: true, bodyLimit: 60 * 1024 * 1024, trustProxy: true });
+// Do not trust client-supplied X-Forwarded-* headers unless deployment explicitly
+// declares a trusted reverse-proxy hop count (or opts into full proxy trust).
+const trustProxySetting = process.env.TRUST_PROXY?.trim().toLowerCase();
+const trustProxy = trustProxySetting === "true"
+  ? true
+  : trustProxySetting && /^\\d+$/.test(trustProxySetting)
+    ? Number(trustProxySetting)
+    : false;
+
+const app = Fastify({ logger: true, bodyLimit: 60 * 1024 * 1024, trustProxy });
 
 type EndpointModule = { handle?: (request: Request) => Promise<Response> | Response };
 const endpointFiles = new Map<string, string>();
