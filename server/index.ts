@@ -13,7 +13,7 @@ const app = Fastify({ logger: true, bodyLimit: 60 * 1024 * 1024, trustProxy: tru
 
 type EndpointModule = { handle?: (request: Request) => Promise<Response> | Response };
 const endpointFiles = new Map<string, string>();
-const methodSuffix = /_(GET|POST|PUT|PATCH|DELETE)\\.ts$/;
+const methodSuffix = /_(GET|POST|PUT|PATCH|DELETE)\.ts$/;
 
 async function discoverEndpoints(directory: string): Promise<void> {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
@@ -82,7 +82,7 @@ app.get("/healthz", async () => ({
 }));
 app.all("/_api/*", async (request, reply) => {
   const pathname = new URL(request.url, "http://localhost").pathname;
-  const route = decodeURIComponent(pathname.replace(/^\\/_api\\/?/, "")).replace(/\\/$/, "");
+  const route = decodeURIComponent(pathname.replace(/^\/_api\/?/, "")).replace(/\/$/, "");
   return invokeEndpoint(request.method.toUpperCase(), route, request, reply);
 });
 
@@ -93,7 +93,7 @@ app.get("/sitemap.xml", async (request, reply) =>
 app.get("/robots.txt", async (request, reply) => {
   const sitemap = `${request.protocol}://${request.host}/sitemap.xml`;
   return reply.type("text/plain; charset=utf-8").send(
-    `User-agent: *\\nAllow: /\\nSitemap: ${sitemap}\\n`,
+    `User-agent: *\nAllow: /\nSitemap: ${sitemap}\n`,
   );
 });
 
