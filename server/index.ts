@@ -260,7 +260,20 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
     const superjson = (await import("superjson")).default;
     const data = superjson.parse<any>(await response.text());
     let snapshot: { title: string; description: string; body: string; image?: string; jsonLd?: unknown };
-    if (parts[1] === "g" && parts[2]) {
+    if (parts[1] === "gallery" && !parts[2]) {
+      const galleryListEndpoint = await import("../endpoints/galleries/publicList_GET");
+      const galleryListResponse = await galleryListEndpoint.handle(new Request(`http://localhost/_api/galleries/publicList?slug=${encodeURIComponent(slug)}`));
+      if (!galleryListResponse.ok) return reply.code(404).type("text/html; charset=utf-8").send("<!doctype html><title>Gallery not found</title><h1>Gallery not found</h1>");
+      const galleryListData = superjson.parse<any>(await galleryListResponse.text());
+      const galleries = galleryListData.galleries ?? [];
+      const description = `Photos and project galleries from ${data.business.name}.`;
+      snapshot = {
+        title: `Gallery — ${data.business.name}`,
+        description,
+        body: `<main><h1>Gallery</h1><p>${escapeHtml(description)}</p><ul>${galleries.map((gallery: any) => `<li><a href="/${encodeURIComponent(slug)}/g/${encodeURIComponent(gallery.slug)}">${escapeHtml(gallery.name)}</a>${gallery.description ? `<p>${escapeHtml(gallery.description)}</p>` : ""}${gallery.coverImageUrl ? `<img src="${escapeHtml(gallery.coverImageUrl)}" alt="${escapeHtml(gallery.name)}" />` : ""}</li>`).join("")}</ul></main>`,
+        jsonLd: { "@context": "https://schema.org", "@type": "CollectionPage", name: `Gallery — ${data.business.name}`, description, url: `${url.origin}${url.pathname}` },
+      };
+    } else if (parts[1] === "g" && parts[2]) {
       const galleryEndpoint = await import("../endpoints/galleries/public_GET");
       const galleryResponse = await galleryEndpoint.handle(new Request(`http://localhost/_api/galleries/public?slug=${encodeURIComponent(slug)}&gallerySlug=${encodeURIComponent(decodeURIComponent(parts[2]))}`));
       if (!galleryResponse.ok) return reply.code(404).type("text/html; charset=utf-8").send("<!doctype html><title>Gallery not found</title><h1>Gallery not found</h1>");
@@ -286,7 +299,7 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
     return reply.type("text/html; charset=utf-8").send(html);
   } catch (error) {
     const message = error instanceof Error ? error.message : "";
-    if (["Public product not found", "Public article not found", "Public event not found"].includes(message)) {
+    if (["Public product not found", "Public article not found", "Public event not found", "Public page not found"].includes(message)) {
       return reply.code(404).type("text/html; charset=utf-8").send("<!doctype html><title>Page not found</title><h1>Page not found</h1>");
     }
     request.log.warn({ err: error, path: url.pathname }, "Crawler storefront snapshot unavailable; serving SPA fallback");
