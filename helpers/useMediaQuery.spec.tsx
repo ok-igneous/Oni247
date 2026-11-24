@@ -3,9 +3,9 @@ import { renderHook } from "@testing-library/react";
 import { useMediaQuery } from "./useMediaQuery";
 
 describe("useMediaQuery", () => {
-  let matchMedia: ReturnType<typeof vi.fn>;
-  let addListener: ReturnType<typeof vi.fn>;
-  let removeListener: ReturnType<typeof vi.fn>;
+  let matchMedia: ReturnType<typeof vi.fn> = vi.fn();
+  let addListener: ReturnType<typeof vi.fn> = vi.fn();
+  let removeListener: ReturnType<typeof vi.fn> = vi.fn();
 
   beforeEach(() => {
     addListener = vi.fn();
