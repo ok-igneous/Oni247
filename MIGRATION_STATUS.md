@@ -14,6 +14,9 @@ The snapshot comparison verifies path coverage, not byte-for-byte content parity
 
 - Added a Vite + React entry point and dynamic page/layout route loader.
 - Added a Fastify server that discovers existing `endpoints/**` handlers and dispatches them under `/_api/**`.
+- Preserved multiple `Set-Cookie` response headers in the Web `Response` to Fastify bridge, with a single-cookie fallback for older runtimes.
+- Added graceful SIGINT/SIGTERM shutdown and closes the database pool after it has been initialized.
+- Disabled blanket proxy-header trust; production HSTS is emitted by the application, so deployments must enforce HTTPS at the edge.
 - Added Node/TypeScript project configuration and package manifest.
 - Replaced the Floot database environment variable with required `DATABASE_URL`.
 - Replaced the Floot session cookie name with `oni247_session`, aligned JWT expiry with the seven-day cookie lifetime, and made Secure cookie behavior environment-aware.
