@@ -7,6 +7,6 @@ export const useCategories = (enabled: boolean = true) =>
   useQuery({
     queryKey: CATEGORIES_QUERY_KEY,
     queryFn: () => getCategories(),
-   10	    enabled,
-   11	    retry: false,
-   12	  });
+    enabled,
+    retry: false,
+  });
