@@ -1,5 +1,6 @@
 import "dotenv/config";
 import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
+import { sql } from "kysely";
 import fastifyStatic from "@fastify/static";
 import { readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
@@ -29,6 +30,16 @@ async function discoverEndpoints(directory: string): Promise<void> {
 }
 
 await discoverEndpoints(endpointsRoot);
+
+app.addHook("onSend", async (request, reply, payload) => {
+  reply.header("X-Content-Type-Options", "nosniff");
+  reply.header("Referrer-Policy", "strict-origin-when-cross-origin");
+  reply.header("X-Frame-Options", "SAMEORIGIN");
+  if (process.env.NODE_ENV === "production" && request.protocol === "https") {
+    reply.header("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  }
+  return payload;
+});
 
 app.removeAllContentTypeParsers();
 app.addContentTypeParser("*", { parseAs: "buffer" }, (_request, body, done) => done(null, body));
@@ -80,6 +91,16 @@ app.get("/healthz", async () => ({
   service: "oni247-api",
   endpoints: endpointFiles.size,
 }));
+app.get("/readyz", async (request, reply) => {
+  try {
+    const { db } = await import("../helpers/db.tsx");
+    await sql`select 1`.execute(db);
+    return { ok: true, database: true };
+  } catch (error) {
+    request.log.error({ err: error }, "Readiness check failed");
+    return reply.code(503).send({ ok: false, database: false });
+  }
+});
 app.all("/_api/*", async (request, reply) => {
   const pathname = new URL(request.url, "http://localhost").pathname;
   const route = decodeURIComponent(pathname.replace(/^\/_api\/?/, "")).replace(/\/$/, "");
