@@ -1,4 +1,5 @@
-import { Kysely, CamelCasePlugin } from "kysely";
+import { Kysely, CamelCasePlugin, sql, type Transaction } from "kysely";
+import { AsyncLocalStorage } from "node:async_hooks";
 import { PostgresJSDialect } from "kysely-postgres-js";
 import { DB, kyselyIdentifierOverrides } from "./schema";
 import postgres from "postgres";
@@ -16,18 +17,50 @@ class Oni247CamelCasePlugin extends CamelCasePlugin {
   }
 }
 
-const sql = postgres(databaseUrl, {
+const postgresClient = postgres(databaseUrl, {
   prepare: false,
   idle_timeout: 10,
   connect_timeout: 15,
   max: Number.parseInt(process.env.DATABASE_POOL_MAX ?? "10", 10),
 });
 
-export const db = new Kysely<DB>({
+const baseDb = new Kysely<DB>({
   plugins: [new Oni247CamelCasePlugin()],
-  dialect: new PostgresJSDialect({ postgres: sql }),
+  dialect: new PostgresJSDialect({ postgres: postgresClient }),
 });
 
+const requestTransaction = new AsyncLocalStorage<Transaction<DB>>();
+
+/**
+ * All database operations inside a user request transparently use its one
+ * transaction/connection. Outside that scope they use the base pool.
+ */
+export const db = new Proxy(baseDb, {
+  get(target, property) {
+    const active = requestTransaction.getStore() ?? target;
+    const value = Reflect.get(active, property, active);
+    return typeof value === "function" ? value.bind(active) : value;
+  },
+}) as Kysely<DB>;
+
+/**
+ * The caller must supply an ID obtained from a verified server-side session,
+ * never from request parameters, headers, or body.
+ */
+export async function withUserDatabaseContext<T>(
+  userId: number,
+  callback: () => Promise<T>,
+): Promise<T> {
+  if (!Number.isSafeInteger(userId) || userId <= 0) {
+    throw new Error("A verified positive user ID is required for database context.");
+  }
+
+  return baseDb.transaction().execute(async (trx) => {
+    await sql`select set_config('app.user_id', ${String(userId)}, true)`.execute(trx);
+    return requestTransaction.run(trx, callback);
+  });
+}
+
 export async function closeDatabase(): Promise<void> {
-  await db.destroy();
+  await baseDb.destroy();
 }
