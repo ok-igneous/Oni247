@@ -97,3 +97,12 @@ export function resolvePlatformSubdomainSlug(hostname: string, platformHost: str
   if (!label || label.includes(".") || label === "www" || !/^[a-z0-9][a-z0-9-]{0,119}$/.test(label)) return null;
   return label;
 }
+
+
+/** True for the platform apex and its conventional www alias. */
+export function isPlatformHostname(hostname: string, platformHost: string | null): boolean {
+  if (!platformHost) return false;
+  const host = hostname.toLowerCase().replace(/\\.$/, "");
+  const base = platformHost.toLowerCase().replace(/^www\\./, "").replace(/\\.$/, "");
+  return host === base || host === `www.${base}`;
+}
