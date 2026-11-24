@@ -101,9 +101,19 @@ async function invokeEndpoint(
       if (!(error instanceof NotAuthenticatedError)) throw error;
     }
 
-    const response = authenticatedUserId
-      ? await withUserDatabaseContext(authenticatedUserId, () => endpoint.handle!(webRequest))
-      : await endpoint.handle(webRequest);
+    // Consume the response body before leaving the request transaction. A
+    // Response may wrap a lazy stream whose producer still performs DB reads;
+    // consuming it after the transaction closes would lose tenant context.
+    const executeEndpoint = async () => {
+      const response = await endpoint.handle!(webRequest);
+      const responseBody = [204, 304].includes(response.status)
+        ? null
+        : Buffer.from(await response.arrayBuffer());
+      return { response, responseBody };
+    };
+    const { response, responseBody } = authenticatedUserId
+      ? await withUserDatabaseContext(authenticatedUserId, executeEndpoint)
+      : await executeEndpoint();
     reply.code(response.status);
     const responseHeaders = response.headers as Headers & { getSetCookie?: () => string[] };
     const setCookies = responseHeaders.getSetCookie?.() ?? (response.headers.get("set-cookie") ? [response.headers.get("set-cookie")!] : []);
@@ -111,9 +121,6 @@ async function invokeEndpoint(
       if (key.toLowerCase() !== "set-cookie") reply.header(key, value);
     });
     if (setCookies.length > 0) reply.header("set-cookie", setCookies);
-    const responseBody = [204, 304].includes(response.status)
-      ? null
-      : Buffer.from(await response.arrayBuffer());
     return reply.send(responseBody);
   } catch (error) {
     request.log.error({ err: error, route }, "API endpoint failed");
