@@ -1,6 +1,6 @@
 import { escapeHtml } from "./storefrontPrerender";
 
-function storefrontSnapshot(data: any, pathname: string, origin: string, customDomain = false, canonicalPath = pathname): { title: string; description: string; body: string; image?: string; jsonLd?: unknown } {
+export function storefrontSnapshot(data: any, pathname: string, origin: string, customDomain = false, canonicalPath = pathname): { title: string; description: string; body: string; image?: string; jsonLd?: unknown } {
   const business = data.business;
   const base = customDomain ? origin : `${origin}/${encodeURIComponent(business.slug)}`;
   const pathSegments = pathname.split("/").filter(Boolean);
