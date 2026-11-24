@@ -7,4 +7,4 @@ export const useStorefront = (slug: string | undefined) =>
     queryFn: () => getStorefront({ slug: slug as string }),
     enabled: Boolean(slug),
     retry: false,
-   10	  });
+  });
