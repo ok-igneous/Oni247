@@ -7,4 +7,4 @@ import { customAlphabet } from "nanoid";
  */
 const nanoid = customAlphabet("ABCDEFGHJKLMNPQRSTUVWXYZ23456789", 8);
 
-   10	export const generateTrackingCode = (): string => nanoid();
+export const generateTrackingCode = (): string => nanoid();
