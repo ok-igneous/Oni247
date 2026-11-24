@@ -38,6 +38,7 @@ The SECURITY DEFINER helpers must be owned by a controlled migration/table-owner
 
 For two users and two businesses, verify:
 - owner A can read/write A and cannot read/write B;
+- a platform administrator can read tenant records and perform explicitly authorized platform moderation writes across businesses, while an ordinary user cannot;
 - active team member A can access A but not B;
 - disabled, invited, and unlinked members cannot access tenant rows; invitation acceptance is tested only through its dedicated activation path;
 - inserts with another business ID fail;
