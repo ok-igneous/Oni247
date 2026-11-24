@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import { DEFAULT_STORE_THEME, storeThemeEngine } from "./storeThemeEngine";
 
 describe("storeThemeEngine", () => {
