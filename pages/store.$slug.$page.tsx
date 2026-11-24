@@ -1,4 +1,4 @@
-import {Link,useParams} from "react-router-dom";
+import {Link,Navigate,useParams} from "react-router-dom";
 import {useEffect,useState} from "react";
 import {Helmet} from "react-helmet";
 import {toast} from "sonner";
@@ -47,6 +47,8 @@ export default function StoreSectionPage(){
   const appearance=b.appearanceSettings??{};
   const t=storeThemeEngine(b.themeId,appearance);
   const pth=page||"about";
+  const validPages=["products","services","about","gallery","blog","events","contact"];
+  if(!validPages.includes(pth))return <Navigate to={"/"+b.slug} replace/>;
   const title=pth==="products"?"Products":pth==="services"?"Services":pth==="gallery"?"Gallery":pth==="blog"?"Blog":pth==="events"?"Events":pth==="contact"?"Contact":"About us";
   const share=()=>{const url=publicUrl;if(navigator.share&&/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent)){void navigator.share({title:title+" — "+b.name,url}).catch(()=>{});}else setShareOpen(v=>!v);};
   const publicUrl=shareLink(b.slug,"page",pth);
@@ -58,7 +60,7 @@ export default function StoreSectionPage(){
   const sendEnquiry=async()=>{if(!slug||!enquiry.name.trim()||!enquiry.message.trim()){toast.error("Enter your name and message first.");return;}setSending(true);try{await postStorefrontEnquiry({slug,customerName:enquiry.name,customerPhone:enquiry.phone,customerEmail:enquiry.email,message:enquiry.message});setSent(true);setEnquiry({name:"",phone:"",email:"",message:""});}catch(e){toast.error(e instanceof Error?e.message:"Could not send your enquiry.");}finally{setSending(false);}};
   return <div className={styles.page} style={t.style as React.CSSProperties}>
     <Helmet><title>{`${title} — ${b.name}`}</title><meta name="description" content={b.description||title+" from "+b.name}/><meta property="og:title" content={title+" — "+b.name}/><meta property="og:description" content={b.description||title+" from "+b.name}/>{(typeof b.appearanceSettings?.shareImageUrl === "string" && b.appearanceSettings.shareImageUrl) || b.heroImageUrl || b.logoUrl ? <meta property="og:image" content={(typeof b.appearanceSettings?.shareImageUrl === "string" && b.appearanceSettings.shareImageUrl) || b.heroImageUrl || b.logoUrl || ""}/> : null}</Helmet>
-    <StorefrontHeader businessName={b.name} logoUrl={b.logoUrl} tagline={typeof appearance.headerTagline==="string"?appearance.headerTagline:""} headerBrand={typeof appearance.headerBrand==="string"?appearance.headerBrand:"logo_name"} headerAlignment={t.headerAlignment} menuStyle={t.menuStyle as "bar"|"minimal"|"pills"} menuPosition={t.menuPosition as "left"|"center"|"right"} menuVisibility={t.menuVisibility as "always"|"auto"} navItems={[{label:"Home",href:homePage==="home"?"/"+b.slug:"/"+b.slug+"/"+homePage},...["products","services","about","gallery","blog","events","contact"].filter(x=>x!==homePage&&(x!=="events"||(data.events.length>0&&appearance.eventsPageInMenu===true))).map(x=>({label:x[0].toUpperCase()+x.slice(1),href:"/"+b.slug+"/"+x,active:x===pth})),{label:"Track order",href:"/"+b.slug+"/track"}]} />
+    <StorefrontHeader businessName={b.name} logoUrl={b.logoUrl} tagline={typeof appearance.headerTagline==="string"?appearance.headerTagline:""} headerBrand={typeof appearance.headerBrand==="string"?appearance.headerBrand:"logo_name"} headerAlignment={t.headerAlignment} menuStyle={t.menuStyle as "bar"|"minimal"|"pills"} menuPosition={t.menuPosition as "left"|"center"|"right"} menuVisibility={t.menuVisibility as "always"|"auto"} navItems={[{label:"Home",href:homePage==="home"?"/"+b.slug:"/"+b.slug+"/"+homePage},...["products","services","about","gallery","blog","events","contact"].filter(x=>x!==homePage&&(x!=="products"||data.products.length>0)&&(x!=="services"||data.services.length>0)&&(x!=="blog"||data.blogPosts.length>0)&&(x!=="events"||(data.events.length>0&&appearance.eventsPageInMenu===true))).map(x=>({label:x[0].toUpperCase()+x.slice(1),href:"/"+b.slug+"/"+x,active:x===pth})),{label:"Track order",href:"/"+b.slug+"/track"}]} />
     <main className={styles.main}><div className={styles.titleRow}><h1>{title}</h1></div>
     {pth==="about"&&<section><p>{b.description||"Learn more about this business."}</p>{b.address&&<p>{b.address}</p>}{b.openingHours&&<p>{b.openingHours}</p>}</section>}
     {pth==="products"&&<StoreCatalogue products={data.products} categories={data.categories} businessSlug={b.slug} linkToProducts={b.canUseProductLinks} cart={cart} onAddedToCart={()=>setCartOpen(true)}/>}
