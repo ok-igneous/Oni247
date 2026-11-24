@@ -73,8 +73,9 @@ export function resolvePlatformSubdomainSlug(
   platformRoot: string | null | undefined,
 ): string | null {
   const host = normalizeDomainHost(hostname);
-  const root = normalizeDomainHost(platformRoot);
-  if (!host || !root || host === root) return null;
+  const configuredRoot = normalizeDomainHost(platformRoot);
+  const root = configuredRoot?.replace(/^www\\./, "") ?? null;
+  if (!host || !root || host === root || host === `www.${root}`) return null;
 
   const suffix = `.${root}`;
   if (!host.endsWith(suffix)) return null;
