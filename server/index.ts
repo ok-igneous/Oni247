@@ -49,6 +49,7 @@ async function invokeEndpoint(
   route: string,
   request: FastifyRequest,
   reply: FastifyReply,
+  originOverride?: string,
 ) {
   const file = endpointFiles.get(`${method} ${route}`);
   if (!file) return reply.code(404).send({ error: "API endpoint not found" });
@@ -66,7 +67,7 @@ async function invokeEndpoint(
     }
 
     const body = request.body;
-    const webRequest = new Request(new URL(request.url, `${request.protocol}://${request.host}`), {
+    const webRequest = new Request(new URL(request.url, originOverride ?? `${request.protocol}://${request.host}`), {
       method,
       headers,
       ...(body !== undefined && !["GET", "HEAD"].includes(method)
@@ -109,10 +110,11 @@ app.all("/_api/*", async (request, reply) => {
 
 // The existing sitemap handler is now exposed at the conventional public URL.
 app.get("/sitemap.xml", async (request, reply) =>
-  invokeEndpoint("GET", "sitemap", request, reply),
+  invokeEndpoint("GET", "sitemap", request, reply, process.env.APP_BASE_URL?.replace(/\\/+$/, "")),
 );
 app.get("/robots.txt", async (request, reply) => {
-  const sitemap = `${request.protocol}://${request.host}/sitemap.xml`;
+  const baseUrl = process.env.APP_BASE_URL?.trim() || `${request.protocol}://${request.host}`;
+  const sitemap = new URL("/sitemap.xml", baseUrl).toString();
   return reply.type("text/plain; charset=utf-8").send(
     `User-agent: *\nAllow: /\nSitemap: ${sitemap}\n`,
   );
