@@ -5,7 +5,7 @@ import {
   isCrawlerUserAgent,
   isPublicStorefrontPath,
   isPublicCustomDomainPath,
-  normalizeDomainHost,
+  normalizeDomainHost,\n  resolvePlatformSubdomainSlug,
 } from "./storefrontPrerender";
 
 describe("crawler storefront helpers", () => {
@@ -68,6 +68,16 @@ describe("crawler storefront helpers", () => {
     expect(normalizeDomainHost("http://shop.example.com")).toBeNull();
     expect(normalizeDomainHost("https://user:pass@shop.example.com")).toBeNull();
     expect(normalizeDomainHost("not a domain")).toBeNull();
+  });
+
+  it("resolves only a single business subdomain under the configured platform root", () => {
+    expect(resolvePlatformSubdomainSlug("nesmage.oni247.com", "https://oni247.com")).toBe("nesmage");
+    expect(resolvePlatformSubdomainSlug("NESMAGE.ONI247.COM", "oni247.com")).toBe("nesmage");
+    expect(resolvePlatformSubdomainSlug("oni247.com", "oni247.com")).toBeNull();
+    expect(resolvePlatformSubdomainSlug("www.oni247.com", "oni247.com")).toBeNull();
+    expect(resolvePlatformSubdomainSlug("a.b.oni247.com", "oni247.com")).toBeNull();
+    expect(resolvePlatformSubdomainSlug("admin.oni247.com", "oni247.com")).toBeNull();
+    expect(resolvePlatformSubdomainSlug("other.com", "oni247.com")).toBeNull();
   });
 
   it("injects metadata and crawlable content into the expected SPA shell", () => {
