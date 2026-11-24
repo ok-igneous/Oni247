@@ -264,7 +264,7 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
     const metadata = `<title>${htmlEscape(snapshot.title)}</title><meta name="description" content="${htmlEscape(snapshot.description.slice(0, 160))}"><link rel="canonical" href="${htmlEscape(canonical)}"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:title" content="${htmlEscape(snapshot.title)}"><meta property="og:description" content="${htmlEscape(snapshot.description.slice(0, 200))}"><meta property="og:url" content="${htmlEscape(canonical)}"><meta name="twitter:card" content="summary_large_image"><script type="application/ld+json">${jsonLd}</script>`;
     const indexHtml = await (await import("node:fs/promises")).readFile(path.join(distDir, "index.html"), "utf8");
     const html = indexHtml
-      .replace(/<title>[^<]*<\\/title>/i, "")
+      .replace(/<title>[^<]*<\/title>/i, "")
       .replace("</head>", `${metadata}</head>`)
       .replace('<div id="root"></div>', `<div id="root">${snapshot.body}</div>`);
     reply.header("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
@@ -273,6 +273,16 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
     request.log.warn({ err: error, path: url.pathname }, "Crawler storefront snapshot unavailable; serving SPA fallback");
   }
 }
+
+
+// Intercept only crawler requests for public storefront paths. Human visitors
+// continue through the unchanged SPA fallback.
+const crawlerStorefrontRoute = async (request: FastifyRequest, reply: FastifyReply) => {
+  const rendered = await renderCrawlerStorefront(request, reply);
+  return rendered ?? reply.callNotFound();
+};
+app.get("/:slug", crawlerStorefrontRoute);
+app.get("/:slug/*", crawlerStorefrontRoute);
 
 
 const distDir = path.join(projectRoot, "dist");
