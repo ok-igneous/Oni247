@@ -41,8 +41,12 @@ export async function getServerSessionOrThrow(request: Request): Promise<Session
   const token = cookie?.slice(COOKIE_NAME.length + 1);
   if (!token) throw new NotAuthenticatedError();
 
+  // Configuration failures are server errors, not invalid-user sessions.
+  // Resolve the signing key outside the verification catch so a missing or
+  // undersized JWT_SECRET cannot silently downgrade authentication handling.
+  const key = signingKey();
   try {
-    const { payload } = await jwtVerify(token, signingKey());
+    const { payload } = await jwtVerify(token, key);
     if (typeof payload.id !== "string") throw new Error("Invalid session payload");
     return {
       id: payload.id,
