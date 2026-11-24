@@ -21,7 +21,7 @@ Authentication hardening: `JWT_SECRET` validation is performed outside the inval
 
 ## Policy model
 
-- `app_private.can_access_business(text)` authorizes a business only when the transaction-local user ID matches its owner or an active team member's `user_id`.
+- `app_private.can_access_business(text)` authorizes a business only when the transaction-local user ID matches its owner or an active team member's `user_id`. Pending invitations do not grant tenant access. Invitation acceptance must use a separate, narrowly scoped operation that verifies the signed-in user's email, activates only that invitation, and then allows normal active-membership policies to apply.
 - Tenant-owned tables receive a single all-commands policy using their `business_id`.
 - `gallery_images` derives ownership through its parent gallery.
 - `businesses` allows owner/team-member reads through the membership helper, but only the owner may insert, update, or delete the business record.
@@ -39,7 +39,7 @@ The SECURITY DEFINER helper must be owned by a controlled migration/table-owner 
 For two users and two businesses, verify:
 - owner A can read/write A and cannot read/write B;
 - active team member A can access A but not B;
-- disabled, invited, and unlinked members cannot access tenant rows;
+- disabled, invited, and unlinked members cannot access tenant rows; invitation acceptance is tested only through its dedicated activation path;
 - inserts with another business ID fail;
 - updates cannot move rows to another business;
 - gallery images cannot be read or inserted through another business's gallery;
