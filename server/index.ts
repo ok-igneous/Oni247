@@ -1,5 +1,5 @@
 import "dotenv/config";
-import Fastify from "fastify";
+import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
 import fastifyStatic from "@fastify/static";
 import { readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
@@ -13,7 +13,7 @@ const app = Fastify({ logger: true, bodyLimit: 60 * 1024 * 1024, trustProxy: tru
 
 type EndpointModule = { handle?: (request: Request) => Promise<Response> | Response };
 const endpointFiles = new Map<string, string>();
-const methodSuffix = /_(GET|POST|PUT|PATCH|DELETE)\.ts$/;
+const methodSuffix = /_(GET|POST|PUT|PATCH|DELETE)\\.ts$/;
 
 async function discoverEndpoints(directory: string): Promise<void> {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
@@ -23,8 +23,7 @@ async function discoverEndpoints(directory: string): Promise<void> {
       const relative = path.relative(endpointsRoot, fullPath).split(path.sep).join("/");
       const match = relative.match(methodSuffix);
       if (!match) continue;
-      const routePath = relative.replace(methodSuffix, "");
-      endpointFiles.set(`${match[1]} ${routePath}`, fullPath);
+      endpointFiles.set(`${match[1]} ${relative.replace(methodSuffix, "")}`, fullPath);
     }
   }
 }
@@ -33,16 +32,20 @@ await discoverEndpoints(endpointsRoot);
 
 app.removeAllContentTypeParsers();
 app.addContentTypeParser("*", { parseAs: "buffer" }, (_request, body, done) => done(null, body));
-app.get("/healthz", async () => ({ ok: true, service: "oni247-api", endpoints: endpointFiles.size }));
-app.all("/_api/*", async (request, reply) => {
-  const pathname = new URL(request.url, "http://localhost").pathname;
-  const route = decodeURIComponent(pathname.replace(/^\/_api\/?/, "")).replace(/\/$/, "");
-  const file = endpointFiles.get(`${request.method.toUpperCase()} ${route}`);
+
+async function invokeEndpoint(
+  method: string,
+  route: string,
+  request: FastifyRequest,
+  reply: FastifyReply,
+) {
+  const file = endpointFiles.get(`${method} ${route}`);
   if (!file) return reply.code(404).send({ error: "API endpoint not found" });
 
   try {
     const endpoint = await import(pathToFileURL(file).href) as EndpointModule;
     if (typeof endpoint.handle !== "function") throw new Error(`Endpoint ${route} does not export handle()`);
+
     const headers = new Headers();
     const hopByHopHeaders = new Set(["host", "connection", "content-length", "transfer-encoding", "expect", "upgrade"]);
     for (const [key, value] of Object.entries(request.headers)) {
@@ -50,27 +53,59 @@ app.all("/_api/*", async (request, reply) => {
       if (Array.isArray(value)) headers.set(key, value.join(", "));
       else if (value !== undefined) headers.set(key, value);
     }
+
     const body = request.body;
-    const webRequest = new Request(new URL(request.url, `http://${request.headers.host ?? "localhost"}`), {
-      method: request.method,
+    const webRequest = new Request(new URL(request.url, `${request.protocol}://${request.host}`), {
+      method,
       headers,
-      ...(body !== undefined && !["GET", "HEAD"].includes(request.method) ? { body: Buffer.isBuffer(body) ? body : Buffer.from(String(body)) } : {}),
+      ...(body !== undefined && !["GET", "HEAD"].includes(method)
+        ? { body: Buffer.isBuffer(body) ? body : Buffer.from(String(body)) }
+        : {}),
     });
     const response = await endpoint.handle(webRequest);
     reply.code(response.status);
     response.headers.forEach((value, key) => reply.header(key, value));
-    const responseBody = [204, 304].includes(response.status) ? null : Buffer.from(await response.arrayBuffer());
+    const responseBody = [204, 304].includes(response.status)
+      ? null
+      : Buffer.from(await response.arrayBuffer());
     return reply.send(responseBody);
   } catch (error) {
     request.log.error({ err: error, route }, "API endpoint failed");
     return reply.code(500).send({ error: "Internal server error" });
   }
+}
+
+app.get("/healthz", async () => ({
+  ok: true,
+  service: "oni247-api",
+  endpoints: endpointFiles.size,
+}));
+app.all("/_api/*", async (request, reply) => {
+  const pathname = new URL(request.url, "http://localhost").pathname;
+  const route = decodeURIComponent(pathname.replace(/^\\/_api\\/?/, "")).replace(/\\/$/, "");
+  return invokeEndpoint(request.method.toUpperCase(), route, request, reply);
+});
+
+// The existing sitemap handler is now exposed at the conventional public URL.
+app.get("/sitemap.xml", async (request, reply) =>
+  invokeEndpoint("GET", "sitemap", request, reply),
+);
+app.get("/robots.txt", async (request, reply) => {
+  const sitemap = `${request.protocol}://${request.host}/sitemap.xml`;
+  return reply.type("text/plain; charset=utf-8").send(
+    `User-agent: *\\nAllow: /\\nSitemap: ${sitemap}\\n`,
+  );
 });
 
 const distDir = path.join(projectRoot, "dist");
 const hasProductionBuild = existsSync(path.join(distDir, "index.html"));
 if (hasProductionBuild) {
-  await app.register(fastifyStatic, { root: distDir, prefix: "/", wildcard: false, decorateReply: true });
+  await app.register(fastifyStatic, {
+    root: distDir,
+    prefix: "/",
+    wildcard: false,
+    decorateReply: true,
+  });
 }
 app.setNotFoundHandler((request, reply) => {
   if (request.url.startsWith("/_api/")) return reply.code(404).send({ error: "Not found" });
