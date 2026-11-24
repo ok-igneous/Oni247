@@ -8,6 +8,7 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { escapeHtml, injectCrawlerHtml, isCrawlerUserAgent, isPublicStorefrontPath, isPublicCustomDomainPath, normalizeDomainHost } from "./storefrontPrerender";
 import { storefrontSnapshot } from "./storefrontSnapshot";
+import { registerCrawlerStorefrontRoutes } from "./crawlerRoutes";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(here, "..");
@@ -276,16 +277,7 @@ async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyRe
 
 // Intercept only crawler requests for public storefront paths. Human visitors
 // continue through the unchanged SPA fallback.
-const crawlerStorefrontRoute = async (request: FastifyRequest, reply: FastifyReply) => {
-  // The same URL intentionally serves crawler HTML or the normal SPA shell.
-  // Shared caches must not reuse one representation for the other user agent.
-  reply.header("Vary", "User-Agent");
-  const rendered = await renderCrawlerStorefront(request, reply);
-  return rendered ?? reply.callNotFound();
-};
-app.get("/", crawlerStorefrontRoute);
-app.get("/:slug", crawlerStorefrontRoute);
-app.get("/:slug/*", crawlerStorefrontRoute);
+registerCrawlerStorefrontRoutes(app, renderCrawlerStorefront);
 
 
 const distDir = path.join(projectRoot, "dist");
