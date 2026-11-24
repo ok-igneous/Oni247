@@ -1,26 +1,29 @@
 import { jwtVerify, SignJWT } from "jose";
 
 const encoder = new TextEncoder();
-const secret = process.env.JWT_SECRET;
+const COOKIE_NAME = "oni247_session";
 
-export const SessionExpirationSeconds = 60 * 60 * 24 * 7; // 1 week
-// Probability to run cleanup (10%)
+const signingKey = (): Uint8Array => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret || secret.length < 32) {
+    throw new Error("JWT_SECRET must be configured with at least 32 characters.");
+  }
+  return encoder.encode(secret);
+};
+
+const secureCookie = () =>
+  process.env.COOKIE_SECURE === "true" ||
+  (process.env.COOKIE_SECURE !== "false" && process.env.NODE_ENV === "production");
+
+export const SessionExpirationSeconds = 60 * 60 * 24 * 7;
 export const CleanupProbability = 0.1;
 
-// Only send the ID in the cookie to the client
-// We should store id -> user id and user data mapping in our database for max security
 export interface Session {
-  // this should be a crypto random string
   id: string;
   createdAt: number;
   lastAccessed: number;
-
-  // Whether the user needs to change their password
-  // Useful for password reset or setting up new user with initial password
   passwordChangeRequired?: boolean;
 }
-
-const CookieName = "floot_built_app_session";
 
 export class NotAuthenticatedError extends Error {
   constructor(message?: string) {
@@ -29,46 +32,30 @@ export class NotAuthenticatedError extends Error {
   }
 }
 
-/**
- * Returns the user session or throw an error. Make sure to handle the error (return a proper request)
- */
-export async function getServerSessionOrThrow(
-  request: Request
-): Promise<Session> {
-  // Note: if session is valid, also consider making the cookie rolling by using setSession
+export async function getServerSessionOrThrow(request: Request): Promise<Session> {
+  const cookie = request.headers
+    .get("cookie")
+    ?.split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(`${COOKIE_NAME}=`));
+  const token = cookie?.slice(COOKIE_NAME.length + 1);
+  if (!token) throw new NotAuthenticatedError();
 
-  const cookieHeader = request.headers.get("cookie") || "";
-  const cookies = cookieHeader
-    .split(";")
-    .reduce((cookies: Record<string, string>, cookie) => {
-      const [name, value] = cookie.trim().split("=");
-      if (name && value) {
-        cookies[name] = decodeURIComponent(value);
-      }
-      return cookies;
-    }, {});
-  const sessionCookie = cookies[CookieName];
-
-  if (!sessionCookie) {
-    throw new NotAuthenticatedError();
-  }
   try {
-    const { payload } = await jwtVerify(sessionCookie, encoder.encode(secret));
+    const { payload } = await jwtVerify(token, signingKey());
+    if (typeof payload.id !== "string") throw new Error("Invalid session payload");
     return {
-      id: payload.id as string,
-      createdAt: payload.createdAt as number,
-      lastAccessed: payload.lastAccessed as number,
-      passwordChangeRequired: payload.passwordChangeRequired as boolean,
+      id: payload.id,
+      createdAt: Number(payload.createdAt ?? 0),
+      lastAccessed: Number(payload.lastAccessed ?? 0),
+      passwordChangeRequired: payload.passwordChangeRequired === true,
     };
-  } catch (error) {
+  } catch {
     throw new NotAuthenticatedError();
   }
 }
 
-export async function setServerSession(
-  response: Response,
-  session: Session
-): Promise<void> {
+export async function setServerSession(response: Response, session: Session): Promise<void> {
   const token = await new SignJWT({
     id: session.id,
     createdAt: session.createdAt,
@@ -77,32 +64,28 @@ export async function setServerSession(
   })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime("1d")
-    .sign(encoder.encode(secret));
+    .setExpirationTime(`${SessionExpirationSeconds}s`)
+    .sign(signingKey());
 
-  const cookieValue = [
-    `${CookieName}=${token}`,
+  const cookie = [
+    `${COOKIE_NAME}=${token}`,
     "HttpOnly",
-    "Secure",
     "SameSite=Lax",
     "Path=/",
     `Max-Age=${SessionExpirationSeconds}`,
-  ].join("; ");
-
-  response.headers.set("Set-Cookie", cookieValue);
+    ...(secureCookie() ? ["Secure"] : []),
+  ];
+  response.headers.set("Set-Cookie", cookie.join("; "));
 }
 
-export function clearServerSession(response: Response) {
-  // Clear the session cookie by setting an expired date
-  const cookieValue = [
-    `${CookieName}=`,
+export function clearServerSession(response: Response): void {
+  const cookie = [
+    `${COOKIE_NAME}=`,
     "HttpOnly",
-    "Secure",
     "SameSite=Lax",
     "Path=/",
-    "Max-Age=0", // Expire immediately
-  ].join("; ");
-
-  response.headers.set("Set-Cookie", cookieValue);
+    "Max-Age=0",
+    ...(secureCookie() ? ["Secure"] : []),
+  ];
+  response.headers.set("Set-Cookie", cookie.join("; "));
 }
-
