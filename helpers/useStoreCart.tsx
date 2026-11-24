@@ -6,92 +6,130 @@ export type StoreCartItem = {
   price: number;
   currency: string;
   imageUrl: string | null;
+  /** Chosen options, e.g. [{ name: "Size", value: "L" }]. */
+  variants?: Array<{ name: string; value: string }>;
+  /** "Size: L, Colour: Red" for display. */
+  variantLabel?: string | null;
+  /** Units in stock when the item was added. null/undefined = not tracked. */
+  maxQuantity?: number | null;
 };
-   10	
-   11	type StoredLine = StoreCartItem & { quantity: number };
-   12	
-   13	const storageKey = (slug: string) => `oniduka.cart.${slug}`;
-   14	
-   15	const readCart = (slug: string): StoredLine[] => {
-   16	  if (typeof window === "undefined") return [];
-   17	  try {
-   18	    const raw = window.localStorage.getItem(storageKey(slug));
-   19	    if (!raw) return [];
-   20	    const parsed: unknown = JSON.parse(raw);
-   21	    if (!Array.isArray(parsed)) return [];
-   22	    return parsed.filter(
-   23	      (line): line is StoredLine =>
-   24	        typeof line === "object" &&
-   25	        line !== null &&
-   26	        typeof (line as StoredLine).productId === "string" &&
-   27	        typeof (line as StoredLine).quantity === "number",
-   28	    );
-   29	  } catch {
-   30	    return [];
-   31	  }
-   32	};
-   33	
-   34	/**
-   35	 * Client-side cart, scoped per business slug and persisted in the browser only.
-   36	 * No customer account, no server round-trip.
-   37	 */
-   38	export const useStoreCart = (slug: string) => {
-   39	  const [items, setItems] = useState<StoredLine[]>(() => readCart(slug));
-   40	
-   41	  useEffect(() => {
-   42	    setItems(readCart(slug));
-   43	  }, [slug]);
-   44	
-   45	  useEffect(() => {
-   46	    if (typeof window === "undefined") return;
-   47	    try {
-   48	      window.localStorage.setItem(storageKey(slug), JSON.stringify(items));
-   49	    } catch {
-   50	      /* quota or private mode — the cart simply does not survive a reload */
-   51	    }
-   52	  }, [slug, items]);
-   53	
-   54	  const add = useCallback((item: StoreCartItem, quantity: number = 1) => {
-   55	    setItems((current) => {
-   56	      const existing = current.find((line) => line.productId === item.productId);
-   57	      if (existing) {
-   58	        return current.map((line) =>
-   59	          line.productId === item.productId
-   60	            ? { ...line, quantity: line.quantity + quantity }
-   61	            : line,
-   62	        );
-   63	      }
-   64	      return [...current, { ...item, quantity }];
-   65	    });
-   66	  }, []);
-   67	
-   68	  const setQuantity = useCallback((productId: string, quantity: number) => {
-   69	    setItems((current) =>
-   70	      quantity <= 0
-   71	        ? current.filter((line) => line.productId !== productId)
-   72	        : current.map((line) =>
-   73	            line.productId === productId ? { ...line, quantity } : line,
-   74	          ),
-   75	    );
-   76	  }, []);
-   77	
-   78	  const remove = useCallback((productId: string) => {
-   79	    setItems((current) => current.filter((line) => line.productId !== productId));
-   80	  }, []);
-   81	
-   82	  const clear = useCallback(() => setItems([]), []);
-   83	
-   84	  const { count, total } = useMemo(
-   85	    () =>
-   86	      items.reduce(
-   87	        (acc, line) => ({
-   88	          count: acc.count + line.quantity,
-   89	          total: acc.total + line.price * line.quantity,
-   90	        }),
-   91	        { count: 0, total: 0 },
-   92	      ),
-   93	    [items],
-   94	  );
-   95	
-   96	  return { items, add, setQuantity, remove, clear, count, total };
-   97	};
+
+export type StoreCartLine = StoreCartItem & {
+  quantity: number;
+  /** Unique per product + options, so "Size L" and "Size M" are separate lines. */
+  lineId: string;
+};
+
+const storageKey = (slug: string) => `oniduka.cart.${slug}`;
+
+const lineIdFor = (item: StoreCartItem): string => {
+  const options = (item.variants ?? [])
+    .map((pick) => `${pick.name}=${pick.value}`)
+    .join("|");
+  return options ? `${item.productId}::${options}` : item.productId;
+};
+
+const clampQuantity = (quantity: number, max: number | null | undefined): number => {
+  const capped = Math.min(999, Math.max(0, Math.floor(quantity)));
+  return typeof max === "number" ? Math.min(capped, max) : capped;
+};
+
+const readCart = (slug: string): StoreCartLine[] => {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(storageKey(slug));
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter(
+        (line): line is StoreCartLine =>
+          typeof line === "object" &&
+          line !== null &&
+          typeof (line as StoreCartLine).productId === "string" &&
+          typeof (line as StoreCartLine).quantity === "number",
+      )
+      .map((line) => ({ ...line, lineId: line.lineId ?? lineIdFor(line) }));
+  } catch {
+    return [];
+  }
+};
+
+/**
+ * Client-side cart, scoped per business slug and persisted in the browser only.
+ * No customer account, no server round-trip. Lines are keyed by product + chosen
+ * options; carts saved before options existed keep working (their lineId is the
+ * product id).
+ */
+export const useStoreCart = (slug: string) => {
+  const [items, setItems] = useState<StoreCartLine[]>(() => readCart(slug));
+
+  useEffect(() => {
+    setItems(readCart(slug));
+  }, [slug]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(storageKey(slug), JSON.stringify(items));
+    } catch {
+      /* quota or private mode — the cart simply does not survive a reload */
+    }
+  }, [slug, items]);
+
+  const add = useCallback((item: StoreCartItem, quantity: number = 1) => {
+    const lineId = lineIdFor(item);
+    setItems((current) => {
+      const existing = current.find((line) => line.lineId === lineId);
+      if (existing) {
+        return current.map((line) =>
+          line.lineId === lineId
+            ? {
+                ...line,
+                // Take the latest price and stock the shopper saw.
+                price: item.price,
+                maxQuantity: item.maxQuantity,
+                quantity: clampQuantity(line.quantity + quantity, item.maxQuantity),
+              }
+            : line,
+        );
+      }
+      const next = clampQuantity(quantity, item.maxQuantity);
+      if (next <= 0) return current;
+      return [...current, { ...item, lineId, quantity: next }];
+    });
+  }, []);
+
+  const setQuantity = useCallback((lineId: string, quantity: number) => {
+    setItems((current) =>
+      quantity <= 0
+        ? current.filter((line) => line.lineId !== lineId)
+        : current.map((line) =>
+            line.lineId === lineId
+              ? { ...line, quantity: clampQuantity(quantity, line.maxQuantity) }
+              : line,
+          ),
+    );
+  }, []);
+
+  const remove = useCallback((lineId: string) => {
+    setItems((current) => current.filter((line) => line.lineId !== lineId));
+  }, []);
+
+  const clear = useCallback(() => setItems([]), []);
+
+  const { count, total } = useMemo(
+    () =>
+      items.reduce(
+        (acc, line) => ({
+          count: acc.count + line.quantity,
+          total: acc.total + line.price * line.quantity,
+        }),
+        { count: 0, total: 0 },
+      ),
+    [items],
+  );
+
+  return { items, add, setQuantity, remove, clear, count, total };
+};
+  135

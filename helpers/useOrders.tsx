@@ -7,5 +7,5 @@ export const useOrders = () =>
   useQuery({
     queryKey: ORDERS_QUERY_KEY,
     queryFn: () => getOrders(),
-   10	    retry: false,
-   11	  });
+    retry: false,
+  });

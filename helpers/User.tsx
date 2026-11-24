@@ -7,12 +7,12 @@
 // together with this in one toolcall.
 
 export interface User {
-   10	  id: number;
-   11	  email: string;
-   12	  displayName: string;
-   13	  avatarUrl: string | null;
-   14	  emailVerifiedAt: Date | string | null;
-   15	  // adjust this as necessary
-   16	  role: "admin" | "user";
-   17	}
-   18
+  id: number;
+  email: string;
+  displayName: string;
+  avatarUrl: string | null;
+  emailVerifiedAt: Date | string | null;
+  // adjust this as necessary
+  role: "admin" | "user";
+}
+
