@@ -28,4 +28,4 @@ Do not make the bucket writeable anonymously. Only presigned URLs should authori
 
 ## Migration
 
-Copy existing Floot-hosted objects to matching keys in this bucket, verify object counts and checksums, then update database URLs from legacy `/_cdn/` paths to the new public asset hostname. Keep a reversible mapping until the new production deployment is accepted.
+Copy existing legacy-hosted objects to matching keys in this bucket, verify object counts and checksums, then update database URLs from legacy `/_cdn/` paths to the new public asset hostname. Keep a reversible mapping until the new production deployment is accepted.
