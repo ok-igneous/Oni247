@@ -1,5 +1,6 @@
 import React, { Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
+import { StorefrontHostProvider, useStorefrontHost } from "../helpers/storefrontHost";
 
 const pageModules = import.meta.glob<{ default: React.ComponentType }>("../pages/*.tsx");
 const layoutModules = import.meta.glob<{ default: React.ComponentType<{ children: React.ReactNode }>[] }>("../pages/*.pageLayout.tsx");
@@ -7,15 +8,15 @@ const layoutModules = import.meta.glob<{ default: React.ComponentType<{ children
 const toRoutePath = (fileName: string) => {
   if (fileName === "_index") return "/";
   return "/" + fileName
-    .replace(/\./g, "/")
-    .replace(/\$([A-Za-z0-9_]+)/g, ":$1")
+    .replace(/\\./g, "/")
+    .replace(/\\$([A-Za-z0-9_]+)/g, ":$1")
     .replace(/^_/, "");
 };
 
 const routeEntries = Object.entries(pageModules)
   .filter(([file]) => !file.endsWith(".pageLayout.tsx"))
   .map(([file, loadPage]) => {
-    const baseName = file.split("/").pop()!.replace(/\.tsx$/, "");
+    const baseName = file.split("/").pop()!.replace(/\\.tsx$/, "");
     const layoutKey = `../pages/${baseName}.pageLayout.tsx`;
     const loadLayout = layoutModules[layoutKey];
     const Component = React.lazy(async () => {
@@ -36,15 +37,32 @@ const routeEntries = Object.entries(pageModules)
   })
   .sort((a, b) => a.path.length - b.path.length);
 
+const landingPage = routeEntries.find((entry) => entry.key === "_index")!.Component;
+const vanityHomePage = routeEntries.find((entry) => entry.key === "$slug")!.Component;
+
+function HostAwareRoot() {
+  const host = useStorefrontHost();
+  if (!host.resolved) return <div role="status" style={{ padding: 24 }}>Loading Oni247…</div>;
+  const Page = host.slug ? vanityHomePage : landingPage;
+  return <Page />;
+}
+
 export function App() {
+  const vanityRoutes = routeEntries.filter((entry) => entry.key.startsWith("$slug."));
   return (
-    <Suspense fallback={<div role="status" style={{ padding: 24 }}>Loading Oni247…</div>}>
-      <Routes>
-        {routeEntries.map(({ path, Component, key }) => (
-          <Route key={key} path={path} element={<Component />} />
-        ))}
-        <Route path="*" element={<main style={{ padding: 24 }}><h1>Page not found</h1><a href="/">Return home</a></main>} />
-      </Routes>
-    </Suspense>
+    <StorefrontHostProvider>
+      <Suspense fallback={<div role="status" style={{ padding: 24 }}>Loading Oni247…</div>}>
+        <Routes>
+          <Route path="/" element={<HostAwareRoot />} />
+          {routeEntries.filter((entry) => entry.key !== "_index" && entry.key !== "$slug").map(({ path, Component, key }) => (
+            <Route key={key} path={path} element={<Component />} />
+          ))}
+          {vanityRoutes.map(({ path, Component, key }) => (
+            <Route key={`host-${key}`} path={path.replace(/^\\/:slug/, "") || "/"} element={<Component />} />
+          ))}
+          <Route path="*" element={<main style={{ padding: 24 }}><h1>Page not found</h1><a href="/">Return home</a></main>} />
+        </Routes>
+      </Suspense>
+    </StorefrontHostProvider>
   );
 }
