@@ -38,8 +38,8 @@ export async function handle(request: Request) {
       }
     }
 
-    return Response.json({ slug });
+    return new Response(JSON.stringify({ slug }), { headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" } });
   } catch {
-    return Response.json({ slug: null }, { status: 200 });
+    return new Response(JSON.stringify({ slug: null }), { status: 200, headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" } });
   }
 }
