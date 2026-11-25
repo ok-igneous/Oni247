@@ -125,3 +125,8 @@ Keep payment callbacks, signature verification, cookies, multiple Set-Cookie hea
 ## Rollback and production safety
 
 Keep the existing Pages project and the previous live application unchanged while the Worker version is built and tested. Do not delete source data, old media, existing DNS records or payment webhooks. Define a rollback trigger and retain database backups before any production cutover.
+
+
+## Runtime compatibility audit
+
+The initial source-level audit of all 118 API handler files and the main backend dependency paths is documented in [CLOUDFLARE_RUNTIME_AUDIT.md](./CLOUDFLARE_RUNTIME_AUDIT.md). Treat its P0 items as deployment blockers. The audit is not a substitute for typechecking, integration tests or a Worker build; none of those validations has passed yet.
