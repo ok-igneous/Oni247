@@ -1,5 +1,6 @@
+import { useStorefrontRouteParams } from "../helpers/storefrontHost";
 import { useMemo, useState } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { toast } from "sonner";
 import {
@@ -72,7 +73,7 @@ const PAYMENT_COPY: Record<
 };
 
 const CheckoutPage = () => {
-  const { slug = "" } = useParams<{ slug: string }>();
+  const { slug = "" } = useStorefrontRouteParams<{ slug: string }>();
   const [searchParams] = useSearchParams();
   const returnRef = searchParams.get("ref");
   const { data, isFetching, error } = useStorefront(slug);
