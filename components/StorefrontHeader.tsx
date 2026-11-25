@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Menu, MessageCircle, Phone, ShoppingBag, X } from "lucide-react";
 import { Button } from "./Button";
 import styles from "./StorefrontHeader.module.css";
+import { useStorefrontHost } from "../helpers/storefrontHost";
 
 type StorefrontNavItem = { label: string; href: string; active?: boolean };
 type StorefrontHeaderProps = {
@@ -26,6 +27,10 @@ type StorefrontHeaderProps = {
 export const StorefrontHeader = ({ businessName, logoUrl, tagline, headerBrand = "logo_name", headerAlignment = "split", navItems, whatsappUrl, phone, showActions = true, menuStyle = "bar", menuPosition = "center", menuVisibility = "always", navVisible = true, cartCount, onCartClick }: StorefrontHeaderProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navId = useId();
+  const host = useStorefrontHost();
+  const navHref = (href: string) => host.slug && href.startsWith(`/${host.slug}/`)
+    ? href.slice(host.slug.length + 1)
+    : host.slug && href === `/${host.slug}` ? "/" : href;
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -56,7 +61,7 @@ export const StorefrontHeader = ({ businessName, logoUrl, tagline, headerBrand =
           <button type="button" className={styles.menuToggle} aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"} aria-expanded={menuOpen} aria-controls={navId} onClick={() => setMenuOpen(value => !value)}>{menuOpen ? <X size={22} /> : <Menu size={22} />}</button>
         </div>
         <nav id={navId} className={`${styles.nav} ${styles[`menu_${menuStyle}`]} ${styles[`menuPos_${menuPosition}`]} ${menuVisibility === "auto" && !navVisible && !menuOpen ? styles.navHidden : ""} ${menuOpen ? styles.navOpen : ""}`} aria-label="Business website navigation">
-          {navItems.map(item => item.href.startsWith("#") ? <a key={item.href + item.label} className={`${styles.navLink} ${item.active ? styles.active : ""}`} href={item.href} onClick={() => setMenuOpen(false)}>{item.label}</a> : <Link key={item.href + item.label} className={`${styles.navLink} ${item.active ? styles.active : ""}`} to={item.href} onClick={() => setMenuOpen(false)}>{item.label}</Link>)}
+          {navItems.map(item => item.href.startsWith("#") ? <a key={item.href + item.label} className={`${styles.navLink} ${item.active ? styles.active : ""}`} href={item.href} onClick={() => setMenuOpen(false)}>{item.label}</a> : <Link key={item.href + item.label} className={`${styles.navLink} ${item.active ? styles.active : ""}`} to={navHref(item.href)} onClick={() => setMenuOpen(false)}>{item.label}</Link>)}
         </nav>
       </div>
     </header>
