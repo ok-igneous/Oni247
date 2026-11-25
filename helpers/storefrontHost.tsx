@@ -23,16 +23,16 @@ export function StorefrontHostProvider({ children }: { children: React.ReactNode
     return () => { active = false; };
   }, []);
 
-  return <StorefrontHostContext.Provider value={state}>{children}</StorefrontHostContext.Provider>;
+  return <HostStorefrontContext.Provider value={state}>{children}</HostStorefrontContext.Provider>;
 }
 
 /** Route params take precedence; host-resolved slug supplies the missing segment on domain-root routes. */
 export function useStorefrontRouteParams<T extends Record<string, string | undefined>>() {
-  const params = useParams<T>();
-  const host = useContext(StorefrontHostContext);
+  const params = useParams<{ slug: string }>();
+  const host = useContext(HostStorefrontContext);
   return useMemo(() => ({ ...params, slug: params.slug || host.slug || undefined }), [params, host.slug]) as T & { slug: string | undefined };
 }
 
 export function useStorefrontHost() {
-  return useContext(StorefrontHostContext);
+  return useContext(HostStorefrontContext);
 }

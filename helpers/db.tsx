@@ -50,7 +50,7 @@ export const db = new Proxy(baseDb, {
           const savepoint = `oni_nested_${++nestedSavepointSequence}`;
           await sql.raw(`SAVEPOINT "${savepoint}"`).execute(active);
           try {
-            const result = await callback(active);
+            const result = await callback(active as Transaction<DB>);
             await sql.raw(`RELEASE SAVEPOINT "${savepoint}"`).execute(active);
             return result;
           } catch (error) {
