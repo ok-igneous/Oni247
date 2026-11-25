@@ -40,8 +40,6 @@ import { storeThemeEngine } from "../helpers/storeThemeEngine";
 import { shareLink } from "../endpoints/share/page_GET.schema";
 import styles from "./store.$slug.p.$productSlug.module.css";
 
-const LOW_STOCK_AT = 5;
-
 const ProductDetailPage = () => {
   const { slug, productSlug } = useStorefrontRouteParams<{
     slug: string;
@@ -146,10 +144,9 @@ const ProductDetailPage = () => {
 
   const home = storefrontPath(business.slug);
   const whatsappNumber = business.whatsappNumber ?? business.phone ?? "";
-  const stock = product.stockQuantity ?? null;
+  // Exact stock counts stay private; the public catalogue exposes availability only.
   const inStock = product.available;
-  const lowStock = inStock && stock !== null && stock > 0 && stock <= LOW_STOCK_AT;
-  const maxQuantity = stock !== null ? Math.max(1, Math.min(stock, 99)) : 99;
+  const maxQuantity = 99;
   const qty = Math.min(quantity, maxQuantity);
 
   const unitPrice = resolved.price;
@@ -199,7 +196,7 @@ const ProductDetailPage = () => {
     imageUrl: product.imageUrl,
     variants: hasOptions ? resolved.chosen : undefined,
     variantLabel: hasOptions ? resolved.label || null : undefined,
-    maxQuantity: stock,
+    maxQuantity: null,
   });
 
   /** Returns true when the item went into the cart. */
@@ -265,8 +262,6 @@ const ProductDetailPage = () => {
 
   const stockBadge = !inStock ? (
     <Badge variant="secondary">Out of stock</Badge>
-  ) : lowStock ? (
-    <Badge variant="warning">Only {stock} left</Badge>
   ) : (
     <Badge variant="success">In stock</Badge>
   );
