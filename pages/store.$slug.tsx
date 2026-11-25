@@ -625,7 +625,11 @@ const StorePage = () => {
                         />
                       ) : null}
                     </div>
-... (output capped at 40000 chars — continue with read_file path: "pages/store.$slug.tsx" offset: 599)
+                    <div>
+                      <h3>{item.title}</h3>
+                      {item.description ? <p>{item.description}</p> : null}
+                    </div>
+                  </>
 
                 return item.linkUrl ? (
                   <a key={item.id} href={item.linkUrl} target="_blank" rel="noopener noreferrer" className={styles.workCard}>{card}</a>
