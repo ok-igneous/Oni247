@@ -58,7 +58,7 @@ export function App() {
             <Route key={key} path={path} element={<Component />} />
           ))}
           {vanityRoutes.map(({ path, Component, key }) => (
-            <Route key={\`host-\${key}\`} path={path.replace(/^\/:slug/, "") || "/"} element={<Component />} />
+            <Route key={"host-" + key} path={path.replace(/^\/:slug/, "") || "/"} element={<Component />} />
           ))}
           <Route path="*" element={<main style={{ padding: 24 }}><h1>Page not found</h1><a href="/">Return home</a></main>} />
         </Routes>
