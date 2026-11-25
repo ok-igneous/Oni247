@@ -787,7 +787,11 @@ const PresencePage = () => {
 
       <section className={styles.group}>
         <div className={styles.groupHead}>
-... (output capped at 40000 chars — continue with read_file path: "pages/dashboard.presence.tsx" offset: 797)
+          <div>
+            <h2 className={styles.groupTitle}>Portfolio</h2>
+            <p className={styles.hint}>Show customers examples of completed work.</p>
+          </div>
+        </div>
 
         {portfolioDraft && (
           <div className={styles.draft}>
