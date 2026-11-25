@@ -9,7 +9,6 @@ export function StorefrontHostProvider({ children }: { children: React.ReactNode
 
   useEffect(() => {
     let active = true;
-    const host = window.location.hostname.toLowerCase();
     void fetch("/_api/storefrontHost", { headers: { Accept: "application/json" } })
       .then(async (response) => {
         if (!response.ok) return null;
