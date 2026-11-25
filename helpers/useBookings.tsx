@@ -10,10 +10,10 @@ const GATEWAYS = ["payment-gateways"] as const;
 export const useBookings = () => useQuery({ queryKey: BOOKINGS, queryFn: () => getBookings(), retry: false });
 export const useUpdateBooking = () => {
   const queryClient = useQueryClient();
-  return useMutation({ mutationFn: (input) => postUpdateBooking(input), onSettled: () => void queryClient.invalidateQueries({ queryKey: BOOKINGS }) });
+  return useMutation({ mutationFn: (input: Parameters<typeof postUpdateBooking>[0]) => postUpdateBooking(input), onSettled: () => void queryClient.invalidateQueries({ queryKey: BOOKINGS }) });
 };
 export const useGateways = () => useQuery({ queryKey: GATEWAYS, queryFn: () => getGateways(), retry: false });
 export const useGatewayAction = () => {
   const queryClient = useQueryClient();
-  return useMutation({ mutationFn: (input) => postGateway(input), onSettled: () => void queryClient.invalidateQueries({ queryKey: GATEWAYS }) });
+  return useMutation({ mutationFn: (input: Parameters<typeof postGateway>[0]) => postGateway(input), onSettled: () => void queryClient.invalidateQueries({ queryKey: GATEWAYS }) });
 };
