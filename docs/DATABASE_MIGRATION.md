@@ -9,7 +9,7 @@ Use two credentials supplied securely at migration time:
 - `SOURCE_DATABASE_URL`: the authorized read/export connection for the current production database.
 - `DATABASE_URL`: the standalone destination database connection used by Oni247.
 
-Never commit either value. Do not copy a Floot credential into `.env.example` or GitHub.
+Never commit either value. Do not copy source-system credentials into `.env.example` or GitHub.
 
 ## Initial rehearsal
 
