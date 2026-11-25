@@ -17,7 +17,7 @@ const routeEntries = Object.entries(pageModules)
   .filter(([file]) => !file.endsWith(".pageLayout.tsx"))
   .map(([file, loadPage]) => {
     const baseName = file.split("/").pop()!.replace(/\.tsx$/, "");
-    const layoutKey = \`../pages/\${baseName}.pageLayout.tsx\`;
+    const layoutKey = "../pages/" + baseName + ".pageLayout.tsx";
     const loadLayout = layoutModules[layoutKey];
     const Component = React.lazy(async () => {
       const [page, layout] = await Promise.all([
