@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { ArrowLeft, Building2, CreditCard, LayoutGrid, Menu, PanelsTopLeft, Puzzle, Settings, X } from "lucide-react";
+import { ArrowLeft, Building2, CreditCard, LayoutGrid, Menu, PanelsTopLeft, Puzzle, Settings, UserRound, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import styles from "./AdminLayout.module.css";
@@ -11,6 +11,7 @@ const navItems = [
   { to: "/admin/plans", label: "Plans", icon: CreditCard, end: false },
   { to: "/admin/addons", label: "Add-ons", icon: Puzzle, end: false },
   { to: "/admin/landing", label: "Landing page", icon: PanelsTopLeft, end: false },
+  { to: "/admin/portfolio", label: "Portfolio", icon: UserRound, end: false },
   { to: "/admin/settings", label: "Settings", icon: Settings, end: false },
 ];
 
