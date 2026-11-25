@@ -6,7 +6,7 @@ const auditFile = path.resolve(root, "scripts/audit-standalone.mjs");
 const ignoredDirectories = new Set([".git", "node_modules", "dist", "coverage"]);
 const sourceExtensions = new Set([
   ".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".json", ".html", ".xml",
-  ".plist", ".gradle", ".swift", ".kt", ".java", ".css", ".yml", ".yaml"
+  ".plist", ".gradle", ".swift", ".kt", ".java", ".css", ".yml", ".yaml", ".sql", ".txt", ".example"
 ]);
 const checks = [
   { label: "Legacy platform branding or runtime reference", pattern: /floot/i, severity: "error" },
