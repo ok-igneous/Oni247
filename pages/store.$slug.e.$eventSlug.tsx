@@ -1,3 +1,4 @@
+import { storefrontPath } from "../helpers/storefrontPath";
 import { useStorefrontRouteParams } from "../helpers/storefrontHost";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -98,7 +99,7 @@ export default function PublicEventPage() {
         <div className={styles.notFound}>
           <h1>Event unavailable</h1>
           <p>{error}</p>
-          <Link to={`/${slug}`}>Return to the business page</Link>
+          <Link to={storefrontPath(slug)}>Return to the business page</Link>
         </div>
       </main>
     );
@@ -115,7 +116,7 @@ export default function PublicEventPage() {
   const theme = storeThemeEngine("clean", appearance);
   const state = eventTimeState(event);
   const reg = registrationInfo(event, data.registrationCount);
-  const home = typeof appearance.homePage === "string" && appearance.homePage !== "home" ? `/${slug}/${appearance.homePage}` : `/${slug}`;
+  const home = typeof appearance.homePage === "string" && appearance.homePage !== "home" ? storefrontPath(slug, "/" + appearance.homePage) : storefrontPath(slug);
   const footerMode = appearance.footerMode === "none" || appearance.footerMode === "selected" ? appearance.footerMode : "all";
   const footerPages = Array.isArray(appearance.footerPages) ? (appearance.footerPages as string[]) : [];
   const showFooter = footerMode === "all" || (footerMode === "selected" && footerPages.includes("event-detail"));
@@ -176,8 +177,8 @@ export default function PublicEventPage() {
         logoUrl={data.business.logoUrl}
         navItems={[
           { label: "Home", href: home },
-          { label: "Events", href: `/${slug}/events`, active: true },
-          { label: "Contact", href: `/${slug}/contact` },
+          { label: "Events", href: storefrontPath(slug, "/events"), active: true },
+          { label: "Contact", href: storefrontPath(slug, "/contact") },
         ]}
         menuStyle="bar"
         menuPosition="left"
@@ -351,7 +352,7 @@ export default function PublicEventPage() {
           <section className={styles.more}>
             <h2 className={styles.sectionTitle}>More events</h2>
             <EventsList events={upcomingOthers} businessSlug={slug} showPast={false} compact />
-            <Link to={`/${slug}/events`} className={styles.allLink}>See all events →</Link>
+            <Link to={storefrontPath(slug, "/events")} className={styles.allLink}>See all events →</Link>
           </section>
         )}
       </div>
