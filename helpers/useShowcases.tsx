@@ -17,9 +17,9 @@ export const useShowcases = () => {
     retry: false,
   });
 
-  const save = useMutation({ mutationFn: postSaveShowcase, onSuccess: invalidate });
+  const save = useMutation({ mutationFn: (input) => postSaveShowcase(input), onSuccess: invalidate });
   const remove = useMutation({
-    mutationFn: postDeleteShowcase,
+    mutationFn: (input) => postDeleteShowcase(input),
     onSuccess: invalidate,
   });
 

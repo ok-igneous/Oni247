@@ -9,7 +9,7 @@ export const useTeam = () => useQuery({ queryKey: KEY, queryFn: () => getTeam(),
 
 export const useTeamAction = () => {
   const queryClient = useQueryClient();
-  return useMutation({ mutationFn: postTeam, onSettled: () => void queryClient.invalidateQueries({ queryKey: KEY }) });
+  return useMutation({ mutationFn: (input) => postTeam(input), onSettled: () => void queryClient.invalidateQueries({ queryKey: KEY }) });
 };
 
 /** What the signed-in person may open in this shop. The owner may open everything. */
