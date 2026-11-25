@@ -1,5 +1,6 @@
+import { useStorefrontRouteParams } from "../helpers/storefrontHost";
 import { useEffect,useState } from "react";
-import { Link,useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import superjson from "superjson";
 import { Button } from "../components/Button";
@@ -11,7 +12,7 @@ import styles from "./store.$slug.e.$eventSlug.module.css";
 
 type Field={id:string;label:string;type:"text"|"textarea"|"email"|"phone"|"number"|"date"|"select"|"checkbox";required:boolean;options?:string[]};
 type FormData={business:{slug:string;name:string;logoUrl:string|null;appearanceSettings?:Record<string,unknown>};form:{id:string;title:string;description:string|null;fields:Field[];submitLabel:string;successMessage:string}};
-export default function PublicFormPage(){const {slug="",formId=""}=useParams();const [data,setData]=useState<FormData|null>(null);const [answers,setAnswers]=useState<Record<string,unknown>>({});const [message,setMessage]=useState("");const [error,setError]=useState("");const [busy,setBusy]=useState(false);
+export default function PublicFormPage(){const {slug="",formId=""}=useStorefrontRouteParams();const [data,setData]=useState<FormData|null>(null);const [answers,setAnswers]=useState<Record<string,unknown>>({});const [message,setMessage]=useState("");const [error,setError]=useState("");const [busy,setBusy]=useState(false);
  useEffect(()=>{let active=true;void getPublicForm(slug,formId).then(j=>{if(active)setData(j);}).catch(e=>{if(active)setError(e instanceof Error?e.message:"Form unavailable");});return()=>{active=false;};},[slug,formId]);
  const submit=async()=>{if(!data)return;setBusy(true);try{const j=await postSubmitForm({slug,formId,answers});setMessage(j.message??data.form.successMessage);}catch(e){setError(e instanceof Error?e.message:"Could not submit form");}finally{setBusy(false);}};
  if(error&&!data)return <main className={styles.page}><h1>Form unavailable</h1><p>{error}</p><Link to={`/${slug}`}>Return to business page</Link></main>;if(!data)return <main className={styles.page}>Loading form…</main>;
