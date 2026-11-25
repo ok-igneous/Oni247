@@ -1,5 +1,6 @@
+import { useStorefrontRouteParams } from "../helpers/storefrontHost";
 import { useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Lock } from "lucide-react";
 import { Button } from "../components/Button";
 import { Input } from "../components/Input";
@@ -13,7 +14,7 @@ import styles from "../components/StoreServiceShell.module.css";
 const LOCATION_LABEL = { business: "At the business", customer: "At your location", online: "Online" } as const;
 
 export default function ServiceBookingPage() {
-  const { slug, serviceId } = useParams<{ slug: string; serviceId: string }>();
+  const { slug, serviceId } = useStorefrontRouteParams<{ slug: string; serviceId: string }>();
   const navigate = useNavigate();
   const { data, isFetching, error } = useStorefront(slug);
   const [name, setName] = useState("");
