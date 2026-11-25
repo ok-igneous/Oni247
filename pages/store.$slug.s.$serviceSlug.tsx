@@ -1,5 +1,4 @@
 import { useStorefrontRouteParams } from "../helpers/storefrontHost";
-import { useStorefrontRouteParams } from "../helpers/storefrontHost";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Helmet } from "react-helmet";
