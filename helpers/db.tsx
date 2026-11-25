@@ -46,7 +46,7 @@ export const db = new Proxy(baseDb, {
     // with PostgreSQL savepoints on that same connection/context.
     if (property === "transaction" && active !== target) {
       return () => ({
-        execute: async <T>(callback: (trx: Transaction<DB>) => Promise<T>): Promise<T> => {
+        execute: async <T,>(callback: (trx: Transaction<DB>) => Promise<T>): Promise<T> => {
           const savepoint = `oni_nested_${++nestedSavepointSequence}`;
           await sql.raw(`SAVEPOINT "${savepoint}"`).execute(active);
           try {
