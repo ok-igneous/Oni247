@@ -96,7 +96,7 @@ The staged RLS migration is not production-ready and must remain unapplied until
 
 ## Release sequence
 
-1. Complete the standalone audit and resolve all blocking Floot/runtime assumptions.
+1. Complete the standalone audit and resolve all blocking legacy runtime assumptions.
 2. Generate and commit a lockfile; add a reproducible production container build.
 3. Run dependency installation, audit, typecheck, unit tests and production build.
 4. Run the API against a disposable PostgreSQL clone and test every route family.
@@ -109,7 +109,7 @@ The staged RLS migration is not production-ready and must remain unapplied until
 11. Deploy production without switching customer traffic.
 12. Verify health, logs, payment callbacks, email, media, domains and backups.
 13. Schedule a controlled final database/media delta migration and cutover.
-14. Keep Floot and its data recoverable until explicit acceptance.
+14. Keep the previous platform and its data recoverable until explicit acceptance.
 
 ## Current blockers observed
 
@@ -123,4 +123,4 @@ The staged RLS migration is not production-ready and must remain unapplied until
 
 ## Rollback
 
-Do not delete the Floot app, its database, media, DNS records or payment webhooks during initial launch. Keep a reversible DNS/traffic cutover plan, preserve a final source database backup, and define a tested rollback trigger before production traffic moves.
+Do not delete the previous application, its database, media, DNS records or payment webhooks during initial launch. Keep a reversible DNS/traffic cutover plan, preserve a final source database backup, and define a tested rollback trigger before production traffic moves.
