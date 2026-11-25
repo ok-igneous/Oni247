@@ -97,8 +97,7 @@ const StorePage = () => {
   const [galleries, setGalleries] = useState<Awaited<ReturnType<typeof getPublicGalleries>>["galleries"]>([]);
 
   useEffect(() => {
-    if (!slug) { setGalleries([]); return; }
-    void getPublicGalleries(slug).then(r => setGalleries(r.galleries)).catch(() => setGalleries([]));
+    if (!slug) { setGalleries([]); return; }    void getPublicGalleries(slug).then(r => setGalleries(r.galleries)).catch(() => setGalleries([]));
   }, [slug, data?.business.canUseMultiPage]);
   useEffect(() => {
     if (data?.business) trackStoreEvent("store_view", { businessSlug: data.business.slug });
@@ -197,8 +196,7 @@ const StorePage = () => {
         <main className={styles.main}>
           <section className={styles.section}>
             <div className={styles.grid}>
-              {[0, 1, 2, 3].map((index) => (
-                <Skeleton key={index} className={styles.skeletonCard} />
+              {[0, 1, 2, 3].map((index) => (                <Skeleton key={index} className={styles.skeletonCard} />
               ))}
             </div>
           </section>
@@ -297,8 +295,7 @@ const StorePage = () => {
       name: product.name,
       price: product.price,
       currency: product.currency,
-      imageUrl: product.imageUrl,
-      maxQuantity: product.stockQuantity ?? null,
+      imageUrl: product.imageUrl,      maxQuantity: product.stockQuantity ?? null,
     });
     setCartOpen(true);
   };
@@ -397,8 +394,7 @@ const StorePage = () => {
                     {slide.imageUrl && <img className={styles.homeSlideImage} src={slide.imageUrl} alt={slide.headline} loading="lazy" decoding="async" />}
                     <div className={styles.homeSlideText}>
                       {slide.headline && <h2>{slide.headline}</h2>}
-                      {slide.text && <p>{slide.text}</p>}
-                      {slide.ctaLabel && slide.ctaUrl && <Button asChild size="sm"><a href={slide.ctaUrl} target={slide.ctaUrl.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer">{slide.ctaLabel}</a></Button>}
+                      {slide.text && <p>{slide.text}</p>}                      {slide.ctaLabel && slide.ctaUrl && <Button asChild size="sm"><a href={slide.ctaUrl} target={slide.ctaUrl.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer">{slide.ctaLabel}</a></Button>}
                     </div>
                   </article>
                 ))}
@@ -497,8 +493,7 @@ const StorePage = () => {
               <Search size={16} className={styles.searchIcon} />
               <Input
                 className={styles.searchInput}
-                value={search}
-                onChange={(event) => {
+                value={search}                onChange={(event) => {
                   setSearch(event.target.value);
                   setVisibleCount(12);
                 }}
@@ -597,8 +592,7 @@ const StorePage = () => {
               {whatsappNumber && (
                 <Button asChild variant="outline">
                   <a href={enquiryUrl} target="_blank" rel="noopener noreferrer">
-                    <MessageCircle size={16} />
-                    Ask on WhatsApp
+                    <MessageCircle size={16} />                    Ask on WhatsApp
                   </a>
                 </Button>
               )}
@@ -632,3 +626,55 @@ const StorePage = () => {
                       ) : null}
                     </div>
 ... (output capped at 40000 chars — continue with read_file path: "pages/store.$slug.tsx" offset: 599)
+
+                return item.linkUrl ? (
+                  <a key={item.id} href={item.linkUrl} target="_blank" rel="noopener noreferrer" className={styles.workCard}>{card}</a>
+                ) : (
+                  <div key={item.id} className={styles.workCard}>{card}</div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {sections.blog && blogPosts.length > 0 && <section className={styles.section} id="blog" style={{order:orderOf("blog")}}>
+          <h2 className={styles.sectionHeading}>From the business</h2>
+          <div className={styles.blogGrid}>{blogPosts.map(post=><article key={post.id} className={styles.blogCard}>
+            {post.coverImageUrl && <img src={post.coverImageUrl} alt="" className={styles.blogImage} loading="lazy"/>}
+            <div className={styles.blogBody}><h3 className={styles.blogTitle}>{post.title}</h3>{post.excerpt && <p className={styles.blogExcerpt}>{post.excerpt}</p>}<Link to={storefrontPath(business.slug,"/b/"+post.slug)}>Read full article</Link></div>
+          </article>)}</div>
+        </section>}
+
+        {sections.testimonials !== false && testimonials.length > 0 && <section className={styles.section} id="testimonials" style={{order:orderOf("testimonials")}}>
+          <TestimonialsSection testimonials={testimonials} heading={typeof content.testimonialsHeading==="string"?content.testimonialsHeading:undefined} intro={typeof content.testimonialsIntro==="string"?content.testimonialsIntro:undefined}/>
+        </section>}
+
+        {sections.contact !== false && <section className={styles.section} id="contact" style={{order:orderOf("contact")}}>
+          <h2 className={styles.sectionHeading}>Contact {business.name}</h2>
+          <ul className={styles.contactList}>
+            {business.phone && <li className={styles.contactItem}><Phone size={16}/><a href={`tel:${business.phone.replace(/\s/g,"")}`}>{business.phone}</a></li>}
+            {whatsappNumber && <li className={styles.contactItem}><MessageCircle size={16}/><a href={enquiryUrl} target="_blank" rel="noopener noreferrer">Message on WhatsApp</a></li>}
+            {business.address && <li className={styles.contactItem}><MapPin size={16}/>{business.address}</li>}
+            {business.openingHours && <li className={styles.contactItem}><Clock size={16}/>{business.openingHours}</li>}
+          </ul>
+          <div className={styles.enquiryForm}>
+            <h3 className={styles.enquiryTitle}>Send a message</h3>
+            {enquirySent ? <p className={styles.enquirySent}>Thank you — your message has been sent. {business.name} will get back to you.</p> : <>
+              <div className={styles.enquiryFields}>
+                <Input value={enquiry.name} onChange={e=>setEnquiry({...enquiry,name:e.target.value})} placeholder="Your name" aria-label="Your name"/>
+                <Input value={enquiry.phone} onChange={e=>setEnquiry({...enquiry,phone:e.target.value})} placeholder="Phone number" aria-label="Phone number"/>
+                <Input value={enquiry.email} onChange={e=>setEnquiry({...enquiry,email:e.target.value})} placeholder="Email (optional)" aria-label="Email" type="email"/>
+                <Textarea value={enquiry.message} onChange={e=>setEnquiry({...enquiry,message:e.target.value})} placeholder="How can we help?" aria-label="Message" rows={4}/>
+              </div>
+              <Button disabled={enquirySending || !enquiry.name.trim() || !enquiry.message.trim()} onClick={()=>void handleSendEnquiry()}>{enquirySending ? <Spinner size="sm"/> : <Send size={16}/>} Send message</Button>
+            </>}
+          </div>
+        </section>}
+      </main>
+      <footer className={styles.footer}><span>{business.name}</span>{business.phone && <a href={`tel:${business.phone.replace(/\s/g,"")}`}>{business.phone}</a>}<span>Powered by Oni247</span></footer>
+      {isOnlineStore && <StoreCartDock cart={cart} open={cartOpen} onOpenChange={setCartOpen} business={business} />}
+      {optionsProduct && <StoreOptionsDialog product={optionsProduct} open={!!optionsProduct} onOpenChange={(open)=>!open && setOptionsProduct(null)} onConfirm={(options)=>{handleAdd(optionsProduct,options);setOptionsProduct(null);}} />}
+    </div>
+  );
+};
+export default StorePage;
