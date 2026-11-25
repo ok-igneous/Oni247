@@ -1,5 +1,4 @@
 import { useStorefrontRouteParams } from "../helpers/storefrontHost";
-import { useStorefrontRouteParams } from "../helpers/storefrontHost";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
