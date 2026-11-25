@@ -34,7 +34,11 @@ Do not cut over production until the above checks pass. Never copy Floot secrets
 
 ## Hosting compatibility
 
-The current extraction targets a conventional Node.js host because the existing endpoint handlers use Node-compatible PostgreSQL, crypto, SMTP and filesystem-based module discovery. Cloudflare R2 is supported for object storage, but this Fastify server is **not** a Cloudflare Workers/Pages deployment yet. A Cloudflare deployment must use a supported container runtime for this Node server, or a separately engineered Worker-native API adapter. Do not attempt a direct Workers upload until that runtime decision is made and tested.
+The current application remains Node.js 22 + Fastify because its endpoint handlers use Node APIs, PostgreSQL TCP, SMTP/Nodemailer, filesystem-based endpoint discovery and dynamic TypeScript imports. Do not deploy this server directly as a normal Worker or Pages Function.
+
+The selected lowest-risk Cloudflare target is **Cloudflare Containers behind a thin Worker/Durable Object proxy**, with PostgreSQL remaining external and Cloudflare R2 for media. Containers require a Workers Paid plan. The container filesystem is ephemeral; durable application data must stay in PostgreSQL/R2. The Worker adapter, Dockerfile, lockfile and deployment configuration have not yet been implemented or tested.
+
+See [the Cloudflare deployment plan](./docs/CLOUDFLARE_DEPLOYMENT.md) for the target topology, prerequisites, security gates, domain model and cutover sequence.
 
 
 ## Database security / RLS
