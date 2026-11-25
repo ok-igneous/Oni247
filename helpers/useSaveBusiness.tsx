@@ -5,7 +5,7 @@ import { MY_BUSINESS_QUERY_KEY } from "./useMyBusiness";
 export const useSaveBusiness = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input) => postSaveBusiness(input),
+    mutationFn: (input: Parameters<typeof postSaveBusiness>[0]) => postSaveBusiness(input),
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: MY_BUSINESS_QUERY_KEY });
       queryClient.invalidateQueries({
