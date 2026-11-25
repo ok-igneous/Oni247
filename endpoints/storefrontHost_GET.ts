@@ -21,7 +21,7 @@ export async function handle(request: Request) {
     } else {
       const host = normalizeDomainHost(`https://${url.hostname}`);
       const platform = normalizeDomainHost(configuredRoot);
-      const platformRoot = platform?.replace(/^www\\./, "") ?? null;
+      const platformRoot = platform?.replace(/^www\./, "") ?? null;
       if (host && host !== platformRoot && host !== (platformRoot ? `www.${platformRoot}` : null)) {
         const normalizedStoredHost = sql<string | null>`case
           when lower("custom_domain") like 'http://%' then null
