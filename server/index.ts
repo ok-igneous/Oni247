@@ -60,8 +60,8 @@ app.addContentTypeParser("*", { parseAs: "buffer" }, (_request, body, done) => d
 async function invokeEndpoint(
   method: string,
   route: string,
-  request: FastifyRequest<any, any>,
-  reply: FastifyReply<any, any>,
+  request: FastifyRequest,
+  reply: FastifyReply,
   originOverride?: string,
 ) {
   const file = endpointFiles.get(`${method} ${route}`);
