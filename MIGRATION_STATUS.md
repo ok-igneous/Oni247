@@ -71,3 +71,5 @@ The new runtime is a first implementation, not a completed migration. Keep Floot
 - No build, typecheck, test suite, database migration, RLS activation, media migration or deployment has been performed in this review.
 - The staged RLS design still blocks production rollout: checkout/payment requires narrow trusted database operations and concurrency-safe payment claims; bookings, comments/reactions and media upload access paths also need explicit policies/operations and tests.
 - Floot production and GitHub `main` remain untouched.
+
+- Additional Cloudflare account inspection: no Workers scripts exist; no `workers.dev` subdomain has been initialized; R2 is not enabled on the account (Cloudflare returned the explicit dashboard-enablement requirement). These are account-setup blockers, not repository code defects.
