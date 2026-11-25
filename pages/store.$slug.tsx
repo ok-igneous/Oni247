@@ -1,5 +1,6 @@
+import { useStorefrontRouteParams } from "../helpers/storefrontHost";
 import { useEffect, useMemo, useState } from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { toast } from "sonner";
 import { TestimonialsSection } from "../components/TestimonialsSection";
@@ -71,7 +72,7 @@ const safeContentLink = (value: string): string | null => {
 };
 
 const StorePage = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { slug } = useStorefrontRouteParams<{ slug: string }>();
   const { data, isFetching, error } = useStorefront(slug);
 
   const [search, setSearch] = useState("");
