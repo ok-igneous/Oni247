@@ -20,7 +20,7 @@ const trustProxySetting = process.env.TRUST_PROXY?.trim().toLowerCase();
 const trustProxy = trustProxySetting === "true"
   ? true
   : trustProxySetting && /^\d+$/.test(trustProxySetting)
-    ? Number(trustProxySetting)
+    ? (_address: string, hop: number) => hop < Number(trustProxySetting)
     : false;
 
 const app = Fastify({ logger: true, bodyLimit: 60 * 1024 * 1024, trustProxy });
