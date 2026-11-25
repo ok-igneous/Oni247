@@ -49,7 +49,7 @@ For two users and two businesses, verify:
 - connection reuse after a transaction does not retain the previous user's context;
 - public routes expose only explicitly approved published data.
 
-Do not run this migration against the Floot production database or any production database during development.
+Do not run this migration against the previous production database or any production database during development.
 
 ## Public checkout: blocked pending a narrow database operation
 
