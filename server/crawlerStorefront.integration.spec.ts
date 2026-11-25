@@ -66,6 +66,7 @@ async function makeApp() {
   });
   const render = createCrawlerStorefrontRenderer({
     hasProductionBuild: true,
+    resolvePlatformSubdomain: async () => null,
     resolveCustomDomain: async () => null,
     loadSnapshot,
     readIndexHtml: async () => shell,
