@@ -1,5 +1,6 @@
+import { useStorefrontRouteParams } from "../helpers/storefrontHost";
 import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "../components/Button";
@@ -11,7 +12,7 @@ import { postBookingPay } from "../endpoints/bookings/pay_POST.schema";
 import styles from "../components/StoreServiceShell.module.css";
 
 export default function BookingStatusPage() {
-  const { slug, code } = useParams<{ slug: string; code: string }>();
+  const { slug, code } = useStorefrontRouteParams<{ slug: string; code: string }>();
   const store = useStorefront(slug);
   const booking = useQuery({
     queryKey: ["booking-status", slug, code],
