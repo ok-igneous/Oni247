@@ -1,7 +1,8 @@
 import superjson from "superjson";
 import { escapeHtml } from "./storefrontPrerender";
 import { storefrontSnapshot } from "./storefrontSnapshot";
-import type { CrawlerSnapshot, CrawlerSnapshotRequest } from "./crawlerRenderer";
+import type { CrawlerSnapshot } from "./crawlerDocument";
+import type { CrawlerSnapshotRequest } from "./crawlerRenderer";
 
 export type PublicEndpoint = (request: Request) => Promise<Response> | Response;
 
