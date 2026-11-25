@@ -13,12 +13,12 @@ export const useProductMutations = () => {
   };
 
   const save = useMutation({
-    mutationFn: postSaveProduct,
+    mutationFn: (input) => postSaveProduct(input),
     onSuccess: invalidate,
   });
 
   const remove = useMutation({
-    mutationFn: postDeleteProduct,
+    mutationFn: (input) => postDeleteProduct(input),
     onSuccess: invalidate,
   });
 

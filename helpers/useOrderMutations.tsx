@@ -13,9 +13,9 @@ export const useOrderMutations = () => {
     queryClient.invalidateQueries({ queryKey: ["track"] });
   };
 
-  const update = useMutation({ mutationFn: postUpdateOrder, onSuccess: invalidate });
-  const create = useMutation({ mutationFn: postCreateOrder, onSuccess: invalidate });
-  const remove = useMutation({ mutationFn: postDeleteOrder, onSuccess: invalidate });
+  const update = useMutation({ mutationFn: (input) => postUpdateOrder(input), onSuccess: invalidate });
+  const create = useMutation({ mutationFn: (input) => postCreateOrder(input), onSuccess: invalidate });
+  const remove = useMutation({ mutationFn: (input) => postDeleteOrder(input), onSuccess: invalidate });
 
   return { update, create, remove };
 };
