@@ -1,0 +1,10 @@
+.card{display:flex;flex-direction:column;min-width:0;height:100%;overflow:hidden;border:1px solid var(--border);border-radius:var(--store-card-radius,10px);background:var(--card);color:var(--card-foreground);box-shadow:var(--store-card-shadow,0 2px 12px rgba(23,32,26,.06))}
+.image{display:block;width:100%;aspect-ratio:16/8;object-fit:cover;background:var(--muted)}
+.body{display:flex;flex:1;flex-direction:column;align-items:flex-start;gap:12px;padding:clamp(14px,2vw,22px);min-width:0}
+.heading{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-width:0}
+.heading h3{margin:0;font-family:var(--font-family-display);font-size:1.12rem;font-weight:var(--store-heading-weight,800);line-height:1.25;overflow-wrap:anywhere}
+.description{margin:0;color:var(--muted-foreground);font-size:.94rem;line-height:1.55;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.meta{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-top:auto;color:var(--muted-foreground);font-size:.88rem}
+.meta strong{color:var(--store-primary,var(--foreground));font-family:var(--font-family-monospace);font-variant-numeric:tabular-nums}
+.compact .body{padding:14px}
+@media(max-width:520px){.body{gap:10px}.body>button,.body>a{max-width:100%}}

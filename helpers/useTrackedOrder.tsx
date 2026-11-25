@@ -7,4 +7,4 @@ export const useTrackedOrder = (code: string | undefined) =>
     queryFn: () => getTrackedOrder({ code: code as string }),
     enabled: Boolean(code),
     retry: false,
-   10	  });
+  });

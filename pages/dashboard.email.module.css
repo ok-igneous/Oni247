@@ -1,0 +1,25 @@
+.page { display: flex; flex-direction: column; gap: var(--spacing-4); max-width: 860px; }
+.head h1 { margin: 0; }
+.head p { margin: 4px 0 0; color: var(--muted-foreground); }
+.panel { display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--card); }
+.panel h2 { margin: 0; font-size: 1.05rem; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 0.85rem; font-weight: 600; }
+.hint { margin: 0; color: var(--muted-foreground); font-size: 0.85rem; line-height: 1.5; }
+.notice { padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--card); font-size: 0.9rem; }
+.history { display: flex; flex-direction: column; }
+.historyRow { display: flex; flex-direction: column; gap: 2px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+.historyRow:last-child { border-bottom: 0; }
+.historyRow summary { cursor: pointer; display: flex; flex-direction: column; gap: 2px; list-style: none; }
+.historyRow summary::-webkit-details-marker { display: none; }
+.sentBody { white-space: pre-wrap; overflow-wrap: anywhere; margin: 10px 0 0; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); font-size: 0.88rem; line-height: 1.55; }
+.meta { color: var(--muted-foreground); font-size: 0.8rem; }
+.modes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.mode { text-align: left; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--background); color: var(--foreground); cursor: pointer; display: flex; flex-direction: column; gap: 4px; font-family: inherit; }
+.mode small { color: var(--muted-foreground); line-height: 1.45; }
+.modeOn { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.biz { display: flex; flex-direction: column; gap: 2px; font-size: 0.88rem; padding: 10px 12px; border: 1px dashed var(--border); border-radius: var(--radius-md); }
+.preview { width: 100%; height: 460px; border: 1px solid var(--border); border-radius: var(--radius-md); background: #f4f1ea; }
+.tabScroll { overflow-x: auto; padding-bottom: 2px; }
+.badge { display: inline-block; min-width: 18px; padding: 0 6px; margin-left: 6px; border-radius: 999px; background: var(--primary); color: var(--primary-foreground, #fff); font-size: 0.7rem; line-height: 18px; text-align: center; }

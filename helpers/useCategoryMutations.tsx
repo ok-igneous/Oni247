@@ -7,21 +7,21 @@ export const useCategoryMutations = () => {
   const queryClient = useQueryClient();
 
   const invalidate = () => {
-   10	    queryClient.invalidateQueries({ queryKey: CATEGORIES_QUERY_KEY });
-   11	    queryClient.invalidateQueries({ queryKey: ["products"] });
-   12	    queryClient.invalidateQueries({ queryKey: ["dashboard", "overview"] });
-   13	    queryClient.invalidateQueries({ queryKey: ["storefront"] });
-   14	  };
-   15	
-   16	  const save = useMutation({
-   17	    mutationFn: postSaveCategory,
-   18	    onSuccess: invalidate,
-   19	  });
-   20	
-   21	  const remove = useMutation({
-   22	    mutationFn: postDeleteCategory,
-   23	    onSuccess: invalidate,
-   24	  });
-   25	
-   26	  return { save, remove };
-   27	};
+    queryClient.invalidateQueries({ queryKey: CATEGORIES_QUERY_KEY });
+    queryClient.invalidateQueries({ queryKey: ["products"] });
+    queryClient.invalidateQueries({ queryKey: ["dashboard", "overview"] });
+    queryClient.invalidateQueries({ queryKey: ["storefront"] });
+  };
+
+  const save = useMutation({
+    mutationFn: postSaveCategory,
+    onSuccess: invalidate,
+  });
+
+  const remove = useMutation({
+    mutationFn: postDeleteCategory,
+    onSuccess: invalidate,
+  });
+
+  return { save, remove };
+};

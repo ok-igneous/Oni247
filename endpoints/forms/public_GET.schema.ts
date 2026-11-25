@@ -1,0 +1,4 @@
+import superjson from "superjson";
+import type { Field } from "./save_POST.schema";
+export type OutputType={business:{slug:string;name:string;logoUrl:string|null;appearanceSettings?:Record<string,unknown>};form:{id:string;title:string;description:string|null;fields:Field[];submitLabel:string;successMessage:string}};
+export const getPublicForm=async(slug:string,formId:string,init?:RequestInit):Promise<OutputType>=>{const r=await fetch(`/_api/forms/public?slug=${encodeURIComponent(slug)}&formId=${encodeURIComponent(formId)}`,{...init,headers:{"Content-Type":"application/json",...(init?.headers??{})}});if(!r.ok){const e=superjson.parse<{error:string}>(await r.text());throw new Error(e.error)}return superjson.parse<OutputType>(await r.text())};

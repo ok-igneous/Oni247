@@ -7,8 +7,8 @@ export const useEnquiryStatus = () => {
   return useMutation({
     mutationFn: postEnquiryStatus,
     onSuccess: () => {
-   10	      queryClient.invalidateQueries({ queryKey: ENQUIRIES_QUERY_KEY });
-   11	      queryClient.invalidateQueries({ queryKey: ["dashboard", "overview"] });
-   12	    },
-   13	  });
-   14	};
+      queryClient.invalidateQueries({ queryKey: ENQUIRIES_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ["dashboard", "overview"] });
+    },
+  });
+};

@@ -7,322 +7,666 @@ import type { ColumnType } from "kysely";
 
 export type AuthTokenType = "email_verification" | "password_reset";
 
-   10	export type BusinessStatus = "draft" | "published" | "suspended";
-   11	
-   12	export type CustomDomainStatus = "disabled" | "none" | "pending" | "verified";
-   13	
-   14	export type EnquiryStatus = "contacted" | "new" | "resolved";
-   15	
-   16	export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
-   17	  ? ColumnType<S, I | undefined, U>
-   18	  : ColumnType<T, T | undefined, T>;
-   19	
-   20	export type Json = JsonValue;
-   21	
-   22	export type JsonArray = JsonValue[];
-   23	
-   24	export type JsonObject = {
-   25	  [x: string]: JsonValue | undefined;
-   26	};
-   27	
-   28	export type JsonPrimitive = boolean | number | string | null;
-   29	
-   30	export type JsonValue = JsonArray | JsonObject | JsonPrimitive;
-   31	
-   32	export type Numeric = ColumnType<string, number | string, number | string>;
-   33	
-   34	export type OrderSource = "direct" | "online";
-   35	
-   36	export type OrderStatus = "cancelled" | "completed" | "contacted" | "pending";
-   37	
-   38	export type PaymentStatus = "failed" | "pending" | "successful";
-   39	
-   40	export type PlanTier = "free" | "premium";
-   41	
-   42	export type ShippingStatus = "delivered" | "not_required" | "out_for_delivery" | "preparing" | "shipped";
-   43	
-   44	export type StoreTheme = "clean" | "commerce" | "service";
-   45	
-   46	export type Timestamp = ColumnType<Date, Date | string, Date | string>;
-   47	
-   48	export type UserRole = "admin" | "user";
-   49	
-   50	export interface AuthTokens {
-   51	  consumedAt: Timestamp | null;
-   52	  createdAt: Generated<Timestamp>;
-   53	  expiresAt: Timestamp;
-   54	  id: string;
-   55	  tokenHash: string;
-   56	  tokenType: AuthTokenType;
-   57	  userId: number;
-   58	}
-   59	
-   60	export interface BlogPosts {
-   61	  businessId: string;
-   62	  content: string;
-   63	  coverImageUrl: string | null;
-   64	  createdAt: Generated<Timestamp>;
-   65	  excerpt: string | null;
-   66	  id: Generated<string>;
-   67	  published: Generated<boolean>;
-   68	  publishedAt: Timestamp | null;
-   69	  slug: string;
-   70	  title: string;
-   71	  updatedAt: Generated<Timestamp>;
-   72	}
-   73	
-   74	export interface Businesses {
-   75	  address: string | null;
-   76	  appearanceSettings: Generated<Json>;
-   77	  contentSettings: Generated<Json>;
-   78	  createdAt: Generated<Timestamp>;
-   79	  currency: Generated<string>;
-   80	  customDomain: string | null;
-   81	  customDomainStatus: Generated<CustomDomainStatus>;
-   82	  customDomainVerifiedAt: Timestamp | null;
-   83	  description: string | null;
-   84	  email: string | null;
-   85	  heroCtaLabel: string | null;
-   86	  heroHeadline: string | null;
-   87	  heroImageUrl: string | null;
-   88	  heroSubtext: string | null;
-   89	  id: Generated<string>;
-   90	  isDemo: Generated<boolean>;
-   91	  logoUrl: string | null;
-   92	  name: string;
-   93	  openingHours: string | null;
-   94	  ownerId: number;
-   95	  phone: string | null;
-   96	  plan: Generated<PlanTier>;
-   97	  planRenewsAt: Timestamp | null;
-   98	  premiumTrialUsed: Generated<boolean>;
-   99	  registrationPromoUsed: Generated<boolean>;
-  100	  slug: string;
-  101	  status: Generated<BusinessStatus>;
-  102	  themeId: Generated<StoreTheme>;
-  103	  trialEndsAt: Timestamp | null;
-  104	  updatedAt: Generated<Timestamp>;
-  105	  websitePlan: Generated<string>;
-  106	  whatsappNumber: string | null;
-  107	}
-  108	
-  109	export interface Categories {
-  110	  businessId: string;
-  111	  createdAt: Generated<Timestamp>;
-  112	  description: string | null;
-  113	  id: Generated<string>;
-  114	  name: string;
-  115	  sortOrder: Generated<number>;
-  116	  updatedAt: Generated<Timestamp>;
-  117	}
-  118	
-  119	export interface Enquiries {
-  120	  businessId: string;
-  121	  createdAt: Generated<Timestamp>;
-  122	  customerEmail: string | null;
-  123	  customerName: string;
-  124	  customerPhone: string | null;
-  125	  id: Generated<string>;
-  126	  message: string;
-  127	  status: Generated<EnquiryStatus>;
-  128	}
-  129	
-  130	export interface Galleries {
-  131	  businessId: string;
-  132	  coverImageUrl: string | null;
-  133	  createdAt: Generated<Timestamp>;
-  134	  description: string | null;
-  135	  id: Generated<string>;
-  136	  name: string;
-  137	  published: Generated<boolean>;
-  138	  slug: string;
-  139	  sortOrder: Generated<number>;
-  140	  updatedAt: Generated<Timestamp>;
-  141	}
-  142	
-  143	export interface GalleryImages {
-  144	  altText: string | null;
-  145	  caption: string | null;
-  146	  createdAt: Generated<Timestamp>;
-  147	  galleryId: string;
-  148	  id: Generated<string>;
-  149	  imageUrl: string;
-  150	  sortOrder: Generated<number>;
-  151	  tag: string | null;
-  152	  updatedAt: Generated<Timestamp>;
-  153	}
-  154	
-  155	export interface LoginAttempts {
-  156	  attemptedAt: Generated<Timestamp | null>;
-  157	  email: string;
-  158	  id: Generated<number>;
-  159	  success: Generated<boolean | null>;
-  160	}
-  161	
-  162	export interface Orders {
-  163	  businessId: string;
-  164	  createdAt: Generated<Timestamp>;
-  165	  currency: Generated<string>;
-  166	  customerName: string;
-  167	  customerPhone: string | null;
-  168	  deliveryAddress: string | null;
-  169	  id: Generated<string>;
-  170	  items: Generated<Json>;
-  171	  ownerNote: string | null;
-  172	  shippingStatus: Generated<ShippingStatus>;
-  173	  source: Generated<OrderSource>;
-  174	  status: Generated<OrderStatus>;
-  175	  totalAmount: Generated<Numeric>;
-  176	  trackingCode: string;
-  177	  updatedAt: Generated<Timestamp>;
-  178	}
-  179	
-  180	export interface PortfolioItems {
-  181	  businessId: string;
-  182	  createdAt: Generated<Timestamp>;
-  183	  description: string | null;
-  184	  id: Generated<string>;
-  185	  imageUrl: string | null;
-  186	  linkUrl: string | null;
-  187	  sortOrder: Generated<number>;
-  188	  title: string;
-  189	  updatedAt: Generated<Timestamp>;
-  190	}
-  191	
-  192	export interface ProductCreationAttempts {
-  193	  businessId: string;
-  194	  createdAt: Generated<Timestamp>;
-  195	  id: Generated<string>;
-  196	}
-  197	
-  198	export interface Products {
-  199	  available: Generated<boolean>;
-  200	  businessId: string;
-  201	  categoryId: string | null;
-  202	  costPrice: Numeric | null;
-  203	  createdAt: Generated<Timestamp>;
-  204	  currency: Generated<string>;
-  205	  description: string | null;
-  206	  featured: Generated<boolean>;
-  207	  id: Generated<string>;
-  208	  imageUrl: string | null;
-  209	  name: string;
-  210	  price: Generated<Numeric>;
-  211	  slug: string;
-  212	  sortOrder: Generated<number>;
-  213	  unit: string | null;
-  214	  updatedAt: Generated<Timestamp>;
-  215	  variants: Generated<Json>;
-  216	}
-  217	
-  218	export interface Sessions {
-  219	  createdAt: Generated<Timestamp | null>;
-  220	  expiresAt: Timestamp;
-  221	  id: string;
-  222	  lastAccessed: Generated<Timestamp | null>;
-  223	  userId: number;
-  224	}
-  225	
-  226	export interface Showcases {
-  227	  businessId: string;
-  228	  code: string;
-  229	  createdAt: Generated<Timestamp>;
-  230	  description: string | null;
-  231	  id: Generated<string>;
-  232	  productIds: Generated<Json>;
-  233	  title: string;
-  234	  updatedAt: Generated<Timestamp>;
-  235	  viewCount: Generated<number>;
-  236	}
-  237	
-  238	export interface SubscriptionPayments {
-  239	  amount: Numeric;
-  240	  businessId: string;
-  241	  createdAt: Generated<Timestamp>;
-  242	  currency: Generated<string>;
-  243	  durationMonths: Generated<number>;
-  244	  id: Generated<string>;
-  245	  periodEnd: Timestamp | null;
-  246	  periodStart: Timestamp | null;
-  247	  promoApplied: Generated<boolean>;
-  248	  provider: Generated<string>;
-  249	  providerTransactionId: string | null;
-  250	  status: Generated<PaymentStatus>;
-  251	  txRef: string;
-  252	  updatedAt: Generated<Timestamp>;
-  253	  websitePlan: Generated<string>;
-  254	}
-  255	
-  256	export interface Testimonials {
-  257	  authorName: string;
-  258	  authorRole: string | null;
-  259	  businessId: string;
-  260	  createdAt: Generated<Timestamp>;
-  261	  id: Generated<string>;
-  262	  published: Generated<boolean>;
-  263	  quote: string;
-  264	  rating: number | null;
-  265	  sortOrder: Generated<number>;
-  266	  updatedAt: Generated<Timestamp>;
-  267	}
-  268	
-  269	export interface UserPasswords {
-  270	  createdAt: Generated<Timestamp | null>;
-  271	  id: Generated<number>;
-  272	  passwordHash: string;
-  273	  userId: number;
-  274	}
-  275	
-  276	export interface Users {
-  277	  avatarUrl: string | null;
-  278	  createdAt: Generated<Timestamp | null>;
-  279	  displayName: string;
-  280	  email: string;
-  281	  emailVerifiedAt: Timestamp | null;
-  282	  id: Generated<number>;
-  283	  role: Generated<UserRole>;
-  284	  updatedAt: Generated<Timestamp | null>;
-  285	}
-  286	
-  287	export interface DB {
-  288	  authTokens: AuthTokens;
-  289	  blogPosts: BlogPosts;
-  290	  businesses: Businesses;
-  291	  categories: Categories;
-  292	  enquiries: Enquiries;
-  293	  galleries: Galleries;
-  294	  galleryImages: GalleryImages;
-  295	  loginAttempts: LoginAttempts;
-  296	  orders: Orders;
-  297	  portfolioItems: PortfolioItems;
-  298	  productCreationAttempts: ProductCreationAttempts;
-  299	  products: Products;
-  300	  sessions: Sessions;
-  301	  showcases: Showcases;
-  302	  subscriptionPayments: SubscriptionPayments;
-  303	  testimonials: Testimonials;
-  304	  userPasswords: UserPasswords;
-  305	  users: Users;
-  306	}
-  307	
-  308	
-  309	// Use these for zod schema enums or other purposes, since the kysely enums are just types
-  310	export const UserRoleArrayValues: [UserRole, ...UserRole[]] = ["admin","user"];
-  311	export const BusinessStatusArrayValues: [BusinessStatus, ...BusinessStatus[]] = ["draft","published","suspended"];
-  312	export const StoreThemeArrayValues: [StoreTheme, ...StoreTheme[]] = ["clean","commerce","service"];
-  313	export const EnquiryStatusArrayValues: [EnquiryStatus, ...EnquiryStatus[]] = ["contacted","new","resolved"];
-  314	export const OrderStatusArrayValues: [OrderStatus, ...OrderStatus[]] = ["cancelled","completed","contacted","pending"];
-  315	export const OrderSourceArrayValues: [OrderSource, ...OrderSource[]] = ["direct","online"];
-  316	export const ShippingStatusArrayValues: [ShippingStatus, ...ShippingStatus[]] = ["delivered","not_required","out_for_delivery","preparing","shipped"];
-  317	export const PlanTierArrayValues: [PlanTier, ...PlanTier[]] = ["free","premium"];
-  318	export const PaymentStatusArrayValues: [PaymentStatus, ...PaymentStatus[]] = ["failed","pending","successful"];
-  319	export const AuthTokenTypeArrayValues: [AuthTokenType, ...AuthTokenType[]] = ["email_verification","password_reset"];
-  320	export const CustomDomainStatusArrayValues: [CustomDomainStatus, ...CustomDomainStatus[]] = ["disabled","none","pending","verified"];
-  321	// Table/column names whose snake_case spelling kysely's default CamelCasePlugin
-  322	// cannot recover from the camelCase name used in code (an underscore directly
-  323	// before a digit, e.g. reminder_48h_sent ⇄ reminder48hSent). The db helper's
-  324	// CamelCasePlugin subclass consults this map so those identifiers work in
-  325	// queries. Regenerated on every schema pull.
-  326	export const kyselyIdentifierOverrides: Record<string, string> = {};
-  327	
-  328	// Note: kysely maps the table/column/enum names from snake_case to camelCase and PascalCase. When running SQL statements, make sure to use snake_case, but TypeScript code should use camelCase or PascalCase.
+export type BusinessStatus = "draft" | "published" | "suspended";
+
+export type CustomDomainStatus = "disabled" | "none" | "pending" | "verified";
+
+export type EnquiryStatus = "contacted" | "new" | "resolved";
+
+export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
+  ? ColumnType<S, I | undefined, U>
+  : ColumnType<T, T | undefined, T>;
+
+export type Int8 = ColumnType<string, bigint | number | string, bigint | number | string>;
+
+export type Json = JsonValue;
+
+export type JsonArray = JsonValue[];
+
+export type JsonObject = {
+  [x: string]: JsonValue | undefined;
+};
+
+export type JsonPrimitive = boolean | number | string | null;
+
+export type JsonValue = JsonArray | JsonObject | JsonPrimitive;
+
+export type Numeric = ColumnType<string, number | string, number | string>;
+
+export type OrderPaymentMethod = "bank_transfer" | "cash_on_delivery" | "online" | "pay_on_pickup";
+
+export type OrderPaymentStatus = "paid" | "refunded" | "unpaid";
+
+export type OrderSource = "direct" | "online";
+
+export type OrderStatus = "cancelled" | "completed" | "contacted" | "pending";
+
+export type PaymentStatus = "failed" | "pending" | "successful";
+
+export type PlanTier = "free" | "premium";
+
+export type ShippingStatus = "delivered" | "not_required" | "out_for_delivery" | "preparing" | "shipped";
+
+export type StoreTheme = "clean" | "commerce" | "service";
+
+export type Timestamp = ColumnType<Date, Date | string, Date | string>;
+
+export type UserRole = "admin" | "user";
+
+export interface AddonPurchases {
+  addonId: string;
+  businessId: string;
+  createdAt: Generated<Timestamp>;
+  expiresAt: Timestamp;
+  id: Generated<string>;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface AuthTokens {
+  consumedAt: Timestamp | null;
+  createdAt: Generated<Timestamp>;
+  expiresAt: Timestamp;
+  id: string;
+  tokenHash: string;
+  tokenType: AuthTokenType;
+  userId: number;
+}
+
+export interface BlogPosts {
+  businessId: string;
+  commentsEnabled: boolean | null;
+  content: string;
+  coverImageUrl: string | null;
+  createdAt: Generated<Timestamp>;
+  excerpt: string | null;
+  id: Generated<string>;
+  published: Generated<boolean>;
+  publishedAt: Timestamp | null;
+  reactionsEnabled: boolean | null;
+  slug: string;
+  title: string;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface Businesses {
+  address: string | null;
+  appearanceSettings: Generated<Json>;
+  blogSettings: Generated<Json>;
+  checkoutSettings: Generated<Json>;
+  contentSettings: Generated<Json>;
+  createdAt: Generated<Timestamp>;
+  currency: Generated<string>;
+  customDomain: string | null;
+  customDomainStatus: Generated<CustomDomainStatus>;
+  customDomainVerifiedAt: Timestamp | null;
+  description: string | null;
+  email: string | null;
+  engagementSettings: Generated<Json>;
+  heroCtaLabel: string | null;
+  heroHeadline: string | null;
+  heroImageUrl: string | null;
+  heroSubtext: string | null;
+  id: Generated<string>;
+  isDemo: Generated<boolean>;
+  logoUrl: string | null;
+  name: string;
+  openingHours: string | null;
+  ownerId: number;
+  phone: string | null;
+  plan: Generated<PlanTier>;
+  planRenewsAt: Timestamp | null;
+  premiumTrialUsed: Generated<boolean>;
+  registrationPromoUsed: Generated<boolean>;
+  slug: string;
+  status: Generated<BusinessStatus>;
+  themeId: Generated<StoreTheme>;
+  trialEndsAt: Timestamp | null;
+  updatedAt: Generated<Timestamp>;
+  websitePlan: Generated<string>;
+  whatsappNumber: string | null;
+}
+
+export interface Categories {
+  businessId: string;
+  createdAt: Generated<Timestamp>;
+  description: string | null;
+  id: Generated<string>;
+  name: string;
+  sortOrder: Generated<number>;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface Comments {
+  authorName: string;
+  body: string;
+  businessId: string;
+  createdAt: Generated<Timestamp>;
+  id: Generated<string>;
+  status: Generated<string>;
+  targetId: string;
+  targetType: string;
+}
+
+export interface Customers {
+  businessId: string;
+  createdAt: Generated<Timestamp>;
+  email: string | null;
+  id: Generated<string>;
+  lastAddress: string | null;
+  name: string;
+  notes: string | null;
+  phone: string;
+  phoneKey: string;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface EmailAutomations {
+  businessId: string;
+  enabled: Generated<boolean>;
+  id: Generated<string>;
+  message: Generated<string>;
+  subject: Generated<string>;
+  trigger: string;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface EmailCampaigns {
+  audience: string;
+  audienceLabel: string;
+  businessId: string;
+  createdAt: Generated<Timestamp>;
+  error: string | null;
+  failedCount: Generated<number>;
+  id: Generated<string>;
+  look: Json | null;
+  message: string;
+  recipientCount: Generated<number>;
+  sentCount: Generated<number>;
+  subject: string;
+}
+
+export interface EmailContacts {
+  bouncedAt: Timestamp | null;
+  businessId: string;
+  createdAt: Generated<Timestamp>;
+  email: string;
+  id: Generated<string>;
+  name: Generated<string>;
+  note: string | null;
+  phone: string | null;
+  source: Generated<string>;
+  token: string;
+  unsubscribedAt: Timestamp | null;
+}
+
+export interface EmailDrafts {
+  businessId: string;
+  createdAt: Generated<Timestamp>;
+  id: Generated<string>;
+  look: Json | null;
+  message: Generated<string>;
+  recipients: Generated<Json>;
+  subject: Generated<string>;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface EmailInbox {
+  body: Generated<string>;
+  businessId: string;
+  fromEmail: string;
+  fromName: Generated<string>;
+  id: Generated<string>;
+  isRead: Generated<boolean>;
+  messageId: string | null;
+  receivedAt: Generated<Timestamp>;
+  subject: Generated<string>;
+}
+
+export interface EmailSettings {
+  apiKeyEnc: string;
+  businessId: string;
+  extra: Generated<Json>;
+  fromEmail: string;
+  fromName: string;
+  lastError: string | null;
+  provider: string;
+  replyTo: string | null;
+  updatedAt: Generated<Timestamp>;
+  verifiedAt: Timestamp | null;
+  webhookToken: string;
+}
+
+export interface EmailTemplates {
+  businessId: string;
+  createdAt: Generated<Timestamp>;
+  id: Generated<string>;
+  look: Json | null;
+  message: Generated<string>;
+  name: string;
+  subject: Generated<string>;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface Enquiries {
+  businessId: string;
+  createdAt: Generated<Timestamp>;
+  customerEmail: string | null;
+  customerName: string;
+  customerPhone: string | null;
+  id: Generated<string>;
+  message: string;
+  status: Generated<EnquiryStatus>;
+}
+
+export interface Events {
+  approvalRequired: Generated<boolean>;
+  businessId: string;
+  capacity: number | null;
+  coverImageUrl: string | null;
+  createdAt: Generated<Timestamp>;
+  description: Generated<string>;
+  endsAt: Timestamp | null;
+  formId: string | null;
+  id: Generated<string>;
+  published: Generated<boolean>;
+  registrationClosesAt: Timestamp | null;
+  registrationEnabled: Generated<boolean>;
+  slug: string;
+  startsAt: Timestamp;
+  title: string;
+  updatedAt: Generated<Timestamp>;
+  venue: string | null;
+}
+
+export interface Forms {
+  businessId: string;
+  createdAt: Generated<Timestamp>;
+  description: string | null;
+  fields: Generated<Json>;
+  id: Generated<string>;
+  isActive: Generated<boolean>;
+  submitLabel: Generated<string>;
+  successMessage: Generated<string>;
+  title: string;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface FormSubmissions {
+  answers: Generated<Json>;
+  businessId: string;
+  eventId: string | null;
+  formId: string;
+  id: Generated<string>;
+  status: Generated<string>;
+  submittedAt: Generated<Timestamp>;
+}
+
+export interface Galleries {
+  businessId: string;
+  coverImageUrl: string | null;
+  createdAt: Generated<Timestamp>;
+  description: string | null;
+  id: Generated<string>;
+  name: string;
+  published: Generated<boolean>;
+  slug: string;
+  sortOrder: Generated<number>;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface GalleryImages {
+  altText: string | null;
+  caption: string | null;
+  createdAt: Generated<Timestamp>;
+  galleryId: string;
+  id: Generated<string>;
+  imageUrl: string;
+  sortOrder: Generated<number>;
+  tag: string | null;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface LinkPayments {
+  amount: Numeric;
+  businessId: string;
+  createdAt: Generated<Timestamp>;
+  currency: string;
+  id: Generated<string>;
+  linkId: string;
+  paidAt: Timestamp | null;
+  payerEmail: string;
+  payerName: Generated<string>;
+  payerPhone: string | null;
+  provider: string | null;
+  providerRef: string | null;
+  reference: string;
+  status: Generated<string>;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface LoginAttempts {
+  attemptedAt: Generated<Timestamp | null>;
+  email: string;
+  id: Generated<number>;
+  success: Generated<boolean | null>;
+}
+
+export interface MediaAssets {
+  businessId: string;
+  contentType: string;
+  createdAt: Generated<Timestamp>;
+  fileUrl: string;
+  id: Generated<string>;
+  kind: string;
+  sizeBytes: Int8;
+}
+
+export interface Orders {
+  businessId: string;
+  createdAt: Generated<Timestamp>;
+  currency: Generated<string>;
+  customerId: string | null;
+  customerName: string;
+  customerNote: string | null;
+  customerPhone: string | null;
+  deliveryAddress: string | null;
+  deliveryFee: Generated<Numeric>;
+  deliveryZone: string | null;
+  id: Generated<string>;
+  items: Generated<Json>;
+  ownerNote: string | null;
+  paidAt: Timestamp | null;
+  paymentMethod: OrderPaymentMethod | null;
+  paymentProvider: string | null;
+  paymentReference: string | null;
+  paymentStatus: Generated<OrderPaymentStatus>;
+  providerRef: string | null;
+  shippingStatus: Generated<ShippingStatus>;
+  source: Generated<OrderSource>;
+  status: Generated<OrderStatus>;
+  stockReserved: Generated<boolean>;
+  totalAmount: Generated<Numeric>;
+  trackingCode: string;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface PaymentGateways {
+  businessId: string;
+  enabled: Generated<boolean>;
+  id: Generated<string>;
+  lastError: string | null;
+  provider: string;
+  publicKey: Generated<string>;
+  secretEnc: Generated<string>;
+  updatedAt: Generated<Timestamp>;
+  verifiedAt: Timestamp | null;
+}
+
+export interface PaymentLinks {
+  active: Generated<boolean>;
+  amount: Numeric | null;
+  businessId: string;
+  code: string;
+  createdAt: Generated<Timestamp>;
+  description: Generated<string>;
+  id: Generated<string>;
+  title: string;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface PlatformSettings {
+  key: string;
+  updatedAt: Generated<Timestamp>;
+  value: Generated<Json>;
+}
+
+export interface PortfolioItems {
+  businessId: string;
+  createdAt: Generated<Timestamp>;
+  description: string | null;
+  id: Generated<string>;
+  imageUrl: string | null;
+  linkUrl: string | null;
+  sortOrder: Generated<number>;
+  title: string;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface ProductCreationAttempts {
+  businessId: string;
+  createdAt: Generated<Timestamp>;
+  id: Generated<string>;
+}
+
+export interface Products {
+  available: Generated<boolean>;
+  businessId: string;
+  categoryId: string | null;
+  compareAtPrice: Numeric | null;
+  costPrice: Numeric | null;
+  createdAt: Generated<Timestamp>;
+  currency: Generated<string>;
+  description: string | null;
+  featured: Generated<boolean>;
+  id: Generated<string>;
+  images: Generated<Json>;
+  imageUrl: string | null;
+  name: string;
+  price: Generated<Numeric>;
+  slug: string;
+  sortOrder: Generated<number>;
+  stockQuantity: number | null;
+  unit: string | null;
+  updatedAt: Generated<Timestamp>;
+  variants: Generated<Json>;
+}
+
+export interface Reactions {
+  businessId: string;
+  createdAt: Generated<Timestamp>;
+  id: Generated<string>;
+  kind: string;
+  targetId: string;
+  targetType: string;
+  visitorKey: string;
+}
+
+export interface ServiceBookings {
+  amountDue: Generated<Numeric>;
+  amountTotal: Generated<Numeric>;
+  businessId: string;
+  checkoutMode: Generated<string>;
+  code: string;
+  createdAt: Generated<Timestamp>;
+  currency: Generated<string>;
+  customerEmail: string | null;
+  customerName: string;
+  customerPhone: string | null;
+  id: Generated<string>;
+  location: string | null;
+  notes: string | null;
+  ownerNote: string | null;
+  paidAt: Timestamp | null;
+  paymentProvider: string | null;
+  paymentReference: string | null;
+  paymentStatus: Generated<string>;
+  preferredDate: string | null;
+  preferredTime: string | null;
+  providerRef: string | null;
+  serviceId: string;
+  serviceName: string;
+  status: Generated<string>;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface Sessions {
+  createdAt: Generated<Timestamp | null>;
+  expiresAt: Timestamp;
+  id: string;
+  lastAccessed: Generated<Timestamp | null>;
+  userId: number;
+}
+
+export interface Showcases {
+  businessId: string;
+  code: string;
+  createdAt: Generated<Timestamp>;
+  description: string | null;
+  id: Generated<string>;
+  productIds: Generated<Json>;
+  title: string;
+  updatedAt: Generated<Timestamp>;
+  viewCount: Generated<number>;
+}
+
+export interface StoreEvents {
+  businessId: string;
+  createdAt: Generated<Timestamp>;
+  device: string | null;
+  event: string;
+  id: Generated<string>;
+  path: string | null;
+  referrer: string | null;
+  visitorKey: string | null;
+}
+
+export interface SubscriptionPayments {
+  amount: Numeric;
+  businessId: string;
+  createdAt: Generated<Timestamp>;
+  currency: Generated<string>;
+  durationMonths: Generated<number>;
+  id: Generated<string>;
+  periodEnd: Timestamp | null;
+  periodStart: Timestamp | null;
+  promoApplied: Generated<boolean>;
+  provider: Generated<string>;
+  providerTransactionId: string | null;
+  status: Generated<PaymentStatus>;
+  txRef: string;
+  updatedAt: Generated<Timestamp>;
+  websitePlan: Generated<string>;
+}
+
+export interface TeamMembers {
+  businessId: string;
+  createdAt: Generated<Timestamp>;
+  displayName: Generated<string>;
+  email: string;
+  id: Generated<string>;
+  roleId: string | null;
+  status: Generated<string>;
+  updatedAt: Generated<Timestamp>;
+  userId: number | null;
+}
+
+export interface TeamRoles {
+  businessId: string;
+  createdAt: Generated<Timestamp>;
+  description: Generated<string>;
+  id: Generated<string>;
+  isSystem: Generated<boolean>;
+  name: string;
+  permissions: Generated<Json>;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface Testimonials {
+  authorName: string;
+  authorRole: string | null;
+  businessId: string;
+  createdAt: Generated<Timestamp>;
+  id: Generated<string>;
+  imageUrl: string | null;
+  published: Generated<boolean>;
+  quote: string;
+  rating: number | null;
+  sortOrder: Generated<number>;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface UserPasswords {
+  createdAt: Generated<Timestamp | null>;
+  id: Generated<number>;
+  passwordHash: string;
+  userId: number;
+}
+
+export interface Users {
+  avatarUrl: string | null;
+  createdAt: Generated<Timestamp | null>;
+  displayName: string;
+  email: string;
+  emailVerifiedAt: Timestamp | null;
+  id: Generated<number>;
+  role: Generated<UserRole>;
+  updatedAt: Generated<Timestamp | null>;
+}
+
+export interface DB {
+  addonPurchases: AddonPurchases;
+  authTokens: AuthTokens;
+  blogPosts: BlogPosts;
+  businesses: Businesses;
+  categories: Categories;
+  comments: Comments;
+  customers: Customers;
+  emailAutomations: EmailAutomations;
+  emailCampaigns: EmailCampaigns;
+  emailContacts: EmailContacts;
+  emailDrafts: EmailDrafts;
+  emailInbox: EmailInbox;
+  emailSettings: EmailSettings;
+  emailTemplates: EmailTemplates;
+  enquiries: Enquiries;
+  events: Events;
+  forms: Forms;
+  formSubmissions: FormSubmissions;
+  galleries: Galleries;
+  galleryImages: GalleryImages;
+  linkPayments: LinkPayments;
+  loginAttempts: LoginAttempts;
+  mediaAssets: MediaAssets;
+  orders: Orders;
+  paymentGateways: PaymentGateways;
+  paymentLinks: PaymentLinks;
+  platformSettings: PlatformSettings;
+  portfolioItems: PortfolioItems;
+  productCreationAttempts: ProductCreationAttempts;
+  products: Products;
+  reactions: Reactions;
+  serviceBookings: ServiceBookings;
+  sessions: Sessions;
+  showcases: Showcases;
+  storeEvents: StoreEvents;
+  subscriptionPayments: SubscriptionPayments;
+  teamMembers: TeamMembers;
+  teamRoles: TeamRoles;
+  testimonials: Testimonials;
+  userPasswords: UserPasswords;
+  users: Users;
+}
+
+
+// Use these for zod schema enums or other purposes, since the kysely enums are just types
+export const UserRoleArrayValues: [UserRole, ...UserRole[]] = ["admin","user"];
+export const BusinessStatusArrayValues: [BusinessStatus, ...BusinessStatus[]] = ["draft","published","suspended"];
+export const StoreThemeArrayValues: [StoreTheme, ...StoreTheme[]] = ["clean","commerce","service"];
+export const EnquiryStatusArrayValues: [EnquiryStatus, ...EnquiryStatus[]] = ["contacted","new","resolved"];
+export const OrderStatusArrayValues: [OrderStatus, ...OrderStatus[]] = ["cancelled","completed","contacted","pending"];
+export const OrderSourceArrayValues: [OrderSource, ...OrderSource[]] = ["direct","online"];
+export const ShippingStatusArrayValues: [ShippingStatus, ...ShippingStatus[]] = ["delivered","not_required","out_for_delivery","preparing","shipped"];
+export const PlanTierArrayValues: [PlanTier, ...PlanTier[]] = ["free","premium"];
+export const PaymentStatusArrayValues: [PaymentStatus, ...PaymentStatus[]] = ["failed","pending","successful"];
+export const AuthTokenTypeArrayValues: [AuthTokenType, ...AuthTokenType[]] = ["email_verification","password_reset"];
+export const CustomDomainStatusArrayValues: [CustomDomainStatus, ...CustomDomainStatus[]] = ["disabled","none","pending","verified"];
+export const OrderPaymentMethodArrayValues: [OrderPaymentMethod, ...OrderPaymentMethod[]] = ["bank_transfer","cash_on_delivery","online","pay_on_pickup"];
+export const OrderPaymentStatusArrayValues: [OrderPaymentStatus, ...OrderPaymentStatus[]] = ["paid","refunded","unpaid"];
+// Table/column names whose snake_case spelling kysely's default CamelCasePlugin
+// cannot recover from the camelCase name used in code (an underscore directly
+// before a digit, e.g. reminder_48h_sent ⇄ reminder48hSent). The db helper's
+// CamelCasePlugin subclass consults this map so those identifiers work in
+// queries. Regenerated on every schema pull.
+export const kyselyIdentifierOverrides: Record<string, string> = {};
+
+// Note: kysely maps the table/column/enum names from snake_case to camelCase and PascalCase. When running SQL statements, make sure to use snake_case, but TypeScript code should use camelCase or PascalCase.

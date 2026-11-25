@@ -1,157 +1,224 @@
 import superjson from "superjson";
+import { sql } from "kysely";
 import { db } from "../helpers/db";
 import { schema, type OutputType } from "./storefront_GET.schema";
 import { subscriptionPlan } from "../helpers/subscriptionPlan";
 import { sanitizeBlogContent } from "../helpers/sanitizeBlogContent";
+import { parseCheckoutSettings } from "../helpers/parseCheckoutSettings";
+import { summariseBlogContent } from "../helpers/summariseBlogContent";
+import { parseBlogSettings } from "../helpers/parseBlogSettings";
+import { readServices } from "../helpers/serviceModel";
+import { bookingAmounts } from "../helpers/paymentProviders";
+import { loadPlanConfig } from "../helpers/planConfig";
 
 const MAX_PRODUCTS = 200;
 
 export async function handle(request: Request) {
-   10	  try {
-   11	    const url = new URL(request.url);
-   12	    const input = schema.parse({ slug: url.searchParams.get("slug") ?? "" });
-   13	
-   14	    const business = await db
-   15	      .selectFrom("businesses")
-   16	      .select([
-   17	        "id",
-   18	        "slug",
-   19	        "name",
-   20	        "description",
-   21	        "logoUrl",
-   22	        "heroHeadline",
-   23	        "heroSubtext",
-   24	        "heroImageUrl",
-   25	        "heroCtaLabel",
-   26	        "appearanceSettings",
-   27	        "contentSettings",
-   28	        "phone",
-   29	        "whatsappNumber",
-   30	        "email",
-   31	        "address",
-   32	        "openingHours",
-   33	        "themeId",
-   34	        "currency",
-   35	        "plan",
-   36	        "websitePlan",
-   37	        "trialEndsAt",
-   38	        "planRenewsAt",
-   39	      ])
-   40	      .where("slug", "=", input.slug)
-   41	      .where("status", "=", "published")
-   42	      .limit(1)
-   43	      .executeTakeFirst();
-   44	
-   45	    if (!business) {
-   46	      return new Response(
-   47	        superjson.stringify({ error: "This business page was not found." }),
-   48	        { status: 404 },
-   49	      );
-   50	    }
-   51	
-   52	    const resolvedPlan = subscriptionPlan.resolve(business);
-   53	
-   54	    const rawServices = business.contentSettings && typeof business.contentSettings === "object" && !Array.isArray(business.contentSettings) ? (business.contentSettings as Record<string, unknown>).services : null;
-   55	    const services: OutputType["services"] = Array.isArray(rawServices) ? rawServices.filter((s) => s && typeof s === "object" && !Array.isArray(s) && (s as Record<string, unknown>).published !== false).map((s) => { const x=s as Record<string, unknown>; return { id:typeof x.id === "string" ? x.id : crypto.randomUUID(), name:typeof x.name === "string" ? x.name : "Service", description:typeof x.description === "string" ? x.description : "", imageUrl:typeof x.imageUrl === "string" ? x.imageUrl : null, price:typeof x.price === "string" ? x.price : "", priceType:x.priceType === "fixed" || x.priceType === "contact" ? x.priceType : "starting", duration:typeof x.duration === "string" ? x.duration : "", category:typeof x.category === "string" ? x.category : "", featured:x.featured === true, published:true, cta:x.cta === "whatsapp" || x.cta === "call" || x.cta === "enquire" ? x.cta : "request" }; }) : [];
-   56	
-   57	    const [categories, products, testimonials, portfolio, blogPosts] = await Promise.all([
-   58	      db
-   59	        .selectFrom("categories")
-   60	        .select(["id", "name", "description"])
-   61	        .where("businessId", "=", business.id)
-   62	        .orderBy("sortOrder", "asc")
-   63	        .orderBy("name", "asc")
-   64	        .execute(),
-   65	      db
-   66	        .selectFrom("products")
-   67	        .select([
-   68	          "id",
-   69	          "categoryId",
-   70	          "name",
-   71	          "slug",
-   72	          "description",
-   73	          "price",
-   74	          "currency",
-   75	          "imageUrl",
-   76	          "available",
-   77	          "featured",
-   78	          "costPrice",
-   79	          "unit",
-   80	          "variants",
-   81	        ])
-   82	        .where("businessId", "=", business.id)
-   83	        .orderBy("sortOrder", "asc")
-   84	        .orderBy("createdAt", "asc")
-   85	        .limit(MAX_PRODUCTS)
-   86	        .execute(),
-   87	      db
-   88	        .selectFrom("testimonials")
-   89	        .select(["id", "authorName", "authorRole", "quote", "rating"])
-   90	        .where("businessId", "=", business.id)
-   91	        .where("published", "=", true)
-   92	        .orderBy("sortOrder", "asc")
-   93	        .orderBy("createdAt", "asc")
-   94	        .limit(30)
-   95	        .execute(),
-   96	      db
-   97	        .selectFrom("portfolioItems")
-   98	        .select(["id", "title", "description", "imageUrl", "linkUrl"])
-   99	        .where("businessId", "=", business.id)
-  100	        .orderBy("sortOrder", "asc")
-  101	        .orderBy("createdAt", "asc")
-  102	        .limit(60)
-  103	        .execute(),
-  104	      db
-  105	        .selectFrom("blogPosts")
-  106	        .select(["id", "slug", "title", "excerpt", "coverImageUrl", "content", "publishedAt"])
-  107	        .where("businessId", "=", business.id)
-  108	        .where("published", "=", true)
-  109	        .orderBy("publishedAt", "desc")
-  110	        .orderBy("createdAt", "desc")
-  111	        .limit(12)
-  112	        .execute(),
-  113	    ]);
-  114	
-  115	    const output: OutputType = {
-  116	      business: {
-  117	        ...business,
-  118	        appearanceSettings:
-  119	          business.appearanceSettings &&
-  120	          typeof business.appearanceSettings === "object" &&
-  121	          !Array.isArray(business.appearanceSettings)
-  122	            ? (business.appearanceSettings as Record<string, unknown>)
-  123	            : {},
-  124	        contentSettings:
-  125	          business.contentSettings &&
-  126	          typeof business.contentSettings === "object" &&
-  127	          !Array.isArray(business.contentSettings)
-  128	            ? (business.contentSettings as Record<string, unknown>)
-  129	            : {},
-  130	        canUseProductLinks: resolvedPlan.canUseProductLinks,
-  131	        canUseMultiPage: resolvedPlan.canUseMultiPage,
-  132	      },
-  133	      categories,
-  134	      services: resolvedPlan.canUseServices ? services : [],
-  135	      products: products.map((product) => ({
-  136	        ...product,
-  137	        price: Number.parseFloat(product.price),
-  138	        variants: Array.isArray(product.variants)
-  139	          ? (product.variants as Array<{ name: string; value: string; price: number | null }>)
-  140	          : [],
-  141	      })),
-  142	      testimonials,
-  143	      portfolio,
-  144	      blogPosts: resolvedPlan.canUseBlog ? blogPosts.map((post) => ({ ...post, content: sanitizeBlogContent(post.content) })) : [],
-  145	    };
-  146	
-  147	    return new Response(superjson.stringify(output satisfies OutputType), {
-  148	      headers: { "Content-Type": "application/json" },
-  149	    });
-  150	  } catch (error) {
-  151	    const message =
-  152	      error instanceof Error ? error.message : "Could not load this store.";
-  153	    return new Response(superjson.stringify({ error: message }), {
-  154	      status: 400,
-  155	    });
-  156	  }
-  157	}
+  try {
+    const url = new URL(request.url);
+    const input = schema.parse({ slug: url.searchParams.get("slug") ?? "" });
+
+    const business = await db
+      .selectFrom("businesses")
+      .select([
+        "id",
+        "slug",
+        "name",
+        "description",
+        "logoUrl",
+        "heroHeadline",
+        "heroSubtext",
+        "heroImageUrl",
+        "heroCtaLabel",
+        "appearanceSettings",
+        "contentSettings",
+        "phone",
+        "whatsappNumber",
+        "email",
+        "address",
+        "openingHours",
+        "themeId",
+        "currency",
+        "plan",
+        "websitePlan",
+        "trialEndsAt",
+        "planRenewsAt",
+        "checkoutSettings",
+        "blogSettings",
+      ])
+      .where("slug", "=", input.slug)
+      .where("status", "=", "published")
+      .limit(1)
+      .executeTakeFirst();
+
+    if (!business) {
+      return new Response(
+        superjson.stringify({ error: "This business page was not found." }),
+        { status: 404 },
+      );
+    }
+
+    const resolvedPlan = subscriptionPlan.resolve(business);
+    await loadPlanConfig();
+
+    const gatewayResult = await sql<{ enabled: boolean }>`select app_private.has_public_payment_gateway(${business.id}) as enabled`.execute(db);
+    const gatewayEnabled = Boolean(gatewayResult.rows[0]?.enabled);
+    const services: OutputType["services"] = readServices(business.contentSettings)
+      .filter((s) => s.published)
+      .map((s) => {
+        const amounts = bookingAmounts(s);
+        return { ...s, published: true, payOnline: gatewayEnabled && amounts.due !== null, amountDue: amounts.due ?? undefined, amountTotal: amounts.total ?? undefined };
+      });
+
+    const [categories, products, testimonials, portfolio, blogPosts, events] = await Promise.all([
+      db
+        .selectFrom("categories")
+        .select(["id", "name", "description"])
+        .where("businessId", "=", business.id)
+        .orderBy("sortOrder", "asc")
+        .orderBy("name", "asc")
+        .execute(),
+      db
+        .selectFrom("products")
+        .select([
+          "id",
+          "categoryId",
+          "name",
+          "slug",
+          "description",
+          "price",
+          "currency",
+          "imageUrl",
+          "available",
+          "featured",
+          "costPrice",
+          "unit",
+          "variants",
+          "stockQuantity",
+          "images",
+          "compareAtPrice",
+          "createdAt",
+        ])
+        .where("businessId", "=", business.id)
+        .orderBy("sortOrder", "asc")
+        .orderBy("createdAt", "asc")
+        .limit(MAX_PRODUCTS)
+        .execute(),
+      db
+        .selectFrom("testimonials")
+        .select(["id", "authorName", "authorRole", "quote", "rating", "imageUrl"])
+        .where("businessId", "=", business.id)
+        .where("published", "=", true)
+        .orderBy("sortOrder", "asc")
+        .orderBy("createdAt", "asc")
+        .limit(30)
+        .execute(),
+      db
+        .selectFrom("portfolioItems")
+        .select(["id", "title", "description", "imageUrl", "linkUrl"])
+        .where("businessId", "=", business.id)
+        .orderBy("sortOrder", "asc")
+        .orderBy("createdAt", "asc")
+        .limit(60)
+        .execute(),
+      db
+        .selectFrom("blogPosts")
+        .select(["id", "slug", "title", "excerpt", "coverImageUrl", "content", "publishedAt"])
+        .where("businessId", "=", business.id)
+        .where("published", "=", true)
+        .orderBy("publishedAt", "desc")
+        .orderBy("createdAt", "desc")
+        .limit(60)
+        .execute(),
+      resolvedPlan.canUseEvents ? db.selectFrom("events").select(["id","title","slug","description","coverImageUrl","startsAt","endsAt","venue","registrationEnabled"]).where("businessId","=",business.id).where("published","=",true).where("startsAt",">",new Date()).orderBy("startsAt","asc").limit(6).execute() : Promise.resolve([]),
+    ]);
+
+    const { checkoutSettings, blogSettings, trialEndsAt: _trialEndsAt, planRenewsAt: _planRenewsAt, ...businessPublic } = business;
+    const checkout = parseCheckoutSettings(checkoutSettings);
+
+    const output: OutputType = {
+      business: {
+        ...businessPublic,
+        appearanceSettings:
+          business.appearanceSettings &&
+          typeof business.appearanceSettings === "object" &&
+          !Array.isArray(business.appearanceSettings)
+            ? (business.appearanceSettings as Record<string, unknown>)
+            : {},
+        contentSettings: (() => {
+          const settings =
+            business.contentSettings &&
+            typeof business.contentSettings === "object" &&
+            !Array.isArray(business.contentSettings)
+              ? (business.contentSettings as Record<string, unknown>)
+              : {};
+          // Do not ship unpublished service drafts inside the raw settings blob.
+          return { ...settings, services };
+        })(),
+        canUseProductLinks: resolvedPlan.canUseProductLinks,
+        canUseMultiPage: resolvedPlan.canUseMultiPage,
+        blogSettings: parseBlogSettings(blogSettings),
+        checkout: {
+          deliveryEnabled: checkout.deliveryEnabled,
+          pickupEnabled: checkout.pickupEnabled,
+          pickupNote: checkout.pickupNote,
+          zones: checkout.zones.map((zone) => ({ name: zone.name, fee: zone.fee })),
+          freeDeliveryOver: checkout.freeDeliveryOver,
+          deliveryNote: checkout.deliveryNote,
+          returnPolicy: checkout.returnPolicy,
+          paymentMethods: {
+            ...checkout.paymentMethods,
+            online: gatewayEnabled,
+            // Bank transfer is only offered once account details exist.
+            bankTransfer:
+              checkout.paymentMethods.bankTransfer &&
+              checkout.bank.accountNumber.length > 0,
+          },
+        },
+      },
+      categories,
+      services: resolvedPlan.canUseServices ? services : [],
+      products: products.map(
+        ({ costPrice: _costPrice, compareAtPrice, images, stockQuantity, ...product }) => {
+          const price = Number.parseFloat(product.price);
+          const was = compareAtPrice == null ? null : Number.parseFloat(compareAtPrice);
+          return {
+            ...product,
+            price,
+            // A sold-out product reads as unavailable everywhere, including older clients.
+            available: product.available && (stockQuantity === null || stockQuantity > 0),
+            images: Array.isArray(images)
+              ? images.filter((url): url is string => typeof url === "string").slice(0, 8)
+              : [],
+            compareAtPrice: was !== null && was > price ? was : null,
+            variants: Array.isArray(product.variants)
+              ? (product.variants as Array<{ name: string; value: string; price: number | null }>)
+              : [],
+          };
+        },
+      ),
+      testimonials,
+      portfolio,
+      blogPosts: resolvedPlan.canUseBlog
+        ? blogPosts.map((post) => ({
+            ...post,
+            // Cards always have a summary, even when the author wrote none.
+            excerpt: summariseBlogContent(post.excerpt, post.content),
+            autoExcerpt: !post.excerpt || post.excerpt.trim() === "",
+            content: sanitizeBlogContent(post.content),
+          }))
+        : [],
+      events,
+    };
+
+    return new Response(superjson.stringify(output satisfies OutputType), {
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Could not load this store.";
+    return new Response(superjson.stringify({ error: message }), {
+      status: 400,
+    });
+  }
+}

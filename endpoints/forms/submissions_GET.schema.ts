@@ -1,0 +1,3 @@
+import superjson from "superjson";
+export type Submission={id:string;answers:Record<string,unknown>;submittedAt:Date|string;status:string};
+export const getFormSubmissions=async(filters:{formId?:string;eventId?:string},init?:RequestInit):Promise<{submissions:Submission[]}>=>{const params=new URLSearchParams();if(filters.formId)params.set("formId",filters.formId);if(filters.eventId)params.set("eventId",filters.eventId);const r=await fetch(`/_api/forms/submissions?${params.toString()}`,{...init,headers:{"Content-Type":"application/json",...(init?.headers??{})}});if(!r.ok){const e=superjson.parse<{error:string}>(await r.text());throw new Error(e.error)}return superjson.parse<{submissions:Submission[]}>(await r.text())};

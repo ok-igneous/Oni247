@@ -7,5 +7,5 @@ export const useSubscriptionStatus = () =>
   useQuery({
     queryKey: SUBSCRIPTION_QUERY_KEY,
     queryFn: () => getSubscriptionStatus(),
-   10	    retry: false,
-   11	  });
+    retry: false,
+  });

@@ -1,23 +1,45 @@
 import superjson from "superjson";
 import { nanoid } from "nanoid";
-import { upload } from "@floot/storage";
+import { createPresignedUpload } from "../../helpers/objectStorage";
 import { requireOwnedBusiness } from "../../helpers/requireOwnedBusiness";
+import { subscriptionPlan } from "../../helpers/subscriptionPlan";
 import { schema, type OutputType } from "./presign_POST.schema";
 
-const EXTENSIONS: Record<string,string> = {"image/png":"png","image/jpeg":"jpg","image/webp":"webp"};
+const EXTENSIONS: Record<string, string> = {
+  "image/png": "png",
+  "image/jpeg": "jpg",
+  "image/webp": "webp",
+  "video/mp4": "mp4",
+  "video/webm": "webm",
+};
 
 export async function handle(request: Request) {
-   10	  let businessId: string;
-   11	  try { businessId = (await requireOwnedBusiness(request)).business.id; }
-   12	  catch { return new Response(superjson.stringify({error:"Create your business page before uploading images."}),{status:401}); }
-   13	
-   14	  try {
-   15	    const input = schema.parse(superjson.parse(await request.text()));
-   16	    const filename = `businesses/${businessId}/${input.kind}/${nanoid(16)}.${EXTENSIONS[input.contentType]}`;
-   17	    const result = await upload({visibility:"public", filename, contentType:input.contentType, sizeBytes:input.sizeBytes});
-   18	    if (!result.ok) return new Response(superjson.stringify({error:"Could not prepare the upload. Try a smaller image."}),{status:400});
-   19	    return new Response(superjson.stringify({presignedUrl:result.presignedUrl,url:result.url} satisfies OutputType),{headers:{"Content-Type":"application/json"}});
-   20	  } catch (error) {
-   21	    return new Response(superjson.stringify({error:error instanceof Error ? error.message : "Could not prepare the upload."}),{status:400});
-   22	  }
-   23	}
+  let business;
+  try {
+    business = (await requireOwnedBusiness(request)).business;
+  } catch {
+    return new Response(superjson.stringify({ error: "Create your business page before uploading images." }), { status: 401 });
+  }
+
+  try {
+    const input = schema.parse(superjson.parse(await request.text()));
+    if (input.kind === "video" && !subscriptionPlan.resolve(business).canUseAdvancedMedia) {
+      return new Response(superjson.stringify({ error: "Video uploads are available on Premium Plus only." }), { status: 402 });
+    }
+
+    const key = `businesses/${business.id}/${input.kind}/${nanoid(16)}.${EXTENSIONS[input.contentType]}`;
+    const result = await createPresignedUpload({
+      key,
+      contentType: input.contentType,
+      sizeBytes: input.sizeBytes,
+    });
+
+    return new Response(superjson.stringify(result satisfies OutputType), {
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    return new Response(superjson.stringify({
+      error: error instanceof Error ? error.message : "Could not prepare the upload.",
+    }), { status: 400 });
+  }
+}

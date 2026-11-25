@@ -7,12 +7,12 @@ import { normalizeWhatsAppNumber } from "./normalizeWhatsAppNumber";
 export const buildWhatsAppReplyUrl = ({
   phone,
   message,
-   10	  defaultCallingCode = "234",
-   11	}: {
-   12	  phone: string;
-   13	  message: string;
-   14	  defaultCallingCode?: string;
-   15	}): string => {
-   16	  const number = normalizeWhatsAppNumber(phone, defaultCallingCode);
-   17	  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
-   18	};
+  defaultCallingCode = "234",
+}: {
+  phone: string;
+  message: string;
+  defaultCallingCode?: string;
+}): string => {
+  const number = normalizeWhatsAppNumber(phone, defaultCallingCode);
+  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+};

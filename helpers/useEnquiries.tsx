@@ -7,5 +7,5 @@ export const useEnquiries = () =>
   useQuery({
     queryKey: ENQUIRIES_QUERY_KEY,
     queryFn: () => getEnquiries(),
-   10	    retry: false,
-   11	  });
+    retry: false,
+  });

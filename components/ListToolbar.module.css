@@ -1,0 +1,98 @@
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2) var(--spacing-4);
+  margin-bottom: var(--spacing-3);
+}
+
+.searchWrap {
+  position: relative;
+  flex: 1 1 240px;
+  max-width: 380px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: var(--spacing-3);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted-foreground);
+  pointer-events: none;
+}
+
+.search {
+  padding-left: var(--spacing-8);
+  padding-right: var(--spacing-8);
+}
+
+.clearSearch {
+  position: absolute;
+  right: var(--spacing-2);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+
+.clearSearch:hover {
+  color: var(--foreground);
+}
+
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-1);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  min-height: 30px;
+  padding: 0 var(--spacing-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--card);
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.chip:hover {
+  border-color: var(--foreground);
+}
+
+.chip:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.chipOn {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.count {
+  font-family: var(--font-family-monospace);
+  font-variant-numeric: tabular-nums;
+  opacity: 0.8;
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: 0.82rem;
+  color: var(--muted-foreground);
+}

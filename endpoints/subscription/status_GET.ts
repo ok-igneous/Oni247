@@ -7,54 +7,66 @@ import type { OutputType } from "./status_GET.schema";
 
 export async function handle(request: Request) {
   try {
-   10	    const { business } = await requireOwnedBusiness(request);
-   11	    const resolved = subscriptionPlan.resolve(business);
-   12	
-   13	    const products = await db
-   14	      .selectFrom("products")
-   15	      .select(({ fn }) => fn.countAll<string>().as("count"))
-   16	      .where("businessId", "=", business.id)
-   17	      .executeTakeFirstOrThrow();
-   18	
-   19	    const output: OutputType = {
-   20	      plan: resolved.isPremium ? "premium" : "free",
-   21	      websitePlan: resolved.websitePlan,
-   22	      isPremium: resolved.isPremium,
-   23	      isPremiumPlus: resolved.isPremiumPlus,
-   24	      source: resolved.source,
-   25	      trialDaysLeft: resolved.trialDaysLeft,
-   26	      trialEndsAt: resolved.trialEndsAt,
-   27	      renewsAt: resolved.renewsAt,
-   28	      lapsed: resolved.lapsed,
-   29	      productLimit: resolved.productLimit,
-   30	      productCount: Number(products.count),
-   31	      dailyCreationLimit: resolved.dailyCreationLimit,
-   32	      canUseReports: resolved.canUseReports,
-   33	      canCreateCollection: resolved.canCreateCollection,
-   34	      canUseProductLinks: resolved.canUseProductLinks,
-   35	      canUseTrackingLinks: resolved.canUseTrackingLinks,
-   36	      canUseGalleries: resolved.canUseGalleries,
-   37	      canUseBlog: resolved.canUseBlog,
-   38	      canUseServices: resolved.canUseServices,
-   39	      priceNgn: subscriptionPlan.currentPriceNgn(),
-   40	      standardPriceNgn: subscriptionPlan.standardPriceNgn,
-   41	      isLaunchPricing: subscriptionPlan.isLaunchPricing(),
-   42	      launchEndsAt: subscriptionPlan.launchEndsAt,
-   43	      paymentsConfigured: Boolean(flutterwaveEnv().secretKey),
-   44	      registrationPromoAvailable: !business.registrationPromoUsed,
-   45	      premiumTrialUsed: resolved.trialUsed,
-   46	    };
-   47	
-   48	    return new Response(superjson.stringify(output satisfies OutputType), {
-   49	      headers: { "Content-Type": "application/json" },
-   50	    });
-   51	  } catch (error) {
-   52	    const noBusiness = error instanceof Error && error.message === "NO_BUSINESS";
-   53	    return new Response(
-   54	      superjson.stringify({
-   55	        error: noBusiness ? "Create your business page first." : "Not authenticated",
-   56	      }),
-   57	      { status: noBusiness ? 400 : 401 },
-   58	    );
-   59	  }
-   60	}
+    const { business } = await requireOwnedBusiness(request);
+    const resolved = subscriptionPlan.resolve(business);
+
+    const products = await db
+      .selectFrom("products")
+      .select(({ fn }) => fn.countAll<string>().as("count"))
+      .where("businessId", "=", business.id)
+      .executeTakeFirstOrThrow();
+
+    const output: OutputType = {
+      plan: resolved.isPremium ? "premium" : "free",
+      websitePlan: resolved.websitePlan,
+      isPremium: resolved.isPremium,
+      isPremiumPlus: resolved.isPremiumPlus,
+      source: resolved.source,
+      trialDaysLeft: resolved.trialDaysLeft,
+      trialEndsAt: resolved.trialEndsAt,
+      renewsAt: resolved.renewsAt,
+      lapsed: resolved.lapsed,
+      productLimit: resolved.productLimit,
+      productCount: Number(products.count),
+      dailyCreationLimit: resolved.dailyCreationLimit,
+      canUseReports: resolved.canUseReports,
+      canCreateCollection: resolved.canCreateCollection,
+      canUseProductLinks: resolved.canUseProductLinks,
+      canUseTrackingLinks: resolved.canUseTrackingLinks,
+      canUseGalleries: resolved.canUseGalleries,
+      canUseBlog: resolved.canUseBlog,
+      canUseServices: resolved.canUseServices,
+      priceNgn: subscriptionPlan.currentPriceNgn(),
+      standardPriceNgn: subscriptionPlan.standardPriceNgn,
+      isLaunchPricing: subscriptionPlan.isLaunchPricing(),
+      launchEndsAt: subscriptionPlan.launchEndsAt,
+      paymentsConfigured: Boolean((await flutterwaveEnv()).secretKey),
+      registrationPromoAvailable: !business.registrationPromoUsed,
+      premiumTrialUsed: resolved.trialUsed,
+      planId: resolved.planId,
+      planName: resolved.planName,
+      features: resolved.features,
+      plans: subscriptionPlan.catalog
+        .filter((p) => p.active && p.id !== "free")
+        .map((p) => ({ id: p.id, name: p.name, description: p.description, priceMonthlyNgn: p.priceMonthlyNgn, features: p.features, productLimit: p.productLimit, highlighted: p.highlighted })),
+      maxDurationMonths: subscriptionPlan.maxDurationMonths,
+      freePlan: (() => {
+        const f = subscriptionPlan.planById("free");
+        return f ? { id: f.id, name: f.name, description: f.description, priceMonthlyNgn: 0, features: f.features, productLimit: f.productLimit, highlighted: false } : undefined;
+      })(),
+      registrationPromoPercent: subscriptionPlan.registrationPromoPercent,
+    };
+
+    return new Response(superjson.stringify(output satisfies OutputType), {
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    const noBusiness = error instanceof Error && error.message === "NO_BUSINESS";
+    return new Response(
+      superjson.stringify({
+        error: noBusiness ? "Create your business page first." : "Not authenticated",
+      }),
+      { status: noBusiness ? 400 : 401 },
+    );
+  }
+}

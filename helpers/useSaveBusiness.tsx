@@ -7,10 +7,10 @@ export const useSaveBusiness = () => {
   return useMutation({
     mutationFn: postSaveBusiness,
     onSuccess: (result) => {
-   10	      queryClient.invalidateQueries({ queryKey: MY_BUSINESS_QUERY_KEY });
-   11	      queryClient.invalidateQueries({
-   12	        queryKey: ["storefront", result.business.slug],
-   13	      });
-   14	    },
-   15	  });
-   16	};
+      queryClient.invalidateQueries({ queryKey: MY_BUSINESS_QUERY_KEY });
+      queryClient.invalidateQueries({
+        queryKey: ["storefront", result.business.slug],
+      });
+    },
+  });
+};

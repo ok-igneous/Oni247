@@ -1,237 +1,589 @@
-import { Link, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { storefrontPath } from "../helpers/storefrontPath";
+import { useStorefrontRouteParams } from "../helpers/storefrontHost";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
-import { ArrowLeft, ImageOff, MessageCircle, Minus, Plus } from "lucide-react";
+import { toast } from "sonner";
+import {
+  ArrowLeft,
+  Check,
+  ChevronRight,
+  Copy,
+  ImageOff,
+  MessageCircle,
+  Minus,
+  Plus,
+  Share2,
+  ShoppingBag,
+  Truck,
+} from "lucide-react";
 import { Badge } from "../components/Badge";
 import { Button } from "../components/Button";
 import { Skeleton } from "../components/Skeleton";
+import { StorefrontHeader } from "../components/StorefrontHeader";
+import { StoreCartDock } from "../components/StoreCartDock";
+import { EngagementSection } from "../components/EngagementSection";
+import { VariantOptions } from "../components/VariantOptions";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "../components/Accordion";
 import { formatMoney } from "../helpers/formatMoney";
 import { buildWhatsAppOrderUrl } from "../helpers/buildWhatsAppOrderUrl";
-   10	import { useStorefront } from "../helpers/useStorefront";
-   11	import { trackStoreEvent } from "../helpers/trackStoreEvent";
-   12	import { storeThemeEngine } from "../helpers/storeThemeEngine";
-   13	import styles from "./store.$slug.p.$productSlug.module.css";
-   14	
-   15	const ProductDetailPage = () => {
-   16	  const { slug, productSlug } = useParams<{
-   17	    slug: string;
-   18	    productSlug: string;
-   19	  }>();
-   20	  const { data, isFetching, error } = useStorefront(slug);
-   21	  const [quantity,setQuantity]=useState(1);
-   22	  useEffect(() => {
-   23	    const product = data?.products.find((item) => item.slug === productSlug);
-   24	    if (data?.business && product) trackStoreEvent("product_view", { businessSlug: data.business.slug, productSlug: product.slug });
-   25	  }, [data, productSlug]);
-   26	
-   27	  if (isFetching && !data) {
-   28	    return (
-   29	      <div className={styles.page}>
-   30	        <Skeleton className={styles.skeletonImage} />
-   31	        <Skeleton className={styles.skeletonTitle} />
-   32	        <Skeleton className={styles.skeletonLine} />
-   33	      </div>
-   34	    );
-   35	  }
-   36	
-   37	  const product = data?.products.find((item) => item.slug === productSlug);
-   38	
-   39	  if (error || !data || !product) {
-   40	    return (
-   41	      <div className={styles.page}>
-   42	        <h1 className={styles.notFoundTitle}>Item not found</h1>
-   43	        <p className={styles.body}>
-   44	          This item may have been removed or renamed.
-   45	        </p>
-   46	        {data && (
-   47	          <Button asChild variant="outline">
-   48	            <Link to={`/store/${data.business.slug}`}>
-   49	              <ArrowLeft size={16} />
-   50	              Back to the shop
-   51	            </Link>
-   52	          </Button>
-   53	        )}
-   54	      </div>
-   55	    );
-   56	  }
-   57	
-   58	  const business = data.business;
-   59	  const appearance=business.appearanceSettings??{};
-   60	  const theme=storeThemeEngine(business.themeId,appearance);
-   61	  const homePage=typeof appearance.homePage==="string"?appearance.homePage:"home";
-   62	  const footerMode=appearance.footerMode==="none"||appearance.footerMode==="selected"?appearance.footerMode:"all";
-   63	  const footerPages=Array.isArray(appearance.footerPages)?appearance.footerPages.filter((x):x is string=>typeof x==="string"):[];
-   64	  const showFooter=footerMode==="all"||(footerMode==="selected"&&footerPages.includes("product-detail"));
-   65	  if (!business.canUseProductLinks) {
-   66	    return (
-   67	      <div className={styles.page}>
-   68	        <h1 className={styles.notFoundTitle}>Product link unavailable</h1>
-   69	        <p className={styles.body}>Direct product links are available on Premium. You can still browse this business from its main storefront.</p>
-   70	        <Button asChild variant="outline"><Link to={"/store/" + business.slug}>Back to the shop</Link></Button>
-   71	      </div>
-   72	    );
-   73	  }
-   74	  const whatsappNumber = business.whatsappNumber ?? business.phone ?? "";
-   75	  const orderUrl = buildWhatsAppOrderUrl({
-   76	    businessName: business.name,
-   77	    whatsappNumber,
-   78	    currency: business.currency,
-   79	    items: [{ name: product.name, quantity, unitPrice: product.price }],
-   80	  });
-   81	
-   82	  const description =
-   83	    product.description ?? `${product.name} from ${business.name}.`;
-   84	
-   85	  // Same category first, then anything else from the shop, to a maximum of four.
-   86	  const sameCategory = data.products.filter(
-   87	    (item) =>
-   88	      item.id !== product.id &&
-   89	      product.categoryId !== null &&
-   90	      item.categoryId === product.categoryId,
-   91	  );
-   92	  const others = data.products.filter(
-   93	    (item) => item.id !== product.id && !sameCategory.includes(item),
-   94	  );
-   95	  const related = [...sameCategory, ...others].slice(0, 4);
-   96	  const categoryName =
-   97	    data.categories.find((category) => category.id === product.categoryId)
-   98	      ?.name ?? null;
-   99	
-  100	  return (
-  101	    <div className={styles.page} style={theme.style as React.CSSProperties}>
-  102	      <Helmet>
-  103	        <title>{`${product.name} — ${business.name}`}</title>
-  104	        <meta name="description" content={description} />
-  105	        <meta
-  106	          property="og:title"
-  107	          content={`${product.name} — ${business.name}`}
-  108	        />
-  109	        <meta property="og:description" content={description} />
-  110	        <meta property="og:type" content="product" />
-  111	        {product.imageUrl && (
-  112	          <meta property="og:image" content={product.imageUrl} />
-  113	        )}
-  114	      </Helmet>
-  115	
-  116	      <header className={styles.storeHeader}><Link to={homePage==="home"?`/store/${business.slug}`:`/store/${business.slug}/${homePage}`} className={styles.storeBrand}>{business.logoUrl&&<img src={business.logoUrl} alt=""/>}<span>{business.name}</span></Link><nav className={styles.storeNav}><Link to={homePage==="home"?`/store/${business.slug}`:`/store/${business.slug}/${homePage}`}>Home</Link><Link to={`/store/${business.slug}/products`}>Products</Link><Link to={`/store/${business.slug}/services`}>Services</Link><Link to={`/store/${business.slug}/about`}>About</Link><Link to={`/store/${business.slug}/contact`}>Contact</Link></nav></header>
-  117	      <Link to={`/store/${business.slug}/products`} className={styles.back}>
-  118	        <ArrowLeft size={16} />
-  119	        {business.name}
-  120	      </Link>
-  121	
-  122	      <div className={styles.layout}>
-  123	        <div className={styles.media}>
-  124	          {product.imageUrl ? (
-  125	            <img
-  126	              src={product.imageUrl}
-  127	              alt={product.name}
-  128	              className={styles.image}
-  129	            />
-  130	          ) : (
-  131	            <div className={styles.placeholder}>
-  132	              <ImageOff size={28} />
-  133	            </div>
-  134	          )}
-  135	        </div>
-  136	
-  137	        <div className={styles.details}>
-  138	          <div className={styles.badges}>
-  139	            {product.featured && <Badge variant="warning">Featured</Badge>}
-  140	            <Badge variant={product.available ? "success" : "secondary"}>
-  141	              {product.available ? "In stock" : "Out of stock"}
-  142	            </Badge>
-  143	          </div>
-  144	
-  145	          <h1 className={styles.name}>{product.name}</h1>
-  146	          <span className={styles.price}>
-  147	            {formatMoney(product.price, product.currency)}
-  148	            {product.unit ? " / " + product.unit : ""}
-  149	          </span>
-  150	
-  151	          {product.variants && product.variants.length > 0 && (
-  152	            <div className={styles.variantList}>
-  153	              {product.variants.map((variant, index) => (
-  154	                <div key={index} className={styles.variant}>
-  155	                  <strong>{variant.name}:</strong> {variant.value}
-  156	                  {variant.price != null ? " · " + formatMoney(variant.price, product.currency) : ""}
-  157	                </div>
-  158	              ))}
-  159	            </div>
-  160	          )}
-  161	
-  162	          {product.description && (
-  163	            <p className={styles.body}>{product.description}</p>
-  164	          )}
-  165	
-  166	          {product.available && <div className={styles.quantityRow}><span>Quantity</span><div className={styles.quantityControl}><Button type="button" variant="outline" size="icon-sm" aria-label="Decrease quantity" disabled={quantity<=1} onClick={()=>setQuantity(q=>Math.max(1,q-1))}><Minus size={14}/></Button><strong>{quantity}</strong><Button type="button" variant="outline" size="icon-sm" aria-label="Increase quantity" disabled={quantity>=99} onClick={()=>setQuantity(q=>Math.min(99,q+1))}><Plus size={14}/></Button></div><strong className={styles.lineTotal}>{formatMoney(product.price*quantity,product.currency)}</strong></div>}
-  167	
-  168	          <div className={styles.productActions}>{whatsappNumber && product.available && (
-  169	            <Button asChild size="lg" className={styles.orderButton}>
-  170	              <a href={orderUrl} target="_blank" rel="noopener noreferrer">
-  171	                <MessageCircle size={17} />
-  172	                Order on WhatsApp
-  173	              </a>
-  174	            </Button>
-  175	          )}
-  176	
-  177	          {!product.available && (
-  178	            <p className={styles.note}>
-  179	              This item is not available right now. Message the shop to ask when
-  180	              it is back.
-  181	            </p>
-  182	          )}
-  183	
-  184	          <Button asChild variant="outline">
-  185	            <Link to={`/store/${business.slug}/products`}>
-  186	              See everything else
-  187	            </Link>
-  188	          </Button>
-  189	          </div>
-  190	        </div>
-  191	      </div>
-  192	
-  193	      {related.length > 0 && (
-  194	        <section className={styles.related}>
-  195	          <h2 className={styles.relatedHeading}>
-  196	            {sameCategory.length > 0 && categoryName
-  197	              ? `More in ${categoryName}`
-  198	              : `More from ${business.name}`}
-  199	          </h2>
-  200	          <div className={styles.relatedGrid}>
-  201	            {related.map((item) => (
-  202	              <Link
-  203	                key={item.id}
-  204	                to={`/store/${business.slug}/p/${item.slug}`}
-  205	                className={styles.relatedCard}
-  206	              >
-  207	                <div className={styles.relatedMedia}>
-  208	                  {item.imageUrl ? (
-  209	                    <img
-  210	                      src={item.imageUrl}
-  211	                      alt=""
-  212	                      className={styles.relatedImage}
-  213	                      loading="lazy"
-  214	                      decoding="async"
-  215	                    />
-  216	                  ) : (
-  217	                    <ImageOff size={18} className={styles.relatedIcon} />
-  218	                  )}
-  219	                  {!item.available && (
-  220	                    <span className={styles.relatedSoldOut}>Out of stock</span>
-  221	                  )}
-  222	                </div>
-  223	                <span className={styles.relatedName}>{item.name}</span>
-  224	                <span className={styles.relatedPrice}>
-  225	                  {formatMoney(item.price, item.currency)}
-  226	                </span>
-  227	              </Link>
-  228	            ))}
-  229	          </div>
-  230	        </section>
-  231	      )}
-  232	      {showFooter&&<footer className={styles.storeFooter}><Link to={homePage==="home"?`/store/${business.slug}`:`/store/${business.slug}/${homePage}`}>Home</Link><span>© {new Date().getFullYear()} {business.name}</span></footer>}
-  233	    </div>
-  234	  );
-  235	};
-  236	
-  237	export default ProductDetailPage;
+import { resolveVariantSelection } from "../helpers/resolveVariantSelection";
+import { useStoreCart } from "../helpers/useStoreCart";
+import { useStorefront } from "../helpers/useStorefront";
+import { trackStoreEvent } from "../helpers/trackStoreEvent";
+import { storeThemeEngine } from "../helpers/storeThemeEngine";
+import { shareLink } from "../endpoints/share/page_GET.schema";
+import styles from "./store.$slug.p.$productSlug.module.css";
+
+const LOW_STOCK_AT = 5;
+
+const ProductDetailPage = () => {
+  const { slug, productSlug } = useStorefrontRouteParams<{
+    slug: string;
+    productSlug: string;
+  }>();
+  const navigate = useNavigate();
+  const { data, isFetching, error } = useStorefront(slug);
+  const cart = useStoreCart(slug ?? "unknown");
+
+  const [quantity, setQuantity] = useState(1);
+  const [selected, setSelected] = useState<Record<string, string>>({});
+  const [highlight, setHighlight] = useState<string | null>(null);
+  const [activeImage, setActiveImage] = useState(0);
+  const [cartOpen, setCartOpen] = useState(false);
+
+  const product = data?.products.find((item) => item.slug === productSlug);
+  const productId = product?.id;
+
+  useEffect(() => {
+    if (data?.business && product) {
+      trackStoreEvent("product_view", {
+        businessSlug: data.business.slug,
+        productSlug: product.slug,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data?.business?.slug, productId]);
+
+  // A new product starts from a clean slate.
+  useEffect(() => {
+    setSelected({});
+    setHighlight(null);
+    setQuantity(1);
+    setActiveImage(0);
+  }, [productId]);
+
+  const resolved = useMemo(
+    () =>
+      product
+        ? resolveVariantSelection(product.price, product.variants ?? [], selected)
+        : null,
+    [product, selected],
+  );
+
+  if (isFetching && !data) {
+    return (
+      <div className={styles.page}>
+        <Skeleton className={styles.skeletonImage} />
+        <Skeleton className={styles.skeletonTitle} />
+        <Skeleton className={styles.skeletonLine} />
+      </div>
+    );
+  }
+
+  if (error || !data || !product || !resolved) {
+    return (
+      <div className={styles.page}>
+        <h1 className={styles.notFoundTitle}>Item not found</h1>
+        <p className={styles.body}>This item may have been removed or renamed.</p>
+        {data && (
+          <Button asChild variant="outline">
+            <Link to={storefrontPath(data.business.slug)}>
+              <ArrowLeft size={16} />
+              Back to the shop
+            </Link>
+          </Button>
+        )}
+      </div>
+    );
+  }
+
+  const business = data.business;
+  const checkout = business.checkout;
+  const appearance = business.appearanceSettings ?? {};
+  const theme = storeThemeEngine(business.themeId, appearance);
+  const homePage = typeof appearance.homePage === "string" ? appearance.homePage : "home";
+  const footerMode =
+    appearance.footerMode === "none" || appearance.footerMode === "selected"
+      ? appearance.footerMode
+      : "all";
+  const footerPages = Array.isArray(appearance.footerPages)
+    ? appearance.footerPages.filter((x): x is string => typeof x === "string")
+    : [];
+  const showFooter =
+    footerMode === "all" ||
+    (footerMode === "selected" && footerPages.includes("product-detail"));
+
+  if (!business.canUseProductLinks) {
+    return (
+      <div className={styles.page}>
+        <h1 className={styles.notFoundTitle}>Product link unavailable</h1>
+        <p className={styles.body}>
+          Direct product links are available on Premium. You can still browse this
+          business from its main storefront.
+        </p>
+        <Button asChild variant="outline">
+          <Link to={storefrontPath(business.slug)}>Back to the shop</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  const home = storefrontPath(business.slug);
+  const whatsappNumber = business.whatsappNumber ?? business.phone ?? "";
+  const stock = product.stockQuantity ?? null;
+  const inStock = product.available;
+  const lowStock = inStock && stock !== null && stock > 0 && stock <= LOW_STOCK_AT;
+  const maxQuantity = stock !== null ? Math.max(1, Math.min(stock, 99)) : 99;
+  const qty = Math.min(quantity, maxQuantity);
+
+  const unitPrice = resolved.price;
+  const showWas =
+    typeof product.compareAtPrice === "number" &&
+    product.compareAtPrice > unitPrice &&
+    unitPrice === product.price;
+  const percentOff = showWas
+    ? Math.round((1 - unitPrice / (product.compareAtPrice as number)) * 100)
+    : 0;
+  const hasOptions = resolved.groups.length > 0;
+  const priceStartsAt =
+    hasOptions && resolved.chosen.length === 0
+      ? Math.min(
+          product.price,
+          ...resolved.groups.flatMap((group) =>
+            group.options.map((option) => option.price ?? product.price),
+          ),
+        )
+      : null;
+
+  const images = [product.imageUrl, ...(product.images ?? [])].filter(
+    (url, index, all): url is string => Boolean(url) && all.indexOf(url) === index,
+  );
+  const mainImage = images[Math.min(activeImage, images.length - 1)] ?? null;
+
+  const description = product.description ?? `${product.name} from ${business.name}.`;
+  const categoryName =
+    data.categories.find((category) => category.id === product.categoryId)?.name ?? null;
+
+  const sameCategory = data.products.filter(
+    (item) =>
+      item.id !== product.id &&
+      product.categoryId !== null &&
+      item.categoryId === product.categoryId,
+  );
+  const others = data.products.filter(
+    (item) => item.id !== product.id && !sameCategory.includes(item),
+  );
+  const related = [...sameCategory, ...others].slice(0, 4);
+
+  const buildCartItem = () => ({
+    productId: product.id,
+    name: product.name,
+    price: unitPrice,
+    currency: product.currency,
+    imageUrl: product.imageUrl,
+    variants: hasOptions ? resolved.chosen : undefined,
+    variantLabel: hasOptions ? resolved.label || null : undefined,
+    maxQuantity: stock,
+  });
+
+  /** Returns true when the item went into the cart. */
+  const addToCart = (): boolean => {
+    if (!inStock) return false;
+    if (resolved.missingGroup) {
+      setHighlight(resolved.missingGroup);
+      toast.error(`Choose a ${resolved.missingGroup} first.`);
+      return false;
+    }
+    cart.add(buildCartItem(), qty);
+    return true;
+  };
+
+  const orderUrl = buildWhatsAppOrderUrl({
+    businessName: business.name,
+    whatsappNumber,
+    currency: business.currency,
+    items: [
+      {
+        name: resolved.label ? `${product.name} (${resolved.label})` : product.name,
+        quantity: qty,
+        unitPrice,
+      },
+    ],
+  });
+
+  const shareUrl = shareLink(business.slug, "product", product.slug);
+  const share = () => {
+    if (typeof navigator !== "undefined" && navigator.share) {
+      void navigator.share({ title: product.name, url: shareUrl }).catch(() => {});
+      return;
+    }
+    void navigator.clipboard
+      .writeText(shareUrl)
+      .then(() => toast.success("Link copied."))
+      .catch(() => toast.error("Could not copy the link."));
+  };
+
+  // What delivery and payment look like in this shop, for the info accordion.
+  const zoneFees = checkout?.zones.map((zone) => zone.fee) ?? [];
+  const cheapest = zoneFees.length ? Math.min(...zoneFees) : null;
+  const paymentNames: string[] = [];
+  if (checkout?.paymentMethods.cashOnDelivery) paymentNames.push("pay on delivery");
+  if (checkout?.paymentMethods.payOnPickup) paymentNames.push("pay on pickup");
+  if (checkout?.paymentMethods.bankTransfer) paymentNames.push("bank transfer");
+
+  const jsonLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description,
+    ...(images.length ? { image: images } : {}),
+    offers: {
+      "@type": "Offer",
+      priceCurrency: product.currency,
+      price: product.price,
+      availability: inStock
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+    },
+  }).replace(/</g, "\\u003c");
+
+  const stockBadge = !inStock ? (
+    <Badge variant="secondary">Out of stock</Badge>
+  ) : lowStock ? (
+    <Badge variant="warning">Only {stock} left</Badge>
+  ) : (
+    <Badge variant="success">In stock</Badge>
+  );
+
+  return (
+    <div className={styles.page} style={theme.style as React.CSSProperties}>
+      <Helmet>
+        <title>{`${product.name} — ${business.name}`}</title>
+        <meta name="description" content={description.slice(0, 160)} />
+        <link rel="canonical" href={window.location.origin + window.location.pathname} />
+        <meta property="og:url" content={window.location.origin + window.location.pathname} />
+        <meta property="og:title" content={`${product.name} — ${business.name}`} />
+        <meta property="og:description" content={description.slice(0, 200)} />
+        <meta property="og:type" content="product" />
+        {mainImage && <meta property="og:image" content={mainImage} />}
+        <meta name="twitter:card" content={mainImage ? "summary_large_image" : "summary"} />
+        <meta name="twitter:title" content={`${product.name} — ${business.name}`} />
+        <meta name="twitter:description" content={description.slice(0, 200)} />
+        {mainImage && <meta name="twitter:image" content={mainImage} />}
+        <meta name="robots" content="index,follow,max-image-preview:large" />
+        <script type="application/ld+json">{jsonLd}</script>
+      </Helmet>
+
+      <StorefrontHeader
+        businessName={business.name}
+        logoUrl={business.logoUrl}
+        tagline={typeof appearance.headerTagline === "string" ? appearance.headerTagline : ""}
+        headerBrand={typeof appearance.headerBrand === "string" ? appearance.headerBrand : "logo_name"}
+        headerAlignment={theme.headerAlignment}
+        menuStyle={theme.menuStyle as "bar" | "minimal" | "pills"}
+        menuPosition={theme.menuPosition as "left" | "center" | "right"}
+        menuVisibility={theme.menuVisibility as "always" | "auto"}
+        navItems={[
+          { label: "Home", href: homePage === "home" ? home : `${home}/${homePage}` },
+          { label: "Products", href: `${home}/products`, active: true },
+          ...(data.services.length ? [{ label: "Services", href: `${home}/services` }] : []),
+          { label: "About", href: `${home}/about` },
+          ...(data.blogPosts.length ? [{ label: "Blog", href: `${home}/blog` }] : []),
+          ...(data.events.length && appearance.eventsPageInMenu === true
+            ? [{ label: "Events", href: `${home}/events` }]
+            : []),
+          { label: "Contact", href: `${home}/contact` },
+          { label: "Track order", href: `${home}/track` },
+        ]}
+      />
+
+      <nav className={styles.crumbs} aria-label="Breadcrumb">
+        <Link to={home}>{business.name}</Link>
+        <ChevronRight size={14} />
+        <Link to={`${home}/products`}>Products</Link>
+        {categoryName && (
+          <>
+            <ChevronRight size={14} />
+            <span>{categoryName}</span>
+          </>
+        )}
+        <ChevronRight size={14} />
+        <span aria-current="page" className={styles.crumbCurrent}>{product.name}</span>
+      </nav>
+
+      <div className={styles.layout}>
+        <div className={styles.gallery}>
+          <div className={styles.media}>
+            {mainImage ? (
+              <img src={mainImage} alt={product.name} className={styles.image} />
+            ) : (
+              <div className={styles.placeholder}>
+                <ImageOff size={28} />
+              </div>
+            )}
+            {showWas && percentOff > 0 && inStock && (
+              <Badge variant="destructive" className={styles.saleBadge}>
+                −{percentOff}%
+              </Badge>
+            )}
+            {!inStock && <div className={styles.soldOutOverlay}>Out of stock</div>}
+          </div>
+          {images.length > 1 && (
+            <div className={styles.thumbs} role="list" aria-label="Product images">
+              {images.map((url, index) => (
+                <button
+                  key={url}
+                  type="button"
+                  role="listitem"
+                  className={`${styles.thumb} ${index === activeImage ? styles.thumbOn : ""}`}
+                  onClick={() => setActiveImage(index)}
+                  aria-label={`Show image ${index + 1}`}
+                  aria-current={index === activeImage}
+                >
+                  <img src={url} alt="" loading="lazy" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className={styles.details}>
+          <div className={styles.badges}>
+            {product.featured && <Badge variant="warning">Featured</Badge>}
+            {stockBadge}
+          </div>
+
+          {categoryName && <span className={styles.category}>{categoryName}</span>}
+          <h1 className={styles.name}>{product.name}</h1>
+
+          <div className={styles.priceRow}>
+            {priceStartsAt !== null && <span className={styles.from}>From</span>}
+            <span className={styles.price}>
+              {formatMoney(priceStartsAt ?? unitPrice, product.currency)}
+              {product.unit ? " / " + product.unit : ""}
+            </span>
+            {showWas && (
+              <s className={styles.was}>
+                {formatMoney(product.compareAtPrice as number, product.currency)}
+              </s>
+            )}
+          </div>
+
+          {product.description && <p className={styles.body}>{product.description}</p>}
+
+          {hasOptions && (
+            <VariantOptions
+              groups={resolved.groups}
+              selected={selected}
+              highlightGroup={highlight}
+              currency={product.currency}
+              onSelect={(group, value) => {
+                setHighlight(null);
+                setSelected((current) => ({ ...current, [group]: value }));
+              }}
+            />
+          )}
+
+          {inStock ? (
+            <div className={styles.buyBox}>
+              <div className={styles.quantityRow}>
+                <span>Quantity</span>
+                <div className={styles.quantityControl}>
+                  <Button type="button" variant="outline" size="icon-sm" aria-label="Decrease quantity" disabled={qty <= 1} onClick={() => setQuantity(Math.max(1, qty - 1))}>
+                    <Minus size={14} />
+                  </Button>
+                  <strong>{qty}</strong>
+                  <Button type="button" variant="outline" size="icon-sm" aria-label="Increase quantity" disabled={qty >= maxQuantity} onClick={() => setQuantity(Math.min(maxQuantity, qty + 1))}>
+                    <Plus size={14} />
+                  </Button>
+                </div>
+                <strong className={styles.lineTotal}>
+                  {formatMoney(unitPrice * qty, product.currency)}
+                </strong>
+              </div>
+
+              <div className={styles.productActions}>
+                <Button
+                  size="lg"
+                  className={styles.orderButton}
+                  onClick={() => {
+                    if (addToCart()) {
+                      toast.success("Added to your cart.");
+                      setCartOpen(true);
+                    }
+                  }}
+                >
+                  <ShoppingBag size={17} />
+                  Add to cart
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className={styles.orderButton}
+                  onClick={() => {
+                    if (addToCart()) navigate(`${home}/checkout`);
+                  }}
+                >
+                  <Check size={17} />
+                  Buy now
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <p className={styles.note}>
+              This item is sold out right now. Message the shop to ask when it is back.
+            </p>
+          )}
+
+          <div className={styles.secondaryActions}>
+            {whatsappNumber && (
+              <Button asChild variant="ghost" size="sm">
+                <a href={orderUrl} target="_blank" rel="noopener noreferrer">
+                  <MessageCircle size={15} />
+                  Ask on WhatsApp
+                </a>
+              </Button>
+            )}
+          </div>
+
+          <Accordion type="multiple" defaultValue={["delivery"]} className={styles.accordion}>
+            {checkout && (checkout.deliveryEnabled || checkout.pickupEnabled) && (
+              <AccordionItem value="delivery">
+                <AccordionTrigger>
+                  <span className={styles.accordionTitle}><Truck size={15} /> Delivery &amp; payment</span>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <ul className={styles.infoList}>
+                    {checkout.deliveryEnabled && (
+                      <li>
+                        {cheapest !== null
+                          ? `Delivery from ${cheapest === 0 ? "free" : formatMoney(cheapest, business.currency)} to ${checkout.zones.length} ${checkout.zones.length === 1 ? "area" : "areas"}.`
+                          : "Delivery available — the shop confirms the cost with you."}
+                      </li>
+                    )}
+                    {checkout.freeDeliveryOver !== null && (
+                      <li>Free delivery on orders over {formatMoney(checkout.freeDeliveryOver, business.currency)}.</li>
+                    )}
+                    {checkout.deliveryNote && <li>{checkout.deliveryNote}</li>}
+                    {checkout.pickupEnabled && (
+                      <li>Pickup available{checkout.pickupNote ? ` — ${checkout.pickupNote}` : "."}</li>
+                    )}
+                    {paymentNames.length > 0 && <li>Payment: {paymentNames.join(", ")}.</li>}
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+            )}
+            {checkout?.returnPolicy && (
+              <AccordionItem value="returns">
+                <AccordionTrigger>Returns &amp; refunds</AccordionTrigger>
+                <AccordionContent>
+                  <p className={styles.infoText}>{checkout.returnPolicy}</p>
+                </AccordionContent>
+              </AccordionItem>
+            )}
+            <AccordionItem value="seller">
+              <AccordionTrigger>About {business.name}</AccordionTrigger>
+              <AccordionContent>
+                <p className={styles.infoText}>
+                  {business.description ?? `Sold by ${business.name}.`}
+                  {business.address ? ` ${business.address}.` : ""}
+                  {business.openingHours ? ` Open ${business.openingHours}.` : ""}
+                </p>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
+          <EngagementSection slug={business.slug} targetType="product" targetId={product.id} contextTitle={product.name} />
+
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginTop: 24, padding: "12px 14px", border: "1px solid var(--border)", borderRadius: "var(--store-card-radius, 10px)" }}>
+            <span style={{ fontWeight: 650 }}>Share this product</span>
+            <span style={{ display: "inline-flex", gap: 8 }}>
+              <Button variant="outline" size="sm" onClick={share}>
+                <Share2 size={15} />
+                Share
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  void navigator.clipboard
+                    .writeText(shareUrl)
+                    .then(() => toast.success("Link copied."))
+                    .catch(() => toast.error("Could not copy the link."));
+                }}
+              >
+                <Copy size={15} />
+                Copy link
+              </Button>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {related.length > 0 && (
+        <section className={styles.related}>
+          <h2 className={styles.relatedHeading}>
+            {sameCategory.length > 0 && categoryName
+              ? `More in ${categoryName}`
+              : `More from ${business.name}`}
+          </h2>
+          <div className={styles.relatedGrid}>
+            {related.map((item) => (
+              <Link key={item.id} to={`${home}/p/${item.slug}`} className={styles.relatedCard}>
+                <div className={styles.relatedMedia}>
+                  {item.imageUrl ? (
+                    <img src={item.imageUrl} alt="" className={styles.relatedImage} loading="lazy" decoding="async" />
+                  ) : (
+                    <ImageOff size={18} className={styles.relatedIcon} />
+                  )}
+                  {!item.available && <span className={styles.relatedSoldOut}>Out of stock</span>}
+                </div>
+                <span className={styles.relatedName}>{item.name}</span>
+                <span className={styles.relatedPrice}>
+                  {formatMoney(item.price, item.currency)}
+                  {typeof item.compareAtPrice === "number" && (
+                    <s className={styles.relatedWas}>{formatMoney(item.compareAtPrice, item.currency)}</s>
+                  )}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {showFooter && (
+        <footer className={styles.storeFooter}>
+          <Link to={homePage === "home" ? home : `${home}/${homePage}`}>Home</Link>
+          <span>© {new Date().getFullYear()} {business.name}</span>
+        </footer>
+      )}
+
+      <StoreCartDock
+        slug={business.slug}
+        currency={business.currency}
+        cart={cart}
+        open={cartOpen}
+        onOpenChange={setCartOpen}
+      />
+    </div>
+  );
+};
+
+export default ProductDetailPage;
+

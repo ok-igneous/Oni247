@@ -1,0 +1,2 @@
+import superjson from "superjson";
+export const postSubmitEvent=async(body:{slug:string;eventSlug:string;answers:Record<string,unknown>},init?:RequestInit)=>{const r=await fetch("/_api/events/submit",{method:"POST",body:superjson.stringify(body),...init,headers:{"Content-Type":"application/json",...(init?.headers??{})}});if(!r.ok){const e=superjson.parse<{error:string}>(await r.text());throw new Error(e.error)}return superjson.parse<{submitted:boolean;message:string}>(await r.text())};

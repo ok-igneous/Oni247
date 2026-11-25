@@ -7,5 +7,5 @@ export const toSlug = (input: string): string =>
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
-   10	    .replace(/^-+|-+$/g, "")
-   11	    .slice(0, 60);
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);

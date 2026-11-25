@@ -7,21 +7,21 @@ const KEY = ["showcases"] as const;
 
 export const useShowcases = () => {
   const queryClient = useQueryClient();
-   10	  const invalidate = () => {
-   11	    void queryClient.invalidateQueries({ queryKey: KEY });
-   12	  };
-   13	
-   14	  const list = useQuery({
-   15	    queryKey: KEY,
-   16	    queryFn: () => getShowcases(),
-   17	    retry: false,
-   18	  });
-   19	
-   20	  const save = useMutation({ mutationFn: postSaveShowcase, onSuccess: invalidate });
-   21	  const remove = useMutation({
-   22	    mutationFn: postDeleteShowcase,
-   23	    onSuccess: invalidate,
-   24	  });
-   25	
-   26	  return { list, save, remove };
-   27	};
+  const invalidate = () => {
+    void queryClient.invalidateQueries({ queryKey: KEY });
+  };
+
+  const list = useQuery({
+    queryKey: KEY,
+    queryFn: () => getShowcases(),
+    retry: false,
+  });
+
+  const save = useMutation({ mutationFn: postSaveShowcase, onSuccess: invalidate });
+  const remove = useMutation({
+    mutationFn: postDeleteShowcase,
+    onSuccess: invalidate,
+  });
+
+  return { list, save, remove };
+};
