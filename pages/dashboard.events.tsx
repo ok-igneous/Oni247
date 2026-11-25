@@ -97,8 +97,7 @@ const toDraft = (event: EventItem): Draft => ({
   startsAt: dateValue(event.startsAt),
   endsAt: dateValue(event.endsAt),
   venue: event.venue ?? "",
-  registrationEnabled: event.registrationEnabled,
-  approvalRequired: event.approvalRequired ?? false,
+  registrationEnabled: event.registrationEnabled,  approvalRequired: event.approvalRequired ?? false,
   registrationClosesAt: dateValue(event.registrationClosesAt),
   capacity: event.capacity === null ? "" : String(event.capacity),
   formId: event.formId ?? "",
@@ -197,8 +196,7 @@ export default function EventsPage() {
       past: events.filter((e) => eventTimeState(e, now) === "past").length,
       drafts: events.filter((e) => !e.published).length,
       registrations: events.reduce((sum, e) => sum + e.registrationCount, 0),
-    };
-  }, [events]);
+    };  }, [events]);
 
   const shown = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -297,8 +295,7 @@ export default function EventsPage() {
       toast.error(friendlyError(error, "The event could not be saved."));
     } finally {
       setSaving(false);
-    }
-  };
+    }  };
 
   const togglePublished = async (event: EventItem) => {
     try {
@@ -397,8 +394,7 @@ export default function EventsPage() {
   }
 
   if (loading) {
-    return (
-      <div className={styles.page}>
+    return (      <div className={styles.page}>
         <Skeleton className={styles.skeletonTitle} />
         <Skeleton className={styles.skeletonBlock} />
       </div>
@@ -497,8 +493,7 @@ export default function EventsPage() {
               <div className={styles.field}>
                 <span className={styles.label}>Registration form</span>
                 {forms.filter((f) => f.isActive).length === 0 ? (
-                  <p className={styles.hint}>
-                    You have no active forms yet. <Link to="/dashboard/forms">Create a form</Link>, then come back.
+                  <p className={styles.hint}>                    You have no active forms yet. <Link to="/dashboard/forms">Create a form</Link>, then come back.
                   </p>
                 ) : (
                   <Select value={draft.formId || "none"} onValueChange={(value) => set({ formId: value === "none" ? "" : value })}>
@@ -597,8 +592,7 @@ export default function EventsPage() {
               shown={shownAttendees.length}
               total={attendees.length}
             />
-            <label className={styles.field}>
-              <span className={styles.label}>Message to send to registrants</span>
+            <label className={styles.field}>              <span className={styles.label}>Message to send to registrants</span>
               <Textarea rows={2} value={messageText} onChange={(event) => setMessageText(event.target.value)} />
               <small className={styles.meta}>Use {"{name}"} and {"{event}"}. Tap WhatsApp or Email on a registrant to send it.</small>
             </label>
@@ -697,8 +691,7 @@ export default function EventsPage() {
       )}
 
       {events.length === 0 ? (
-        <div className={styles.empty}>
-          <CalendarDays size={28} />
+        <div className={styles.empty}>          <CalendarDays size={28} />
           <p>No events yet. Create your first event, then attach a registration form if you want bookings.</p>
           <div className={styles.actions}>
             <Button onClick={startNew}><Plus size={16} /> Create an event</Button>
@@ -782,3 +775,49 @@ export default function EventsPage() {
                       </Button>
                       {event.published && businessSlug && (
 ... (output capped at 40000 chars — continue with read_file path: "pages/dashboard.events.tsx" offset: 784)
+
+                        <Button asChild size="sm" variant="outline">
+                          <a href={`/store/${businessSlug}/e/${event.slug}`} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink size={14} /> View
+                          </a>
+                        </Button>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </>
+      )}
+      {draft && (
+        <Dialog open={!!draft} onOpenChange={(open) => !open && setDraft(null)}>
+          <DialogContent>
+            <DialogHeader><DialogTitle>{draft.id ? "Edit event" : "New event"}</DialogTitle><DialogDescription>Update the event details and registration settings.</DialogDescription></DialogHeader>
+            <Input value={draft.title} placeholder="Event title" onChange={(e) => { const title=e.target.value; setDraft({...draft,title,slug:slugEdited?draft.slug:toSlug(title)}); }} />
+            <Input value={draft.slug} placeholder="Event URL slug" onChange={(e)=>{setSlugEdited(true);setDraft({...draft,slug:toSlug(e.target.value)});}} />
+            <Textarea value={draft.description} placeholder="Description" onChange={(e)=>setDraft({...draft,description:e.target.value})} />
+            <Input type="datetime-local" value={draft.startsAt} onChange={(e)=>setDraft({...draft,startsAt:e.target.value})} />
+            <Input type="datetime-local" value={draft.endsAt} onChange={(e)=>setDraft({...draft,endsAt:e.target.value})} />
+            <Input value={draft.venue} placeholder="Venue or online" onChange={(e)=>setDraft({...draft,venue:e.target.value})} />
+            <Input value={draft.capacity} type="number" placeholder="Capacity (optional)" onChange={(e)=>setDraft({...draft,capacity:e.target.value})} />
+            <label><Switch checked={draft.registrationEnabled} onCheckedChange={(v)=>setDraft({...draft,registrationEnabled:v})}/> Enable registration</label>
+            <label><Switch checked={draft.approvalRequired} onCheckedChange={(v)=>setDraft({...draft,approvalRequired:v})}/> Require approval</label>
+            <label><Switch checked={draft.published} onCheckedChange={(v)=>setDraft({...draft,published:v})}/> Publish event</label>
+            <DialogFooter>
+              <Button variant="outline" onClick={()=>setDraft(null)}>Cancel</Button>
+              <Button disabled={saving} onClick={()=>void handleSave()}>{saving ? <Spinner size="sm"/> : "Save event"}</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+      {deleting && (
+        <Dialog open={!!deleting} onOpenChange={(open)=>!open && setDeleting(null)}>
+          <DialogContent><DialogHeader><DialogTitle>Delete event?</DialogTitle><DialogDescription>This action cannot be undone.</DialogDescription></DialogHeader>
+            <DialogFooter><Button variant="outline" onClick={()=>setDeleting(null)}>Cancel</Button><Button variant="destructive" disabled={deleteBusy} onClick={()=>void confirmDelete()}>{deleteBusy ? <Spinner size="sm"/> : "Delete event"}</Button></DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+    </div>
+  );
+}
