@@ -630,6 +630,7 @@ const StorePage = () => {
                       {item.description ? <p>{item.description}</p> : null}
                     </div>
                   </>
+                );
 
                 return item.linkUrl ? (
                   <a key={item.id} href={item.linkUrl} target="_blank" rel="noopener noreferrer" className={styles.workCard}>{card}</a>
