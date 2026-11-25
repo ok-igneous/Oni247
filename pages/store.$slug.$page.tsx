@@ -1,4 +1,5 @@
-import {Link,Navigate,useParams} from "react-router-dom";
+import { useStorefrontRouteParams } from "../helpers/storefrontHost";
+import { Link, Navigate } from "react-router-dom";
 import {useEffect,useState} from "react";
 import {Helmet} from "react-helmet";
 import {toast} from "sonner";
@@ -24,7 +25,7 @@ import { getPublicEvents, type PublicEventItem } from "../endpoints/events/publi
 import { getStorefrontBaseUrl } from "../helpers/storefrontCanonical";
 
 export default function StoreSectionPage(){
-  const {slug,page}=useParams<{slug:string;page:string}>();
+  const {slug,page}=useStorefrontRouteParams<{slug:string;page:string}>();
   const {data,isFetching,error}=useStorefront(slug);
   const [galleries,setGalleries]=useState<Gallery[]>([]);
   const [galleriesLoading,setGalleriesLoading]=useState(true);
