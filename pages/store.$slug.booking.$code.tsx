@@ -1,3 +1,4 @@
+import { storefrontPath } from "../helpers/storefrontPath";
 import { useStorefrontRouteParams } from "../helpers/storefrontHost";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -30,7 +31,7 @@ export default function BookingStatusPage() {
       <StoreServiceShell data={store.data} title="Booking">
         <h1>We could not find that booking</h1>
         <p className={styles.muted}>Check the booking code in your email or message and try again.</p>
-        <Link to={`/${store.data.business.slug}/services`}>Back to services</Link>
+        <Link to={storefrontPath(store.data.business.slug, "/services")}>Back to services</Link>
       </StoreServiceShell>
     );
   }
