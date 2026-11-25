@@ -60,8 +60,8 @@ app.addContentTypeParser("*", { parseAs: "buffer" }, (_request, body, done) => d
 async function invokeEndpoint(
   method: string,
   route: string,
-  request: FastifyRequest,
-  reply: FastifyReply,
+  request: FastifyRequest<any, any>,
+  reply: FastifyReply<any, any>,
   originOverride?: string,
 ) {
   const file = endpointFiles.get(`${method} ${route}`);
@@ -80,11 +80,14 @@ async function invokeEndpoint(
     }
 
     const body = request.body;
+    const requestBody = body === undefined
+      ? undefined
+      : new Uint8Array(Buffer.isBuffer(body) ? body : Buffer.from(String(body)));
     const webRequest = new Request(new URL(request.url, originOverride ?? `${request.protocol}://${request.host}`), {
       method,
       headers,
-      ...(body !== undefined && !["GET", "HEAD"].includes(method)
-        ? { body: Buffer.isBuffer(body) ? body : Buffer.from(String(body)) }
+      ...(requestBody !== undefined && !["GET", "HEAD"].includes(method)
+        ? { body: requestBody }
         : {}),
     });
     // Resolve identity before entering the transaction: session lookup is the
