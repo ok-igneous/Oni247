@@ -2,11 +2,11 @@
 
 ## Source snapshot
 
-- Floot source inventory: 811 files.
-- Floot-listed files missing from the GitHub snapshot: 0 after transfer.
-- Source snapshot branch: `floot-source-snapshot-2026-11-21`.
+- Source export inventory: 811 files.
+- source-export files missing from the GitHub snapshot: 0 after transfer.
+- Source snapshot branch: `legacy platform-source-snapshot-2026-11-21`.
 - Working branch: `standalone-migration`.
-- Floot production and GitHub `main` have not been modified by standalone work.
+- previous production environment and GitHub `main` have not been modified by standalone work.
 
 The snapshot comparison verifies path coverage, not byte-for-byte content parity or runtime readiness.
 
@@ -18,11 +18,11 @@ The snapshot comparison verifies path coverage, not byte-for-byte content parity
 - Added graceful SIGINT/SIGTERM shutdown and closes the database pool after it has been initialized.
 - Disabled blanket proxy-header trust; numeric trusted-proxy hop counts are parsed correctly; production HSTS is emitted by the application, so deployments must enforce HTTPS at the edge.
 - Added Node/TypeScript project configuration and package manifest.
-- Replaced the Floot database environment variable with required `DATABASE_URL`.
-- Replaced the Floot session cookie name with `oni247_session`, aligned JWT expiry with the seven-day cookie lifetime, and made Secure cookie behavior environment-aware.
-- Replaced the `@floot/storage` upload integration with an S3-compatible presigned-upload adapter.
+- Replaced the legacy database environment variable with required `DATABASE_URL`.
+- Replaced the legacy session cookie name with `oni247_session`, aligned JWT expiry with the seven-day cookie lifetime, and made Secure cookie behavior environment-aware.
+- Replaced the legacy upload SDK upload integration with an S3-compatible presigned-upload adapter.
 - Added `.env.example`, local setup instructions, S3 storage configuration guide and migration runbook.
-- Added a source audit script for remaining Floot package, database, cookie, CDN and native URL references.
+- Added a source audit script for remaining legacy package, database, cookie, CDN and native URL references.
 - Migrated the existing Jasmine-style tests to Vitest and configured a jsdom test environment.
 
 ## Not yet verified
@@ -30,13 +30,13 @@ The snapshot comparison verifies path coverage, not byte-for-byte content parity
 No claim is made that the application currently builds or is production-ready. The next required work is:
 
 1. Install dependencies and run TypeScript/build checks; resolve all missing dependencies and type errors.
-2. Audit all application source files for remaining Floot SDK, URL, cookie, native-app and runtime assumptions.
+2. Audit all application source files for remaining legacy platform SDK, URL, cookie, native-app and runtime assumptions.
 3. Implement and validate the standalone database schema migration using an authorized database export; do not synthesize production schema or data.
 4. Migrate existing uploaded media and replace legacy `/_cdn/` URLs.
 5. Test authentication, registration, verification, password reset, tenant isolation, uploads, storefront, checkout, payment webhooks, email and all dashboard routes.
 6. Add operational logging, security headers, rate limits, backup/restore and deployment configuration.
 
-The new runtime is a first implementation, not a completed migration. Keep Floot production live until the full acceptance checklist passes.
+The new runtime is a first implementation, not a completed migration. Keep previous production environment live until the full acceptance checklist passes.
 
 ## PostgreSQL RLS foundation (staged; not activated)
 
@@ -70,6 +70,6 @@ The new runtime is a first implementation, not a completed migration. Keep Floot
 - No production database export/destination credentials or R2 credentials were available during this review.
 - No build, typecheck, test suite, database migration, RLS activation, media migration or deployment has been performed in this review.
 - The staged RLS design still blocks production rollout: checkout/payment requires narrow trusted database operations and concurrency-safe payment claims; bookings, comments/reactions and media upload access paths also need explicit policies/operations and tests.
-- Floot production and GitHub `main` remain untouched.
+- previous production environment and GitHub `main` remain untouched.
 
 - Additional Cloudflare account inspection: no Workers scripts exist; no `workers.dev` subdomain has been initialized; R2 is not enabled on the account (Cloudflare returned the explicit dashboard-enablement requirement). These are account-setup blockers, not repository code defects.
