@@ -1,5 +1,6 @@
+import { useStorefrontRouteParams } from "../helpers/storefrontHost";
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { toast } from "sonner";
 import {
@@ -41,7 +42,7 @@ import styles from "./store.$slug.p.$productSlug.module.css";
 const LOW_STOCK_AT = 5;
 
 const ProductDetailPage = () => {
-  const { slug, productSlug } = useParams<{
+  const { slug, productSlug } = useStorefrontRouteParams<{
     slug: string;
     productSlug: string;
   }>();
