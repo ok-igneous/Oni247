@@ -146,11 +146,8 @@ const CheckoutPage = () => {
                 price = resolved.price;
               }
             }
-            const stock = product.stockQuantity ?? null;
+            // The public catalogue exposes availability, not exact stock counts.
             if (!product.available) problem = "Sold out";
-            else if (stock !== null && line.quantity > stock) {
-              problem = `Only ${stock} left`;
-            }
           }
         }
         return { line, price, problem };
