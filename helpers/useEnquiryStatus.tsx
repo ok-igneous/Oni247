@@ -5,7 +5,7 @@ import { ENQUIRIES_QUERY_KEY } from "./useEnquiries";
 export const useEnquiryStatus = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input) => postEnquiryStatus(input),
+    mutationFn: (input: Parameters<typeof postEnquiryStatus>[0]) => postEnquiryStatus(input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ENQUIRIES_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: ["dashboard", "overview"] });
