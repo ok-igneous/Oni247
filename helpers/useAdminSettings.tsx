@@ -9,7 +9,7 @@ export const useAdminSettings = () => useQuery({ queryKey: KEY, queryFn: () => g
 export const useAdminSettingsAction = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: postAdminSettings,
+    mutationFn: (input) => postAdminSettings(input),
     onSettled: () => void queryClient.invalidateQueries({ queryKey: KEY }),
   });
 };

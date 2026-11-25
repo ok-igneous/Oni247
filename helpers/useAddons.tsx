@@ -10,7 +10,7 @@ export const useAddons = () => useQuery({ queryKey: KEY, queryFn: () => getAddon
 export const useToggleAddon = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: postToggleAddon,
+    mutationFn: (input) => postToggleAddon(input),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: KEY });
       void queryClient.invalidateQueries({ queryKey: MY_BUSINESS_QUERY_KEY });

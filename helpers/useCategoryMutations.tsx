@@ -14,12 +14,12 @@ export const useCategoryMutations = () => {
   };
 
   const save = useMutation({
-    mutationFn: postSaveCategory,
+    mutationFn: (input) => postSaveCategory(input),
     onSuccess: invalidate,
   });
 
   const remove = useMutation({
-    mutationFn: postDeleteCategory,
+    mutationFn: (input) => postDeleteCategory(input),
     onSuccess: invalidate,
   });
 

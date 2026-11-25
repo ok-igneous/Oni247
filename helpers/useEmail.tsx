@@ -19,7 +19,7 @@ export const useEmailWorkspace = () => useQuery({ queryKey: WORKSPACE_KEY, query
 export const useEmailWorkspaceAction = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: postEmailWorkspace,
+    mutationFn: (input) => postEmailWorkspace(input),
     onSettled: () => void queryClient.invalidateQueries({ queryKey: WORKSPACE_KEY }),
   });
 };
@@ -27,7 +27,7 @@ export const useEmailWorkspaceAction = () => {
 export const useSaveEmailSettings = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: postEmailSettings,
+    mutationFn: (input) => postEmailSettings(input),
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: SETTINGS_KEY });
       void queryClient.invalidateQueries({ queryKey: KEY });
@@ -49,7 +49,7 @@ export const useTestEmail = () => {
 export const useSendEmail = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: postSendEmail,
+    mutationFn: (input) => postSendEmail(input),
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: KEY });
       void queryClient.invalidateQueries({ queryKey: ["email-workspace"] });
