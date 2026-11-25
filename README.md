@@ -34,3 +34,7 @@ The Fastify server serves the compiled `dist` directory and dispatches the exist
 Development and deployment work is isolated on the `standalone-migration` branch. Production deployment must not be switched until database migration, media handling, authentication, payments, email, security and end-to-end checks are complete.
 
 See [STANDALONE_MIGRATION.md](./STANDALONE_MIGRATION.md) for the deployment and readiness checklist.
+
+## Product specifications
+
+- [Editable Portfolio / Professional Profile Builder](docs/features/editable-portfolio-builder.md) — requirements for an owner-editable portfolio, including profile content, sections, projects, services, image uploads, theme integration, SEO, drafts, and publishing.
