@@ -70,12 +70,12 @@ export default function StoreSectionPage(){
       <meta property="og:title" content={title+" — "+b.name}/>
       <meta property="og:description" content={b.description||title+" from "+b.name}/>
       <meta property="og:url" content={typeof window!=="undefined"?window.location.origin+window.location.pathname:"/"+b.slug+"/"+pth}/>
-      <meta name="twitter:card" content={(typeof b.appearanceSettings?.shareImageUrl==="string"&&b.appearanceSettings.shareImageUrl)||b.heroImageUrl||b.logoUrl?"summary_large_image":"summary"}/>
+      <meta name="twitter:card" content={(typeof b.appearanceSettings?.shareImageUrl==="string"&&appearance.shareImageUrl)||b.heroImageUrl||b.logoUrl?"summary_large_image":"summary"}/>
       <meta name="twitter:title" content={title+" — "+b.name}/>
       <meta name="twitter:description" content={b.description||title+" from "+b.name}/>
-      {(typeof b.appearanceSettings?.shareImageUrl === "string" && b.appearanceSettings.shareImageUrl) || b.heroImageUrl || b.logoUrl ? <>
-        <meta property="og:image" content={(typeof b.appearanceSettings.shareImageUrl==="string"&&b.appearanceSettings.shareImageUrl)||b.heroImageUrl||b.logoUrl||""}/>
-        <meta name="twitter:image" content={(typeof b.appearanceSettings.shareImageUrl==="string"&&b.appearanceSettings.shareImageUrl)||b.heroImageUrl||b.logoUrl||""}/>
+      {(typeof b.appearanceSettings?.shareImageUrl === "string" && appearance.shareImageUrl) || b.heroImageUrl || b.logoUrl ? <>
+        <meta property="og:image" content={(typeof appearance.shareImageUrl==="string"&&appearance.shareImageUrl)||b.heroImageUrl||b.logoUrl||""}/>
+        <meta name="twitter:image" content={(typeof appearance.shareImageUrl==="string"&&appearance.shareImageUrl)||b.heroImageUrl||b.logoUrl||""}/>
       </> : null}
       <script type="application/ld+json">{JSON.stringify({"@context":"https://schema.org","@type":"WebPage","name":title+" — "+b.name,"description":b.description||title+" from "+b.name,"url":typeof window!=="undefined"?window.location.origin+window.location.pathname:"/"+b.slug+"/"+pth,"isPartOf":{"@type":"WebSite","name":b.name,"url":typeof window!=="undefined"?getStorefrontBaseUrl(b.slug,window.location.origin,window.location.pathname):"/"+b.slug}}).replace(/</g,"\\u003c")}</script>
     </Helmet>
