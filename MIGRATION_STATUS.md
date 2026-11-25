@@ -3,10 +3,10 @@
 ## Source snapshot
 
 - Source export inventory: 811 files.
-- source-export files missing from the GitHub snapshot: 0 after transfer.
-- Source snapshot branch: `legacy platform-source-snapshot-2026-11-21`.
+- Files listed in the source export missing from the GitHub snapshot: 0 after transfer.
+- A separate source snapshot branch is retained for recovery.
 - Working branch: `standalone-migration`.
-- previous production environment and GitHub `main` have not been modified by standalone work.
+- The previous production environment and GitHub `main` have not been modified by standalone work.
 
 The snapshot comparison verifies path coverage, not byte-for-byte content parity or runtime readiness.
 
@@ -20,7 +20,7 @@ The snapshot comparison verifies path coverage, not byte-for-byte content parity
 - Added Node/TypeScript project configuration and package manifest.
 - Replaced the legacy database environment variable with required `DATABASE_URL`.
 - Replaced the legacy session cookie name with `oni247_session`, aligned JWT expiry with the seven-day cookie lifetime, and made Secure cookie behavior environment-aware.
-- Replaced the legacy upload SDK upload integration with an S3-compatible presigned-upload adapter.
+- Replaced the legacy upload SDK integration with an S3-compatible presigned-upload adapter.
 - Added `.env.example`, local setup instructions, S3 storage configuration guide and migration runbook.
 - Added a source audit script for remaining legacy package, database, cookie, CDN and native URL references.
 - Migrated the existing Jasmine-style tests to Vitest and configured a jsdom test environment.
