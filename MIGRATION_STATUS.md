@@ -58,3 +58,16 @@ The new runtime is a first implementation, not a completed migration. Keep Floot
 - Added checkout variant regression coverage for missing/invalid choices and price override behavior. Product-save validation now rejects duplicate option name/value pairs case-insensitively, preventing ambiguous checkout resolution where the first matching stored option could determine the charged price. Tests are committed but have not been executed locally.
 - Public checkout remains deliberately blocked under the staged RLS model. The existing handler reads product cost/stock/variant data, reserves stock, upserts customers, and inserts orders; the payment-return handler reads orders/customer email and accesses gateway secrets. Anonymous policies on these tables would be unsafe. The required next design is a narrow trusted order-creation operation that independently validates products/variants/prices, recomputes totals, reserves stock atomically, and inserts the customer/order, plus a minimal payment lookup/claim path and concurrency-safe checkout idempotency. PostgreSQL row-level policies do not hide sensitive columns such as product cost and stock from a role allowed to read the row. No order SECURITY DEFINER function or checkout policy is claimed as implemented.
 - The smoke SQL is not a complete integration suite and has not been executed. No RLS build, database test, or production deployment is claimed.
+
+
+## Cloudflare deployment review (2026-11-25)
+
+- Selected the least-disruptive target: Node.js 22 + Fastify in Cloudflare Containers, fronted by a Worker/Durable Object proxy; PostgreSQL remains the system of record and R2 stores media. A direct Workers/Pages upload is not compatible with the current Node/filesystem/PostgreSQL runtime.
+- Added `docs/CLOUDFLARE_DEPLOYMENT.md` with topology, domain model, security gates, prerequisites, release sequence and rollback plan.
+- Updated `STANDALONE_MIGRATION.md` to reflect the Containers architecture.
+- The connected Cloudflare account currently has no DNS zones configured. No domain binding or production DNS change was made.
+- The branch has no package lockfile, Dockerfile, Worker/Container adapter or Cloudflare deployment configuration.
+- No production database export/destination credentials or R2 credentials were available during this review.
+- No build, typecheck, test suite, database migration, RLS activation, media migration or deployment has been performed in this review.
+- The staged RLS design still blocks production rollout: checkout/payment requires narrow trusted database operations and concurrency-safe payment claims; bookings, comments/reactions and media upload access paths also need explicit policies/operations and tests.
+- Floot production and GitHub `main` remain untouched.
