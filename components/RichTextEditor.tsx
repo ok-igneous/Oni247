@@ -97,8 +97,7 @@ const videoSrc = (url: string, options: { autoplay: boolean; loop: boolean; cont
   }
   if (options.loop) {
     params.set("loop", "1");
-    params.set("playlist", id);
-  }
+    params.set("playlist", id);  }
   if (!options.controls) params.set("controls", "0");
   return `${base}?${params.toString()}`;
 };
@@ -197,8 +196,7 @@ export const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(
     const savedRange = useRef<Range | null>(null);
     const history = useRef<string[]>([]);
     const historyIndex = useRef(-1);
-    const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const dragged = useRef<HTMLElement | null>(null);
+    const timer = useRef<ReturnType<typeof setTimeout> | null>(null);    const dragged = useRef<HTMLElement | null>(null);
     const forcePlain = useRef(false);
     const [active, setActive] = useState<Record<string, boolean>>({});
     const [empty, setEmpty] = useState(true);
@@ -298,7 +296,6 @@ export const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(
       root.addEventListener("beforeinput", onBeforeInput);
       return () => root.removeEventListener("beforeinput", onBeforeInput);
     }, [refreshState, pushHistory]);
-
     useImperativeHandle(ref, () => ({
       getHtml: () => {
         const root = rootRef.current;
@@ -397,8 +394,7 @@ export const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(
         const next = document.createElement(target);
         next.innerHTML = block.innerHTML || "<br>";
         if (block.style.textAlign) next.style.textAlign = block.style.textAlign;
-        block.replaceWith(next);
-        created.push(next);
+        block.replaceWith(next);        created.push(next);
       });
       const next = document.createRange();
       next.selectNodeContents(created[0]);
@@ -497,8 +493,7 @@ export const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(
       if (!plain) {
         const cleaned = cleanPasted(html);
         if (cleaned.replace(/<[^>]*>/g, "").trim() || /<(img|hr)/i.test(cleaned)) {
-          document.execCommand("insertHTML", false, cleaned);
-          decorate(rootRef.current as HTMLElement);
+          document.execCommand("insertHTML", false, cleaned);          decorate(rootRef.current as HTMLElement);
           refreshState();
           pushHistory();
           return;
@@ -597,8 +592,7 @@ export const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(
       const selection = window.getSelection();
       if (!selection || selection.isCollapsed) {
         toast.info("Select the words you want to turn into a link first.");
-        return;
-      }
+        return;      }
       const existing = selection.anchorNode?.parentElement?.closest("a");
       setDialog({ kind: "link", url: existing?.getAttribute("href") ?? "" });
     };
@@ -697,8 +691,7 @@ export const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(
             key={key}
             type="button"
             aria-pressed={value === key}
-            className={`${styles.alignChoice} ${value === key ? styles.alignOn : ""}`}
-            onClick={() => onChange(key)}
+            className={`${styles.alignChoice} ${value === key ? styles.alignOn : ""}`}            onClick={() => onChange(key)}
           >
             {label}
           </button>
@@ -797,8 +790,7 @@ export const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(
             scheduleSnapshot();
           }}
           onKeyDown={onKeyDown}
-          onPaste={onPaste}
-          onClick={onEditorClick}
+          onPaste={onPaste}          onClick={onEditorClick}
           onDragStart={onDragStart}
           onDragOver={onDragOver}
           onDrop={onDrop}
@@ -877,3 +869,26 @@ export const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(
                     </span>
                   </label>
 ... (output capped at 40000 chars — continue with read_file path: "components/RichTextEditor.tsx" offset: 879)
+
+                  <label className={styles.option}>
+                    <Switch checked={dialog.controls} onCheckedChange={(checked) => setDialog({ ...dialog, controls: checked })} />
+                    <span><strong>Show player controls</strong><small>Let visitors pause or control playback.</small></span>
+                  </label>
+                </div>
+              </>
+            )}
+            <DialogFooter>
+              {mediaElement && (
+                <Button type="button" variant="destructive" onClick={removeElement}>Remove</Button>
+              )}
+              <Button type="button" variant="outline" onClick={() => setDialog(null)}>Cancel</Button>
+              <Button type="button" onClick={applyDialog}>Save</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  },
+);
+RichTextEditor.displayName = "RichTextEditor";
+export default RichTextEditor;
