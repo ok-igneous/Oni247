@@ -14,7 +14,7 @@ export const useCustomers = () =>
 export const useCustomerNotes = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input) => postCustomerNotes(input),
+    mutationFn: (input: Parameters<typeof postCustomerNotes>[0]) => postCustomerNotes(input),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: CUSTOMERS_QUERY_KEY }),
   });
 };
