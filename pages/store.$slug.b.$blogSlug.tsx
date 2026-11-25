@@ -1,4 +1,5 @@
-import { Link, useParams } from "react-router-dom";
+import { useStorefrontRouteParams } from "../helpers/storefrontHost";
+import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { ArrowLeft } from "lucide-react";
 import { useStorefront } from "../helpers/useStorefront";
@@ -11,7 +12,7 @@ import { toast } from "sonner";
 import { shareLink } from "../endpoints/share/page_GET.schema";
 
 export default function BlogArticlePage() {
-  const { slug, blogSlug } = useParams<{ slug: string; blogSlug: string }>();
+  const { slug, blogSlug } = useStorefrontRouteParams<{ slug: string; blogSlug: string }>();
   const { data, isFetching, error } = useStorefront(slug);
   if (isFetching && !data) return <main className={styles.page}><p>Loading article…</p></main>;
   const business = data?.business;
