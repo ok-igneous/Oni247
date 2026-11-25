@@ -774,7 +774,7 @@ export default function EventsPage() {
                         {event.published ? "Unpublish" : "Publish"}
                       </Button>
                       {event.published && businessSlug && (
-... (output capped at 40000 chars — continue with read_file path: "pages/dashboard.events.tsx" offset: 784)
+
 
                         <Button asChild size="sm" variant="outline">
                           <a href={`/store/${businessSlug}/e/${event.slug}`} target="_blank" rel="noopener noreferrer">
@@ -814,7 +814,7 @@ export default function EventsPage() {
       {deleting && (
         <Dialog open={!!deleting} onOpenChange={(open)=>!open && setDeleting(null)}>
           <DialogContent><DialogHeader><DialogTitle>Delete event?</DialogTitle><DialogDescription>This action cannot be undone.</DialogDescription></DialogHeader>
-            <DialogFooter><Button variant="outline" onClick={()=>setDeleting(null)}>Cancel</Button><Button variant="destructive" disabled={deleteBusy} onClick={()=>void confirmDelete()}>{deleteBusy ? <Spinner size="sm"/> : "Delete event"}</Button></DialogFooter>
+            <DialogFooter><Button variant="outline" onClick={()=>setDeleting(null)}>Cancel</Button><Button variant="destructive" disabled={deleteBusy} onClick={()=>void handleDelete()}>{deleteBusy ? <Spinner size="sm"/> : "Delete event"}</Button></DialogFooter>
           </DialogContent>
         </Dialog>
       )}
