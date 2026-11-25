@@ -2,15 +2,16 @@ import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
 const root = process.cwd();
+const auditFile = path.resolve(root, "scripts/audit-standalone.mjs");
 const ignoredDirectories = new Set([".git", "node_modules", "dist", "coverage"]);
-const sourceExtensions = new Set([".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".json", ".html", ".xml", ".yml", ".yaml", ".css"]);
+const sourceExtensions = new Set([
+  ".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".json", ".html", ".xml",
+  ".plist", ".gradle", ".swift", ".kt", ".java", ".css", ".yml", ".yaml"
+]);
 const checks = [
-  { label: "Floot package/runtime import", pattern: /@floot\//g, severity: "error" },
-  { label: "Floot database environment variable", pattern: /FLOOT_DATABASE_URL/g, severity: "error" },
-  { label: "Floot-generated session cookie", pattern: /floot_built_app_session/g, severity: "error" },
-  { label: "Legacy Floot CDN path", pattern: /\/_cdn\//g, severity: "warning" },
-  { label: "Floot native app URL scheme", pattern: /app\.floot\./g, severity: "warning" },
-  { label: "Floot hosted domain", pattern: /floot\.app/g, severity: "warning" },
+  { label: "Legacy platform branding or runtime reference", pattern: /floot/i, severity: "error" },
+  { label: "Legacy CDN asset path", pattern: /\/_cdn\//i, severity: "error" },
+  { label: "Legacy native URL scheme", pattern: /app\.floot\./i, severity: "error" },
 ];
 
 const findings = [];
@@ -23,15 +24,21 @@ async function walk(directory) {
       await walk(fullPath);
       continue;
     }
-    if (!sourceExtensions.has(path.extname(entry.name))) continue;
+    if (path.resolve(fullPath) === auditFile) continue;
+    if (!sourceExtensions.has(path.extname(entry.name).toLowerCase())) continue;
     sourceFiles.push(path.relative(root, fullPath).split(path.sep).join("/"));
-    const text = await readFile(fullPath, "utf8");
-    const lines = text.split(/\r?\n/);
+    const contents = await readFile(fullPath, "utf8");
+    const lines = contents.split(/\r?\n/);
     lines.forEach((line, index) => {
       for (const check of checks) {
         check.pattern.lastIndex = 0;
         if (check.pattern.test(line)) {
-          findings.push({ severity: check.severity, label: check.label, file: path.relative(root, fullPath), line: index + 1 });
+          findings.push({
+            severity: check.severity,
+            label: check.label,
+            file: path.relative(root, fullPath),
+            line: index + 1,
+          });
         }
       }
     });
@@ -42,6 +49,7 @@ await walk(root);
 for (const item of findings) {
   process.stdout.write(`[${item.severity.toUpperCase()}] ${item.file}:${item.line} — ${item.label}\n`);
 }
+
 const pageFiles = sourceFiles.filter((file) =>
   file.startsWith("pages/") && file.endsWith(".tsx") && !file.endsWith(".pageLayout.tsx")
 );
@@ -76,8 +84,8 @@ const duplicateEndpoints = [...endpointKeys.entries()].filter(([, files]) => fil
 for (const [key, files] of duplicateEndpoints) {
   process.stdout.write(`[ERROR] Duplicate API handler ${key}: ${files.join(", ")}\n`);
 }
-process.stdout.write(`Frontend routes: ${pageFiles.length}; API handlers: ${endpointKeys.size}.\n`);
 
+process.stdout.write(`Frontend routes: ${pageFiles.length}; API handlers: ${endpointKeys.size}.\n`);
 const errors = findings.filter((item) => item.severity === "error").length + duplicateRoutes.length + duplicateEndpoints.length;
-process.stdout.write(`\nStandalone audit: ${errors} blocking issue(s), ${findings.length - findings.filter((item) => item.severity === "error").length} migration warning(s).\n`);
+process.stdout.write(`\nStandalone audit: ${errors} blocking issue(s).\n`);
 if (errors) process.exitCode = 1;
