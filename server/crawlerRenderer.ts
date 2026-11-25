@@ -33,7 +33,7 @@ function notFound(reply: FastifyReply) {
 
 /** Creates the crawler-only renderer with injectable data and filesystem dependencies. */
 export function createCrawlerStorefrontRenderer(deps: CrawlerRendererDependencies) {
-  return async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyReply) {
+  return async function renderCrawlerStorefront(request: FastifyRequest<any, any>, reply: FastifyReply<any, any>) {
     if (!isCrawlerUserAgent(String(request.headers["user-agent"] ?? ""))) return;
     if (!deps.hasProductionBuild) return;
 
