@@ -1,4 +1,5 @@
-import { Link, useParams } from "react-router-dom";
+import { useStorefrontRouteParams } from "../helpers/storefrontHost";
+import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Helmet } from "react-helmet";
 import { ArrowLeft, MessageCircle } from "lucide-react";
@@ -12,7 +13,7 @@ import styles from "./store.$slug.s.$serviceSlug.module.css";
 import { StorefrontHeader } from "../components/StorefrontHeader";
 
 export default function ServiceDetailPage() {
-  const { slug, serviceSlug } = useParams<{ slug: string; serviceSlug: string }>();
+  const { slug, serviceSlug } = useStorefrontRouteParams<{ slug: string; serviceSlug: string }>();
   const { data, isFetching, error } = useStorefront(slug);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
