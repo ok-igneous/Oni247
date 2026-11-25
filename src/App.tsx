@@ -54,7 +54,7 @@ export function App() {
       <Suspense fallback={<div role="status" style={{ padding: 24 }}>Loading Oni247…</div>}>
         <Routes>
           <Route path="/" element={<HostAwareRoot />} />
-          {routeEntries.filter((entry) => entry.key !== "_index" && entry.key !== "$slug").map(({ path, Component, key }) => (
+          {routeEntries.filter((entry) => entry.key !== "_index").map(({ path, Component, key }) => (
             <Route key={key} path={path} element={<Component />} />
           ))}
           {vanityRoutes.map(({ path, Component, key }) => (
