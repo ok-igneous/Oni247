@@ -9,7 +9,7 @@ export const useGateways = () => useQuery({ queryKey: KEY, queryFn: () => getGat
 export const useGatewayAction = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: postGateway,
+    mutationFn: (input) => postGateway(input),
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: KEY });
       void queryClient.invalidateQueries({ queryKey: ["storefront"] });

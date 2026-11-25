@@ -12,7 +12,7 @@ export const useOwnerComments = () =>
 export const useModerateComments = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: postModerateComments,
+    mutationFn: (input) => postModerateComments(input),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: KEY });
       void queryClient.invalidateQueries({ queryKey: ["engagement"] });
@@ -23,7 +23,7 @@ export const useModerateComments = () => {
 export const useSaveEngagementSettings = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: postEngagementSettings,
+    mutationFn: (input) => postEngagementSettings(input),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: MY_BUSINESS_QUERY_KEY });
       void queryClient.invalidateQueries({ queryKey: ["engagement"] });
