@@ -1,3 +1,4 @@
+import { storefrontPath } from "../helpers/storefrontPath";
 import { useStorefrontRouteParams } from "../helpers/storefrontHost";
 import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
@@ -189,7 +190,7 @@ const CheckoutPage = () => {
   const appearance = business.appearanceSettings ?? {};
   const theme = storeThemeEngine(business.themeId, appearance);
   const whatsappNumber = business.whatsappNumber ?? business.phone ?? "";
-  const home = `/${business.slug}`;
+  const home = storefrontPath(business.slug);
   const hasProblem = lines.some((row) => row.problem !== null);
 
   const phoneDigits = phone.replace(/\D/g, "");
@@ -310,7 +311,7 @@ const CheckoutPage = () => {
     details.push(`Total: ${formatMoney(order.total, order.currency)}`);
     if (order.paymentMethod) details.push(`Payment: ${PAYMENT_COPY[order.paymentMethod].label}`);
     if (order.trackingCode) {
-      details.push(`Track it: ${window.location.origin}/${business.slug}/track/${order.trackingCode}`);
+      details.push(`Track it: ${window.location.origin}${storefrontPath(business.slug, "/track/" + order.trackingCode)}`);
     }
     const whatsappUrl = whatsappNumber
       ? buildWhatsAppOrderUrl({
@@ -435,7 +436,7 @@ const CheckoutPage = () => {
             )}
             {order.trackingCode && (
               <Button asChild variant="outline" size="lg">
-                <Link to={`/${business.slug}/track/${order.trackingCode}`}>
+                <Link to={storefrontPath(business.slug, "/track/" + order.trackingCode)}>
                   <PackageCheck size={17} /> Track this order
                 </Link>
               </Button>
