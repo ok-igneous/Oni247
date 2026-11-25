@@ -1,5 +1,6 @@
+import { useStorefrontRouteParams } from "../helpers/storefrontHost";
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { toast } from "sonner";
 import { CalendarPlus, Check, Clock, Download, MapPin, Share2, Ticket, Users } from "lucide-react";
@@ -28,7 +29,7 @@ const icsText = (value: string) =>
   value.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\\;");
 
 export default function PublicEventPage() {
-  const { slug = "", eventSlug = "" } = useParams();
+  const { slug = "", eventSlug = "" } = useStorefrontRouteParams();
   const [data, setData] = useState<EventData | null>(null);
   const [others, setOthers] = useState<PublicEventItem[]>([]);
   const [answers, setAnswers] = useState<Record<string, unknown>>({});
