@@ -792,27 +792,6 @@ export default function EventsPage() {
           )}
         </>
       )}
-      {draft && (
-        <Dialog open={!!draft} onOpenChange={(open) => !open && setDraft(null)}>
-          <DialogContent>
-            <DialogHeader><DialogTitle>{draft.id ? "Edit event" : "New event"}</DialogTitle><DialogDescription>Update the event details and registration settings.</DialogDescription></DialogHeader>
-            <Input value={draft.title} placeholder="Event title" onChange={(e) => { const title=e.target.value; setDraft({...draft,title,slug:slugEdited?draft.slug:toSlug(title)}); }} />
-            <Input value={draft.slug} placeholder="Event URL slug" onChange={(e)=>{setSlugEdited(true);setDraft({...draft,slug:toSlug(e.target.value)});}} />
-            <Textarea value={draft.description} placeholder="Description" onChange={(e)=>setDraft({...draft,description:e.target.value})} />
-            <Input type="datetime-local" value={draft.startsAt} onChange={(e)=>setDraft({...draft,startsAt:e.target.value})} />
-            <Input type="datetime-local" value={draft.endsAt} onChange={(e)=>setDraft({...draft,endsAt:e.target.value})} />
-            <Input value={draft.venue} placeholder="Venue or online" onChange={(e)=>setDraft({...draft,venue:e.target.value})} />
-            <Input value={draft.capacity} type="number" placeholder="Capacity (optional)" onChange={(e)=>setDraft({...draft,capacity:e.target.value})} />
-            <label><Switch checked={draft.registrationEnabled} onCheckedChange={(v)=>setDraft({...draft,registrationEnabled:v})}/> Enable registration</label>
-            <label><Switch checked={draft.approvalRequired} onCheckedChange={(v)=>setDraft({...draft,approvalRequired:v})}/> Require approval</label>
-            <label><Switch checked={draft.published} onCheckedChange={(v)=>setDraft({...draft,published:v})}/> Publish event</label>
-            <DialogFooter>
-              <Button variant="outline" onClick={()=>setDraft(null)}>Cancel</Button>
-              <Button disabled={saving} onClick={()=>void handleSave()}>{saving ? <Spinner size="sm"/> : "Save event"}</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
       {deleting && (
         <Dialog open={!!deleting} onOpenChange={(open)=>!open && setDeleting(null)}>
           <DialogContent><DialogHeader><DialogTitle>Delete event?</DialogTitle><DialogDescription>This action cannot be undone.</DialogDescription></DialogHeader>

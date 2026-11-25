@@ -295,7 +295,7 @@ const StorePage = () => {
       name: product.name,
       price: product.price,
       currency: product.currency,
-      imageUrl: product.imageUrl,      maxQuantity: product.stockQuantity ?? null,
+      imageUrl: product.imageUrl,
     });
     setCartOpen(true);
   };
@@ -651,7 +651,7 @@ const StorePage = () => {
         </section>}
 
         {sections.testimonials !== false && testimonials.length > 0 && <section className={styles.section} id="testimonials" style={{order:orderOf("testimonials")}}>
-          <TestimonialsSection testimonials={testimonials} heading={typeof content.testimonialsHeading==="string"?content.testimonialsHeading:undefined} intro={typeof content.testimonialsIntro==="string"?content.testimonialsIntro:undefined}/>
+          <TestimonialsSection items={testimonials} config={readTestimonialConfig(appearance)} />
         </section>}
 
         {sections.contact !== false && <section className={styles.section} id="contact" style={{order:orderOf("contact")}}>
@@ -677,8 +677,8 @@ const StorePage = () => {
         </section>}
       </main>
       <footer className={styles.footer}><span>{business.name}</span>{business.phone && <a href={`tel:${business.phone.replace(/\s/g,"")}`}>{business.phone}</a>}<span>Powered by Oni247</span></footer>
-      {isOnlineStore && <StoreCartDock cart={cart} open={cartOpen} onOpenChange={setCartOpen} business={business} />}
-      {optionsProduct && <StoreOptionsDialog product={optionsProduct} open={!!optionsProduct} onOpenChange={(open)=>!open && setOptionsProduct(null)} onConfirm={(options)=>{handleAdd(optionsProduct,options);setOptionsProduct(null);}} />}
+      {isOnlineStore && <StoreCartDock slug={business.slug} currency={business.currency} cart={cart} open={cartOpen} onOpenChange={setCartOpen} />}
+      {optionsProduct && <StoreOptionsDialog product={optionsProduct} onClose={() => setOptionsProduct(null)} onConfirm={(item) => { cart.add(item); setCartOpen(true); }} />}
     </div>
   );
 };
