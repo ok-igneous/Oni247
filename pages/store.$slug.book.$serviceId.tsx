@@ -1,3 +1,4 @@
+import { storefrontPath } from "../helpers/storefrontPath";
 import { useStorefrontRouteParams } from "../helpers/storefrontHost";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -37,7 +38,7 @@ export default function ServiceBookingPage() {
       <main className={styles.content}>
         <h1>Service not found</h1>
         <p className={styles.muted}>This service may have been removed or is no longer taking bookings.</p>
-        {data && <Link to={`/${data.business.slug}/services`}>Back to services</Link>}
+        {data && <Link to={storefrontPath(data.business.slug, "/services")}>Back to services</Link>}
       </main>
     );
   }
@@ -73,7 +74,7 @@ export default function ServiceBookingPage() {
         window.location.href = result.paymentUrl;
         return;
       }
-      navigate(`/store/${business.slug}/booking/${result.code}`);
+      navigate(storefrontPath(business.slug, "/booking/" + result.code));
     } catch (e) {
       setProblem(e instanceof Error ? e.message : "Could not make the booking. Please try again.");
     } finally {
@@ -83,7 +84,7 @@ export default function ServiceBookingPage() {
 
   return (
     <StoreServiceShell data={data} title={`Book ${service.name}`}>
-      <Link className={styles.back} to={`/store/${business.slug}/s/${service.id}`}><ArrowLeft size={16} /> {service.name}</Link>
+      <Link className={styles.back} to={storefrontPath(business.slug, "/s/" + service.id)}><ArrowLeft size={16} /> {service.name}</Link>
       <p className={styles.eyebrow}>Book a service</p>
       <h1>{service.name}</h1>
       <div className={styles.layout}>
