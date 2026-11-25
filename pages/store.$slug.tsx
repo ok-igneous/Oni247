@@ -1,3 +1,4 @@
+import { storefrontPath } from "../helpers/storefrontPath";
 import { useStorefrontRouteParams } from "../helpers/storefrontHost";
 import { useEffect, useMemo, useState } from "react";
 import { Link, Navigate } from "react-router-dom";
@@ -279,7 +280,7 @@ const StorePage = () => {
   const footerMode = appearance.footerMode === "none" || appearance.footerMode === "selected" ? appearance.footerMode : "all";
   const footerPages = Array.isArray(appearance.footerPages) ? appearance.footerPages.filter((key): key is string => typeof key === "string") : [];
   const showFooter = footerMode === "all" || (footerMode === "selected" && footerPages.includes(selectedHomePage === "home" ? "home" : selectedHomePage));
-  if (siteMode === "multi_page" && selectedHomePage !== "home" && ["products","services","about","gallery","blog","events","contact"].includes(selectedHomePage)) return <Navigate to={`/${business.slug}/${selectedHomePage}`} replace />;
+  if (siteMode === "multi_page" && selectedHomePage !== "home" && ["products","services","about","gallery","blog","events","contact"].includes(selectedHomePage)) return <Navigate to={storefrontPath(business.slug, "/" + selectedHomePage)} replace />;
   const pageStyle = themeEngine.style as React.CSSProperties;
   const shareDescription =
     business.description ?? `Browse products and services from ${business.name}.`;
@@ -360,14 +361,14 @@ const StorePage = () => {
       </Helmet>
 
       <StorefrontHeader businessName={business.name} logoUrl={business.logoUrl} tagline={headerTagline} headerBrand={headerBrand} headerAlignment={themeEngine.headerAlignment} showActions={showHeaderActions} whatsappUrl={whatsappNumber ? enquiryUrl : undefined} phone={business.phone} navItems={siteMode === "multi_page" ? [
-        { label: "Home", href: selectedHomePage === "home" ? `/${business.slug}` : `/${business.slug}/${selectedHomePage}` },
-        ...(products.length ? [{ label: "Products", href: `/${business.slug}/products` }] : []), ...(services.length ? [{ label: "Services", href: `/${business.slug}/services` }] : []),
-        { label: "About", href: `/${business.slug}/about` }, ...(blogPosts.length ? [{ label: "Blog", href: `/${business.slug}/blog` }] : []),
-        { label: "Gallery", href: `/${business.slug}/gallery` }, ...(events.length && appearance.eventsPageInMenu === true ? [{ label: "Events", href: `/${business.slug}/events` }] : []),
-        { label: "Contact", href: `/${business.slug}/contact` }, { label: "Track order", href: `/${business.slug}/track` },
+        { label: "Home", href: selectedHomePage === "home" ? storefrontPath(business.slug) : storefrontPath(business.slug, "/" + selectedHomePage) },
+        ...(products.length ? [{ label: "Products", href: storefrontPath(business.slug, "/products") }] : []), ...(services.length ? [{ label: "Services", href: storefrontPath(business.slug, "/services") }] : []),
+        { label: "About", href: storefrontPath(business.slug, "/about") }, ...(blogPosts.length ? [{ label: "Blog", href: storefrontPath(business.slug, "/blog") }] : []),
+        { label: "Gallery", href: storefrontPath(business.slug, "/gallery") }, ...(events.length && appearance.eventsPageInMenu === true ? [{ label: "Events", href: storefrontPath(business.slug, "/events") }] : []),
+        { label: "Contact", href: storefrontPath(business.slug, "/contact") }, { label: "Track order", href: storefrontPath(business.slug, "/track") },
       ] : isOnlineStore ? [
         { label: "Home", href: "#home" }, { label: "Categories", href: categories.length > 0 ? "#categories" : "#catalogue" }, { label: "Shop", href: "#catalogue" },
-        { label: "About", href: "#about" }, { label: "Contact", href: "#contact" }, { label: "Track order", href: `/${business.slug}/track` },
+        { label: "About", href: "#about" }, { label: "Contact", href: "#contact" }, { label: "Track order", href: storefrontPath(business.slug, "/track") },
       ] : appearance.siteType === "service_business" ? [
         { label: "Home", href: "#home" }, { label: "Services", href: "#services" }, { label: "How it works", href: "#about" }, { label: "Contact", href: "#contact" },
       ] : appearance.siteType === "portfolio" ? [
@@ -378,7 +379,7 @@ const StorePage = () => {
         { label: "Home", href: "#home" }, { label: isService ? "Services" : "Products", href: isService && services.length ? "#services" : "#catalogue" },
         { label: "About", href: "#about" }, ...(sections.blog && blogPosts.length ? [{ label: "Blog", href: "#blog" }] : []),
         ...(events.length && sections.events !== false ? [{ label: "Events", href: "#events" }] : []), { label: "Contact", href: "#contact" },
-        { label: "Track order", href: `/${business.slug}/track` },
+        { label: "Track order", href: storefrontPath(business.slug, "/track") },
       ]} menuStyle={menuStyle} menuPosition={menuPosition as "left"|"center"|"right"} menuVisibility={menuVisibility} navVisible={navVisible} cartCount={isOnlineStore ? cart.count : undefined} onCartClick={isOnlineStore ? () => { if (cart.count > 0) setCartOpen(true); else toast("Your cart is empty."); } : undefined} />
 
       {isOnlineStore && <div className={styles.storeCallStrip}>{(business.phone || whatsappNumber) ? <><span>Call to order</span>{business.phone && <a href={`tel:${business.phone.replace(/\s/g, "")}`}>{business.phone}</a>}{whatsappNumber && <a href={enquiryUrl} target="_blank" rel="noopener noreferrer">WhatsApp order</a>}</> : <span>Welcome to {business.name}</span>}</div>}
@@ -415,9 +416,9 @@ const StorePage = () => {
 
         {isOnlineStore && (()=>{const c=business.checkout;const trust=[...(c?.deliveryEnabled?[{title:"Delivery available",detail:c.deliveryNote||"Delivery options at checkout"}]:[]),...(c?.freeDeliveryOver!==null&&c?.freeDeliveryOver!==undefined?[{title:"Free delivery offer",detail:`Free delivery on orders above ${formatMoney(c.freeDeliveryOver,business.currency)}`}]:[]),...(c?.pickupEnabled?[{title:"Pickup available",detail:c.pickupNote||"Choose pickup at checkout"}]:[]),...(c?.paymentMethods.cashOnDelivery?[{title:"Cash on delivery",detail:"Available at checkout"}]:[]),...(c?.paymentMethods.bankTransfer?[{title:"Bank transfer",detail:"Available at checkout"}]:[]),...(c?.paymentMethods.payOnPickup?[{title:"Pay on pickup",detail:"Available at checkout"}]:[]),...(c?.returnPolicy?[{title:"Returns",detail:c.returnPolicy}]:[])];return trust.length>0?<section className={styles.storeTrustGrid} style={{order:orderOf("trust")}} aria-label="Store information">{trust.map(item=><article key={item.title}><strong>{item.title}</strong><span>{item.detail}</span></article>)}</section>:null;})()}
 
-        {isOnlineStore && onSaleProducts.length>0 && <section className={styles.section} style={{order:orderOf("onsale")}}><div className={styles.catalogueHead}><h2 className={styles.sectionHeading}>On sale</h2><a className={styles.myOrdersLink} href="#catalogue">See all</a></div><div className={styles.featuredRow}>{onSaleProducts.slice(0,8).map(product=><StoreProductCard key={product.id} product={product} to={`/${business.slug}/p/${product.slug}`} onAdd={()=>handleAdd(product)} className={styles.featuredCard}/>)}</div></section>}
+        {isOnlineStore && onSaleProducts.length>0 && <section className={styles.section} style={{order:orderOf("onsale")}}><div className={styles.catalogueHead}><h2 className={styles.sectionHeading}>On sale</h2><a className={styles.myOrdersLink} href="#catalogue">See all</a></div><div className={styles.featuredRow}>{onSaleProducts.slice(0,8).map(product=><StoreProductCard key={product.id} product={product} to={storefrontPath(business.slug, "/p/" + product.slug)} onAdd={()=>handleAdd(product)} className={styles.featuredCard}/>)}</div></section>}
 
-        {isOnlineStore && newArrivals.length>0 && <section className={styles.section} style={{order:orderOf("new")}}><div className={styles.catalogueHead}><h2 className={styles.sectionHeading}>New arrivals</h2><a className={styles.myOrdersLink} href="#catalogue">See all</a></div><div className={styles.featuredRow}>{newArrivals.map(product=><StoreProductCard key={product.id} product={product} to={`/${business.slug}/p/${product.slug}`} onAdd={()=>handleAdd(product)} className={styles.featuredCard}/>)}</div></section>}
+        {isOnlineStore && newArrivals.length>0 && <section className={styles.section} style={{order:orderOf("new")}}><div className={styles.catalogueHead}><h2 className={styles.sectionHeading}>New arrivals</h2><a className={styles.myOrdersLink} href="#catalogue">See all</a></div><div className={styles.featuredRow}>{newArrivals.map(product=><StoreProductCard key={product.id} product={product} to={storefrontPath(business.slug, "/p/" + product.slug)} onAdd={()=>handleAdd(product)} className={styles.featuredCard}/>)}</div></section>}
 
         {sections.video !== false && (homepageVideoUrl || homepageVideoFileUrl) && <section className={styles.videoSection} style={{ order: orderOf(videoInHero ? "hero" : "video") }}>
           <h2 className={styles.sectionHeading}>{typeof content.homepageVideoTitle === "string" && content.homepageVideoTitle.trim() ? content.homepageVideoTitle : "Watch our video"}</h2>
@@ -478,7 +479,7 @@ const StorePage = () => {
                 <StoreProductCard
                   key={product.id}
                   product={product}
-                  to={`/${business.slug}/p/${product.slug}`}
+                  to={storefrontPath(business.slug, "/p/" + product.slug)}
                   onAdd={() => handleAdd(product)}
                   className={styles.featuredCard}
                 />
