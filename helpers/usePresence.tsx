@@ -13,8 +13,8 @@ export const usePresence = () => {
   };
 
   const list = useQuery({ queryKey: KEY, queryFn: () => getPresence(), retry: false });
-  const save = useMutation({ mutationFn: (input) => postSavePresence(input), onSuccess: invalidate });
-  const remove = useMutation({ mutationFn: (input) => postDeletePresence(input), onSuccess: invalidate });
+  const save = useMutation({ mutationFn: (input: Parameters<typeof postSavePresence>[0]) => postSavePresence(input), onSuccess: invalidate });
+  const remove = useMutation({ mutationFn: (input: Parameters<typeof postDeletePresence>[0]) => postDeletePresence(input), onSuccess: invalidate });
 
   return { list, save, remove };
 };
