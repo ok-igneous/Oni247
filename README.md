@@ -1,6 +1,6 @@
 # Oni247
 
-Oni247 is being extracted from its original Floot-hosted runtime into a standalone application.
+Oni247 is an independent website and storefront platform.
 
 ## Stack
 
@@ -29,8 +29,8 @@ npm start
 
 The Fastify server serves the compiled `dist` directory and dispatches the existing endpoint handlers under `/_api`.
 
-## Migration safety
+## Deployment safety
 
-The original Floot production application remains separate and unchanged. Work is happening on `standalone-migration`; the source snapshot is preserved on `floot-source-snapshot-2026-11-21`. Do not cut over production until the database, media, authentication, payments, email and end-to-end checks are complete.
+Development and deployment work is isolated on the `standalone-migration` branch. Production deployment must not be switched until database migration, media handling, authentication, payments, email, security and end-to-end checks are complete.
 
-See [STANDALONE_MIGRATION.md](./STANDALONE_MIGRATION.md) for the migration checklist.
+See [STANDALONE_MIGRATION.md](./STANDALONE_MIGRATION.md) for the deployment and readiness checklist.
