@@ -31,7 +31,7 @@ The Fastify server serves the compiled `dist` directory and dispatches the exist
 
 ## Deployment safety
 
-Development and deployment work is isolated on the `standalone-migration` branch. Production deployment must not be switched until database migration, media handling, authentication, payments, email, security and end-to-end checks are complete.
+Development now proceeds from `main`. This does not authorize a production deployment: hosting must not be switched until database migration, media handling, authentication, payments, email, security and end-to-end checks are complete.
 
 See [STANDALONE_MIGRATION.md](./STANDALONE_MIGRATION.md) for the deployment and readiness checklist.
 
