@@ -36,30 +36,7 @@
             android:grantUriPermissions="true">
             <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths" />
         </provider>
-        <!--
-            Floot link router. Every link this app opens - its URL scheme and any
-            App Links - arrives here and is forwarded to the running MainActivity,
-            so one copy of the app receives it whatever is on top. MainActivity is
-            singleTop so that coming back to the app leaves a Google Play purchase
-            sheet or a sign-in tab where it was. Put new App Links intent filters
-            inside this activity, never on MainActivity (they are moved here at
-            the next publish).
-        -->
-        <activity
-            android:name=".FlootLinkRouterActivity"
-            android:exported="true"
-            android:excludeFromRecents="true"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="app.floot.ue005222ad86249288cba24c893ba8b8b" />
-            </intent-filter>
-        </activity>
     </application>
-
-    <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
 </manifest>
