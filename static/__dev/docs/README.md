@@ -1,4 +1,4 @@
-# Oniduka Mini
+# Oni247 developer notes
 
 A business page and product/service catalogue for small businesses, with orders
 taken through WhatsApp. Independent of OniVend Core, OniRep, VendMage and
@@ -35,11 +35,11 @@ OniKeep — it has its own authentication, database, tenancy and storage.
    35	### Export
    36	
    37	```
-   38	pg_dump --no-owner --no-privileges "$FLOOT_DATABASE_URL" > oniduka-mini.sql
+   38	pg_dump --no-owner --no-privileges "$SOURCE_DATABASE_URL" > oniduka-mini.sql
    39	psql "$NEW_DATABASE_URL" < oniduka-mini.sql
    40	```
    41	
-   42	The schema uses no Floot-specific extensions. `gen_random_uuid()` is built into
+   42	The schema uses no provider-specific extensions. `gen_random_uuid()` is built into
    43	PostgreSQL 13+. Any PostgreSQL-compatible host (Neon, Supabase, RDS, a plain
    44	server) will take this dump unchanged.
    45	
@@ -49,7 +49,7 @@ OniKeep — it has its own authentication, database, tenancy and storage.
    49	
    50	| Variable | Used for | Notes |
    51	|---|---|---|
-   52	| `FLOOT_DATABASE_URL` | PostgreSQL connection string | Rename to `DATABASE_URL` on migration; it is referenced only in `helpers/db`. |
+   52	| `SOURCE_DATABASE_URL` | PostgreSQL connection string | Use `DATABASE_URL` for the standalone app; source credentials are used only for controlled export. |
    53	| `JWT_SECRET` | Signs session tokens | Rotating it logs everyone out. |
    54	
    55	No other secrets exist. Nothing is hard-coded, and no credential is referenced
@@ -177,7 +177,7 @@ OniKeep — it has its own authentication, database, tenancy and storage.
   177	queries. When you restructure into folders after migration, this mapping is the
   178	move list.
   179	
-  180	### Portable by design
+  180	### Reusable utilities
   181	
   182	`helpers/buildWhatsAppOrderUrl`, `helpers/formatMoney`, `helpers/toSlug` and
   183	`helpers/useStoreCart` import nothing platform-specific and move untouched.
