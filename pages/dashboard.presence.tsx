@@ -97,8 +97,7 @@ const PresencePage = () => {
     setHero({
       headline: business.heroHeadline ?? "",
       subtext: business.heroSubtext ?? "",
-      ctaLabel: business.heroCtaLabel ?? "",
-      imageUrl: business.heroImageUrl,
+      ctaLabel: business.heroCtaLabel ?? "",      imageUrl: business.heroImageUrl,
     });
     setHeroLoaded(true);
   }, [business, heroLoaded]);
@@ -197,8 +196,7 @@ const PresencePage = () => {
     setHomeSlides((current) => current.map((slide) => slide.id === id ? { ...slide, [field]: value } : slide));
   };
 
-  const uploadHomeSlideImage = async (id: string, file: File | undefined) => {
-    if (!file || !canUsePremiumPlus) return;
+  const uploadHomeSlideImage = async (id: string, file: File | undefined) => {    if (!file || !canUsePremiumPlus) return;
     setSlideUploading(id);
     try {
       const imageUrl = await uploadImage(file, "gallery");
@@ -297,8 +295,7 @@ const PresencePage = () => {
         kind: "portfolio",
         id: portfolioDraft.id,
         title: portfolioDraft.title,
-        description: portfolioDraft.description,
-        imageUrl: portfolioDraft.imageUrl,
+        description: portfolioDraft.description,        imageUrl: portfolioDraft.imageUrl,
         linkUrl: portfolioDraft.linkUrl,
         sortOrder: portfolioDraft.sortOrder,
       });
@@ -397,8 +394,7 @@ const PresencePage = () => {
                 Remove
               </Button>
             )}
-            <span className={styles.hint}>
-              A wide photo of your shop or work. PNG, JPG or WebP, up to 3 MB.
+            <span className={styles.hint}>              A wide photo of your shop or work. PNG, JPG or WebP, up to 3 MB.
             </span>
           </div>
         </div>
@@ -497,8 +493,7 @@ const PresencePage = () => {
                 <input ref={(node) => { slideFileRefs.current[slide.id] = node; }} type="file" accept="image/png,image/jpeg,image/webp" className={styles.fileInput} disabled={!canUsePremiumPlus} onChange={(event) => { void uploadHomeSlideImage(slide.id, event.target.files?.[0]); }} />
                 <Button variant="outline" size="sm" disabled={!canUsePremiumPlus || slideUploading === slide.id} onClick={() => slideFileRefs.current[slide.id]?.click()}>
                   {slideUploading === slide.id ? <Spinner size="sm" /> : <Upload size={15} />}{slide.imageUrl ? "Replace image" : "Upload image"}
-                </Button>
-                <span className={styles.hint}>PNG, JPG or WebP, up to 3 MB.</span>
+                </Button>                <span className={styles.hint}>PNG, JPG or WebP, up to 3 MB.</span>
               </div>
             </div>
             <label className={styles.field}><span className={styles.label}>Headline</span><Input value={slide.headline} disabled={!canUsePremiumPlus} onChange={(event) => updateHomeSlide(slide.id, "headline", event.target.value)} placeholder="A headline for this slide" /></label>
@@ -597,8 +592,7 @@ const PresencePage = () => {
                   setTestimonialDraft({
                     ...testimonialDraft,
                     authorName: event.target.value,
-                  })
-                }
+                  })                }
                 placeholder="Customer name"
                 aria-label="Customer name"
               />
@@ -697,8 +691,7 @@ const PresencePage = () => {
                 disabled={
                   save.isPending ||
                   testimonialDraft.authorName.trim().length === 0 ||
-                  testimonialDraft.quote.trim().length < 4
-                }
+                  testimonialDraft.quote.trim().length < 4                }
                 onClick={() => {
                   void submitTestimonial();
                 }}
@@ -795,3 +788,44 @@ const PresencePage = () => {
       <section className={styles.group}>
         <div className={styles.groupHead}>
 ... (output capped at 40000 chars — continue with read_file path: "pages/dashboard.presence.tsx" offset: 797)
+
+        {portfolioDraft && (
+          <div className={styles.draft}>
+            <div className={styles.imageField}>
+              <div className={styles.heroPreview}>
+                {portfolioDraft.imageUrl ? <img src={portfolioDraft.imageUrl} alt="" className={styles.heroImage}/> : <ImageOff size={20} className={styles.icon}/>}
+              </div>
+              <div className={styles.imageActions}>
+                <input ref={portfolioFileRef} type="file" accept="image/png,image/jpeg,image/webp" className={styles.fileInput} onChange={(e)=>void uploadPortfolioImage(e.target.files?.[0])}/>
+                <Button variant="outline" size="sm" disabled={!canEdit || portfolioUploading} onClick={()=>portfolioFileRef.current?.click()}>{portfolioUploading ? <Spinner size="sm"/> : <Upload size={15}/>} Upload image</Button>
+                {portfolioDraft.imageUrl && <Button variant="ghost" size="sm" onClick={()=>setPortfolioDraft({...portfolioDraft,imageUrl:null})}>Remove</Button>}
+              </div>
+            </div>
+            <Input value={portfolioDraft.title} onChange={(e)=>setPortfolioDraft({...portfolioDraft,title:e.target.value})} placeholder="Project title" aria-label="Project title"/>
+            <Textarea value={portfolioDraft.description} onChange={(e)=>setPortfolioDraft({...portfolioDraft,description:e.target.value})} rows={2} placeholder="Description (optional)" aria-label="Description"/>
+            <Input value={portfolioDraft.linkUrl} onChange={(e)=>setPortfolioDraft({...portfolioDraft,linkUrl:e.target.value})} placeholder="Project link (optional)" aria-label="Project link"/>
+            <div className={styles.formActions}>
+              <Button disabled={!canEdit || save.isPending || portfolioUploading || !portfolioDraft.title.trim()} onClick={()=>void submitPortfolio()}>{save.isPending ? <Spinner size="sm"/> : null} Save work</Button>
+              <Button variant="ghost" onClick={()=>setPortfolioDraft(null)}>Cancel</Button>
+            </div>
+          </div>
+        )}
+        {portfolio.length === 0 && !portfolioDraft ? <p className={styles.hint}>No portfolio items yet. Add examples of completed work to build customer confidence.</p> : (
+          <ul className={styles.list}>
+            {portfolio.map((item)=>(
+              <li key={item.id} className={styles.row}>
+                <div className={styles.thumb}>{item.imageUrl ? <img src={item.imageUrl} alt="" className={styles.thumbImage}/> : <ImageOff size={15} className={styles.icon}/>}</div>
+                <div className={styles.rowText}><span className={styles.rowName}>{item.title}</span>{item.description && <span className={styles.rowMeta}>{item.description}</span>}</div>
+                <div className={styles.rowActions}>
+                  <Button variant="outline" size="icon-sm" disabled={!canEdit} aria-label="Edit work" onClick={()=>setPortfolioDraft({id:item.id,title:item.title,description:item.description ?? "",imageUrl:item.imageUrl,linkUrl:item.linkUrl ?? "",sortOrder:item.sortOrder})}><Pencil size={14}/></Button>
+                  {confirming === item.id ? <><Button variant="destructive" size="sm" disabled={remove.isPending} onClick={()=>void deleteItem("portfolio",item.id)}>Delete</Button><Button variant="ghost" size="sm" onClick={()=>setConfirming(null)}>Cancel</Button></> : <Button variant="ghost" size="icon-sm" aria-label="Delete work" disabled={!canEdit} onClick={()=>setConfirming(item.id)}><Trash2 size={14}/></Button>}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </div>
+  );
+};
+export default PresencePage;
