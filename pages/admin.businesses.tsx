@@ -21,7 +21,7 @@ const AdminBusinessesPage = () => {
   });
 
   const setStatus = useMutation({
-    mutationFn: (input) => postAdminSetStatus(input),
+    mutationFn: (input: Parameters<typeof postAdminSetStatus>[0]) => postAdminSetStatus(input),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["admin"] });
     },
