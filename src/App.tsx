@@ -8,16 +8,16 @@ const layoutModules = import.meta.glob<{ default: React.ComponentType<{ children
 const toRoutePath = (fileName: string) => {
   if (fileName === "_index") return "/";
   return "/" + fileName
-    .replace(/\\./g, "/")
-    .replace(/\\$([A-Za-z0-9_]+)/g, ":$1")
+    .replace(/\./g, "/")
+    .replace(/\$([A-Za-z0-9_]+)/g, ":$1")
     .replace(/^_/, "");
 };
 
 const routeEntries = Object.entries(pageModules)
   .filter(([file]) => !file.endsWith(".pageLayout.tsx"))
   .map(([file, loadPage]) => {
-    const baseName = file.split("/").pop()!.replace(/\\.tsx$/, "");
-    const layoutKey = `../pages/${baseName}.pageLayout.tsx`;
+    const baseName = file.split("/").pop()!.replace(/\.tsx$/, "");
+    const layoutKey = \`../pages/\${baseName}.pageLayout.tsx\`;
     const loadLayout = layoutModules[layoutKey];
     const Component = React.lazy(async () => {
       const [page, layout] = await Promise.all([
@@ -58,7 +58,7 @@ export function App() {
             <Route key={key} path={path} element={<Component />} />
           ))}
           {vanityRoutes.map(({ path, Component, key }) => (
-            <Route key={`host-${key}`} path={path.replace(/^\\/:slug/, "") || "/"} element={<Component />} />
+            <Route key={\`host-\${key}\`} path={path.replace(/^\/:slug/, "") || "/"} element={<Component />} />
           ))}
           <Route path="*" element={<main style={{ padding: 24 }}><h1>Page not found</h1><a href="/">Return home</a></main>} />
         </Routes>
