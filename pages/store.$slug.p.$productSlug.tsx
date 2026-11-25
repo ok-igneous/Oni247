@@ -1,3 +1,4 @@
+import { storefrontPath } from "../helpers/storefrontPath";
 import { useStorefrontRouteParams } from "../helpers/storefrontHost";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -102,7 +103,7 @@ const ProductDetailPage = () => {
         <p className={styles.body}>This item may have been removed or renamed.</p>
         {data && (
           <Button asChild variant="outline">
-            <Link to={`/${data.business.slug}`}>
+            <Link to={storefrontPath(data.business.slug)}>
               <ArrowLeft size={16} />
               Back to the shop
             </Link>
@@ -137,13 +138,13 @@ const ProductDetailPage = () => {
           business from its main storefront.
         </p>
         <Button asChild variant="outline">
-          <Link to={"/" + business.slug}>Back to the shop</Link>
+          <Link to={storefrontPath(business.slug)}>Back to the shop</Link>
         </Button>
       </div>
     );
   }
 
-  const home = `/${business.slug}`;
+  const home = storefrontPath(business.slug);
   const whatsappNumber = business.whatsappNumber ?? business.phone ?? "";
   const stock = product.stockQuantity ?? null;
   const inStock = product.available;
