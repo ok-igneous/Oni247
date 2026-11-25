@@ -1,3 +1,4 @@
+import { storefrontPath } from "../helpers/storefrontPath";
 import { useStorefrontRouteParams } from "../helpers/storefrontHost";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
@@ -22,7 +23,7 @@ export default function BlogArticlePage() {
       <main className={styles.content}>
         <h1>Article not found</h1>
         <p>This article may have been removed or is no longer published.</p>
-        {data && <Link to={`/${data.business.slug}/blog`}>Back to blog</Link>}
+        {data && <Link to={storefrontPath(data.business.slug, "/blog")}>Back to blog</Link>}
       </main>
     );
   }
@@ -40,7 +41,7 @@ export default function BlogArticlePage() {
     if (navigator.share) void navigator.share({ title: `${post.title} — ${business.name}`, url }).catch(() => {});
     else if (navigator.clipboard) void navigator.clipboard.writeText(url).then(() => toast.success("Article link copied."), () => toast.error("Could not copy the link."));
   };
-  const home = homePage === "home" ? `/${business.slug}` : `/${business.slug}/${homePage}`;
+  const home = homePage === "home" ? storefrontPath(business.slug) : storefrontPath(business.slug, "/" + homePage);
 
   return (
     <div className={styles.site} style={theme.style as React.CSSProperties}>
@@ -81,17 +82,17 @@ export default function BlogArticlePage() {
         menuVisibility={theme.menuVisibility as "always" | "auto"}
         navItems={[
           { label: "Home", href: home },
-          { label: "Products", href: `/${business.slug}/products` },
-          ...(data.services.length ? [{ label: "Services", href: `/${business.slug}/services` }] : []),
-          { label: "Blog", href: `/${business.slug}/blog`, active: true },
+          { label: "Products", href: storefrontPath(business.slug, "/products") },
+          ...(data.services.length ? [{ label: "Services", href: storefrontPath(business.slug, "/services") }] : []),
+          { label: "Blog", href: storefrontPath(business.slug, "/blog"), active: true },
           ...(data.events.length && appearance.eventsPageInMenu === true
-            ? [{ label: "Events", href: `/${business.slug}/events` }]
+            ? [{ label: "Events", href: storefrontPath(business.slug, "/events") }]
             : []),
-          { label: "Contact", href: `/${business.slug}/contact` },
+          { label: "Contact", href: storefrontPath(business.slug, "/contact") },
         ]}
       />
       <main className={styles.content}>
-        <Link className={styles.back} to={`/${business.slug}/blog`}>
+        <Link className={styles.back} to={storefrontPath(business.slug, "/blog")}>
           <ArrowLeft size={16} /> All articles
         </Link>
         {post.coverImageUrl && <img className={styles.cover} src={post.coverImageUrl} alt={post.title} />}
