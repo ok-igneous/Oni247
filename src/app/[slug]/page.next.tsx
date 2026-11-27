@@ -15,7 +15,7 @@ async function getPageData(params: Props["params"]) {
   if (!resolved.platformHost) notFound();
   const data = await getStorefrontData(slug);
   const protocol = requestHeaders.get("x-forwarded-proto")?.split(",")[0]?.trim() || "https";
-  const origin = host ? `${protocol}://${host}` : "https://www.oni247.org";
+  const origin = host ? `${protocol}://${host}` : "https://oni247.org";
   return { slug, data, origin };
 }
 
