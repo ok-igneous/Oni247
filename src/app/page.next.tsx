@@ -1,21 +1,11 @@
-export default function NextMigrationPreviewPage() {
-  return (
-    <main
-      style={{
-        maxWidth: 760,
-        margin: "12vh auto",
-        padding: "0 24px",
-        color: "var(--foreground)",
-        fontFamily: "var(--font-family-base)",
-      }}
-    >
-      <p style={{ color: "var(--primary)", fontWeight: 700 }}>ONI247 · NEXT.JS MIGRATION</p>
-      <h1>Next.js foundation is running.</h1>
-      <p>
-        This is an isolated migration checkpoint. The existing Oni247 application,
-        API routes, authentication, storefront routing, and production deployment
-        remain on their current runtime until each migration stage is verified.
-      </p>
-    </main>
-  );
+import type { Metadata } from "next";
+import { HomePageNext } from "./_components/HomePage.next";
+
+export const metadata: Metadata = {
+  title: "Oni247 — Your business, online and ready to grow",
+  description: "Create a professional online presence for your business. Share products and services, receive enquiries and orders, and track simple business performance with Oni247.",
+};
+
+export default function HomePage() {
+  return <HomePageNext />;
 }
