@@ -112,6 +112,8 @@ export async function handle(request: Request) {
         for (const page of ["products", "services", "about", "gallery", "blog", "events", "contact"]) {
           add(`${storePath.replace(/\/$/, "")}/${page}`);
         }
+      }
+      if (plan.canUseGalleries) {
         for (const gallery of galleriesByBusiness.get(business.id) ?? []) {
           add(`${storePath.replace(/\/$/, "")}/g/${encodeURIComponent(gallery.slug)}`);
         }
