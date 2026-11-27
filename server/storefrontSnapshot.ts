@@ -1,4 +1,5 @@
 import { escapeHtml } from "./storefrontPrerender";
+import { sanitizeBlogContent } from "../helpers/sanitizeBlogContent";
 
 export function storefrontSnapshot(data: any, pathname: string, origin: string, customDomain = false, canonicalPath = pathname): { title: string; description: string; body: string; image?: string; jsonLd?: unknown } {
   const business = data.business;
@@ -39,7 +40,7 @@ export function storefrontSnapshot(data: any, pathname: string, origin: string, 
       title: `${post.title} — ${business.name}`,
       description,
       image: post.coverImageUrl || undefined,
-      body: `<main><nav><a href="${base}">${escapeHtml(business.name)}</a> / <a href="${base}/blog">Blog</a></nav><article><h1>${escapeHtml(post.title)}</h1>${post.coverImageUrl ? `<img src="${escapeHtml(post.coverImageUrl)}" alt="${escapeHtml(post.title)}" />` : ""}<p>${escapeHtml(description)}</p><div>${post.content ?? ""}</div></article></main>`,
+      body: `<main><nav><a href="${base}">${escapeHtml(business.name)}</a> / <a href="${base}/blog">Blog</a></nav><article><h1>${escapeHtml(post.title)}</h1>${post.coverImageUrl ? `<img src="${escapeHtml(post.coverImageUrl)}" alt="${escapeHtml(post.title)}" />` : ""}<p>${escapeHtml(description)}</p><div>${sanitizeBlogContent(typeof post.content === "string" ? post.content : "")}</div></article></main>`,
       jsonLd: { "@context": "https://schema.org", "@type": "BlogPosting", headline: post.title, description, datePublished: post.publishedAt || undefined, image: post.coverImageUrl ? [post.coverImageUrl] : undefined, author: { "@type": "Organization", name: business.name }, mainEntityOfPage: `${origin}${canonicalPath}` },
     };
   }
