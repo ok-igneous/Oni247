@@ -35,6 +35,7 @@ export async function getServerUserSession(request: Request) {
       "sessions.id as sessionId",
       "sessions.createdAt as sessionCreatedAt",
       "sessions.lastAccessed as sessionLastAccessed",
+      "sessions.expiresAt as sessionExpiresAt",
       "users.id",
       "users.email",
       "users.displayName",
@@ -51,6 +52,11 @@ export async function getServerUserSession(request: Request) {
   }
 
   const result = results[0];
+  const now = new Date();
+  if (new Date(result.sessionExpiresAt).getTime() <= now.getTime()) {
+    await db.deleteFrom("sessions").where("id", "=", session.id).execute();
+    throw new NotAuthenticatedError();
+  }
   const user = {
     id: result.id,
     email: result.email,
@@ -60,12 +66,14 @@ export async function getServerUserSession(request: Request) {
     role: result.role,
   };
 
-  // Update the session's lastAccessed timestamp
-  const now = new Date();
+  // Persist activity at most once every five minutes; never refresh an expired session.
+  const refreshBefore = new Date(now.getTime() - 5 * 60 * 1000);
   await db
     .updateTable("sessions")
     .set({ lastAccessed: now })
     .where("id", "=", session.id)
+    .where("lastAccessed", "<", refreshBefore)
+    .where("expiresAt", ">", now)
     .execute();
 
   return {
