@@ -52,7 +52,7 @@ export default function StoreSectionPageNext({ slug, page, initialData, customDo
   }, [slug, page, galleryRetry]);
 
   const business = data?.business ?? initialData.business;
-  const storefrontPath = (suffix = "") => customDomain ? (suffix ? `/${suffix.replace(/^\\/+/, "")}` : "/") : `/${encodeURIComponent(slug)}${suffix ? `/${suffix.replace(/^\\/+/, "")}` : ""}`;
+  const storefrontPath = (suffix = "") => customDomain ? (suffix ? `/${suffix.replace(/^\/+/, "")}` : "/") : `/${encodeURIComponent(slug)}${suffix ? `/${suffix.replace(/^\/+/, "")}` : ""}`;
   const isValidPage = (pages as readonly string[]).includes(page);
   const appearance = business.appearanceSettings ?? {};
   const theme = storeThemeEngine(business.themeId, appearance);
