@@ -32,15 +32,25 @@ export async function handle(request: Request) {
         .executeTakeFirstOrThrow(),
     ]);
 
+    const configuredRoot = process.env.PLATFORM_ROOT_DOMAIN || "oni247.org";
+    const platformRootDomain = new URL(
+      configuredRoot.includes("://") ? configuredRoot : `https://${configuredRoot}`,
+    ).hostname.toLowerCase();
+    const platformWildcardReady = process.env.PLATFORM_WILDCARD_READY?.trim().toLowerCase() === "true";
+    const primary = await sql<{ hostname: string }>`select hostname from business_domains
+      where business_id = ${business.id} and is_primary = true
+        and status = 'active' and ssl_status = 'active'
+      limit 1`.execute(db);
+    const primaryDomain = primary.rows[0]?.hostname ??
+      (platformWildcardReady ? `${business.slug}.${platformRootDomain}` : null);
+
     const output: OutputType = {
       hasBusiness: true,
       businessName: business.name,
       slug: business.slug,
-      platformRootDomain: new URL(
-        (process.env.PLATFORM_ROOT_DOMAIN || "oni247.org").includes("://")
-          ? (process.env.PLATFORM_ROOT_DOMAIN || "oni247.org")
-          : `https://${process.env.PLATFORM_ROOT_DOMAIN || "oni247.org"}`,
-      ).hostname.toLowerCase(),
+      platformRootDomain,
+      primaryDomain,
+      platformWildcardReady,
       status: business.status,
       productCount: Number(products.count),
       categoryCount: Number(categories.count),
