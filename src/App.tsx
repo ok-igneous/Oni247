@@ -2,8 +2,7 @@ import React, { Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
 import { StorefrontHostProvider, useStorefrontHost } from "../helpers/storefrontHost";
 
-const pageModules = import.meta.glob<{ default: React.ComponentType }>("../pages/*.tsx");
-const layoutModules = import.meta.glob<{ default: React.ComponentType<{ children: React.ReactNode }>[] }>("../pages/*.pageLayout.tsx");
+import { pageModules, layoutModules } from "./generated/pageRegistry";
 
 const toRoutePath = (fileName: string) => {
   if (fileName === "_index") return "/";
