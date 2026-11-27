@@ -1,3 +1,5 @@
+"use client";
+
 import { toast } from "sonner";
 import { Mail, MessageCircle, Phone } from "lucide-react";
 import { Badge } from "../../../components/Badge";
