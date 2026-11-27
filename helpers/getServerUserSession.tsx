@@ -53,7 +53,10 @@ export async function getServerUserSession(request: Request) {
 
   const result = results[0];
   const now = new Date();
-  if (new Date(result.sessionExpiresAt).getTime() <= now.getTime()) {
+  const sessionExpiresAt = result.sessionExpiresAt instanceof Date
+    ? result.sessionExpiresAt.getTime()
+    : new Date(result.sessionExpiresAt).getTime();
+  if (!Number.isFinite(sessionExpiresAt) || sessionExpiresAt <= now.getTime()) {
     await db.deleteFrom("sessions").where("id", "=", session.id).execute();
     throw new NotAuthenticatedError();
   }
