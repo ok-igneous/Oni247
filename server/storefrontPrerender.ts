@@ -7,7 +7,7 @@ export const escapeHtml = (value: unknown): string => String(value ?? "")
 
 const RESERVED_ROOTS = new Set([
   "_api", "assets", "src", "static", "dashboard", "admin", "login", "register",
-  "logout", "forgot-password", "reset-password", "track", "healthz", "readyz",
+  "logout", "forgot-password", "reset-password", "track", "store", "healthz", "readyz",
   "robots.txt", "sitemap.xml", "favicon.ico", "manifest.webmanifest",
 ]);
 
