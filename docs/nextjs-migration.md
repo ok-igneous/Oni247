@@ -129,5 +129,5 @@ and backend integration have been built and tested.
 - Platform vanity URL `/{slug}` loads the published business storefront.
 - Unknown or unverified custom hosts do not receive another business's storefront.
 - Migrated routes are served by Next.js; remaining nested storefront routes are forwarded to the existing Fastify-served frontend as a compatibility bridge.
-- The Next.js storefront and migrated blog article routes receive server-prefetched data, so business content and SEO metadata are present in the initial HTML response.
+- The Next.js storefront, blog article, service detail, and gallery detail routes receive server-prefetched data, so business content and SEO metadata are present in the initial HTML response.
 - Blog article details are migrated on both platform vanity URLs (`/{slug}/b/{blogSlug}`) and verified custom-domain/business-subdomain paths (`/b/{blogSlug}`). Service details are migrated on `/{slug}/s/{serviceId}` and `/s/{serviceId}`. Gallery details are migrated on `/{slug}/g/{gallerySlug}` and `/g/{gallerySlug}`. The blog, service and gallery listing pages and other detail routes remain legacy until their Next.js equivalents are completed.
