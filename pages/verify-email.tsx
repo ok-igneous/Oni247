@@ -15,6 +15,8 @@ const VerifyEmailPage = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const token = params.get("token");
+  const authType = authState.type;
+  const emailVerifiedAt = authState.type === "authenticated" ? authState.user.emailVerifiedAt : null;
   const [message, setMessage] = useState("Check your inbox for a verification link.");
   const [loading, setLoading] = useState(false);
 
@@ -52,7 +54,7 @@ const VerifyEmailPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [authState, navigate, queryClient, token]);
+  }, [authType, emailVerifiedAt, navigate, queryClient, token]);
 
   const resend = async () => {
     setLoading(true);
