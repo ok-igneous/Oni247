@@ -60,6 +60,13 @@ The new runtime is a first implementation, not a completed migration. Keep previ
 - The smoke SQL is not a complete integration suite and has not been executed. No RLS build, database test, or production deployment is claimed.
 
 
+## Next.js migration implementation (2026-11-27)
+
+- Added `scripts/audit-nextjs-migration.mjs` to enumerate the existing page routes, detect route collisions, and identify Vite, React Router, React Helmet and browser-global dependencies across the application source.
+- Updated `NEXTJS_MIGRATION.md`: Vite is explicitly not an approved development, build or production runtime for the completed migration. The route inventory must precede replacement of the dynamic route loader.
+- The audit script has been committed but has **not yet been executed** against a checked-out working tree. No Next.js runtime or build has been claimed yet.
+
+
 ## Next.js architecture decision (2026-11-27)
 
 - Owner approved migration from React/Vite to Next.js App Router with TypeScript.
