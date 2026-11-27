@@ -139,6 +139,8 @@ export const subscriptionPlan = {
       canUseEvents: has("events"),
       canUseForms: has("forms"),
       canUseAdvancedMedia: has("advanced_media"),
+      // Custom domains are a paid entitlement, not part of the free trial.
+      canUseCustomDomain: paid,
       lapsed: b.plan === "premium" && r !== null && r <= now,
     };
   },
