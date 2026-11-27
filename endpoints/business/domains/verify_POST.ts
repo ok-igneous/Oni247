@@ -54,6 +54,14 @@ export async function handle(request: Request) {
           render_verification_status = ${render.verificationStatus},
           status = ${nextStatus},
           ssl_status = ${nextSslStatus},
+          is_primary = CASE
+            WHEN ${nextStatus} = 'active' AND NOT EXISTS (
+              SELECT 1 FROM business_domains existing
+               WHERE existing.business_id = business_domains.business_id
+                 AND existing.is_primary = true
+            ) THEN true
+            ELSE is_primary
+          END,
           last_checked_at = now(),
           last_error = ${render.verificationStatus === "error" ? render.message : null},
           updated_at = now()
