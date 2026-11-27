@@ -86,6 +86,15 @@ export function resolvePlatformSubdomainSlug(
 }
 
 
+/** Business subdomains under the platform apex are deliberately unsupported. */
+export function isUnsupportedPlatformSubdomain(hostname: string, platformHost: string | null): boolean {
+  const host = normalizeDomainHost(hostname);
+  const root = normalizeDomainHost(platformHost);
+  if (!host || !root) return false;
+  const base = root.replace(/^www\./, "");
+  return host.endsWith(`.${base}`) && host !== `www.${base}`;
+}
+
 /** True for the platform apex and its conventional www alias. */
 export function isPlatformHostname(hostname: string, platformHost: string | null): boolean {
   const host = normalizeDomainHost(hostname);
