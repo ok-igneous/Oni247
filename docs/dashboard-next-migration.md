@@ -41,11 +41,10 @@ The migrated client components retain the existing feature hooks, mutations, val
 
 ## Platform admin
 
-- `/admin` now has a Next.js shell and overview page.
-- Businesses, plans, add-ons, landing page, portfolio and platform settings remain on the legacy compatibility route until each page has a dedicated App Router implementation. Do not claim the admin area is fully migrated yet.
+The platform admin route set now has Next.js App Router pages for `/admin`, `/admin/businesses`, `/admin/plans`, `/admin/addons`, `/admin/landing`, `/admin/portfolio`, and `/admin/settings`. These routes share a separate verified-admin-only shell. Existing admin query/mutation hooks and the Fastify `requireAdmin` endpoint authorization remain in place.
 
 ## Verification status
 
-These files have been committed to GitHub, but no local typecheck, Next.js production build, browser smoke test, or payment/upload end-to-end test has been run in this migration pass. Do not switch the Render start command, disable the legacy frontend, or treat this as production-ready until those checks pass.
+These files have been committed to GitHub, but no local typecheck, Next.js production build, browser smoke test, or payment/upload end-to-end test has been run in this migration pass. The shop dashboard and platform admin page routes are therefore source-migrated, not build-verified or production-ready. Do not switch the Render start command, disable the legacy frontend, or treat this as production-ready until those checks pass.
 
 The legacy route tree and Vite/React Router dependencies remain in place as the compatibility baseline. The existing Render AutoDeploy behavior and production cutover restrictions are unchanged.
