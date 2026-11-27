@@ -65,7 +65,7 @@ const DashboardPage = () => {
 
   const pageUrl = data.primaryDomain
     ? `https://${data.primaryDomain}`
-    : `${window.location.origin}/${data.slug}`;
+    : `https://${data.platformRootDomain || "oni247.org"}/${data.slug}`;
   const isPublished = data.status === "published";
 
   return (
