@@ -14,8 +14,8 @@ export async function handle(request: Request) {
     }
     const rows = await sql<{
       id: string; hostname: string; verification_token: string | null;
-      status: string; render_custom_domain_id: string | null;
-    }>`select d.id, d.hostname, d.verification_token, d.status, d.render_custom_domain_id
+      status: string; render_custom_domain_id: string | null; last_checked_at: Date | null;
+    }>`select d.id, d.hostname, d.verification_token, d.status, d.render_custom_domain_id, d.last_checked_at
         from business_domains d
         join businesses b on b.id = d.business_id
        where d.id = ${body.domainId} and b.owner_id = ${user.id}
@@ -24,6 +24,12 @@ export async function handle(request: Request) {
     const domain = rows.rows[0];
     if (!domain) {
       return new Response(superjson.stringify({ error: "Pending or verified domain not found." }), { status: 404 });
+    }
+    if (domain.status === "verified" && domain.last_checked_at &&
+        Date.now() - new Date(domain.last_checked_at).getTime() < 15000) {
+      return new Response(superjson.stringify({
+        error: "Please wait at least 15 seconds between domain status checks.",
+      }), { status: 429 });
     }
 
     if (domain.status === "pending") {
