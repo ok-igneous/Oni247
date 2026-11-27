@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { Badge } from "./Badge";
-import { Button } from "./Button";
-import type { StorefrontService } from "../endpoints/storefront_GET.schema";
-import styles from "./StoreServiceCard.module.css";
+import { Badge } from "../../../components/Badge";
+import { Button } from "../../../components/Button";
+import type { StorefrontService } from "../../../endpoints/storefront_GET.schema";
+import styles from "../../../components/StoreServiceCard.module.css";
 
 type Props = { service: StorefrontService; businessSlug: string; compact?: boolean; customDomain?: boolean };
 
