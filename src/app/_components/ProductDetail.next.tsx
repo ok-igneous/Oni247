@@ -552,11 +552,12 @@ const ProductDetailNext = ({ data, productSlug, customDomain, origin }: Props) =
       )}
 
       <StoreCartDockNext
+        slug={business.slug}
         currency={business.currency}
         cart={cart}
         open={cartOpen}
         onOpenChange={setCartOpen}
-        checkoutHref={path("/checkout")}
+        customDomain={customDomain}
       />
     </div>
   );
