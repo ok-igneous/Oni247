@@ -1,6 +1,6 @@
 # Oni247
 
-Oni247 is an independent website and storefront platform.
+Oni247 is an independent website and storefront platform. Public business storefronts use the canonical vanity URL pattern `https://oni247.org/{slug}`; `/store/{slug}` is not a supported route.
 
 ## Approved architecture
 
