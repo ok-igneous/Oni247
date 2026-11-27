@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
     return {
       // Keep only unmigrated storefront sections on the legacy Fastify/React app.
       beforeFiles: [
-        { source: `/:section${legacyStorefrontSections}/:path*`, has: [{ type: "host", value: customHostPattern }], destination: `${apiOrigin}/:section/:path*` },
+        { source: `/:section${legacyStorefrontSections}/:path+`, has: [{ type: "host", value: customHostPattern }], destination: `${apiOrigin}/:section/:path*` },
       ],
       afterFiles: [
         { source: "/_api/:path*", destination: `${apiOrigin}/_api/:path*` },
