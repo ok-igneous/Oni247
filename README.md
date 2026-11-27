@@ -9,7 +9,7 @@ Oni247 is an independent website and storefront platform.
 - Node.js 22 and Fastify for the API server.
 - PostgreSQL, Kysely and postgres.js for persistence.
 - JWT-backed HTTP-only sessions.
-- S3-compatible object storage, including Cloudflare R2.
+- S3-compatible object storage.
 
 ## Run locally
 
