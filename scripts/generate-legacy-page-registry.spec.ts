@@ -24,6 +24,7 @@ describe("Next.js legacy route registry", () => {
     await Promise.all([
       writeFile(path.join(pages, "_index.tsx"), "export default function Home() {}"),
       writeFile(path.join(pages, "$slug.tsx"), "export default function Vanity() {}"),
+      writeFile(path.join(pages, "StorefrontPage.tsx"), "export default function SharedComponent() {}"),
       writeFile(path.join(pages, "$slug.p.$productSlug.tsx"), "export default function Product() {}"),
       writeFile(path.join(pages, "store.$slug.tsx"), "export default function SharedStore() {}"),
       writeFile(path.join(pages, "store.$slug.p.$productSlug.tsx"), "export default function OldStoreProduct() {}"),
@@ -37,6 +38,7 @@ describe("Next.js legacy route registry", () => {
     const registry = await readFile(path.join(fixture, "src/generated/legacyPageRegistry.ts"), "utf8");
     expect(registry).toContain("../pages/$slug.tsx");
     expect(registry).toContain("../pages/$slug.p.$productSlug.tsx");
+    expect(registry).not.toContain("../pages/StorefrontPage.tsx");
     expect(registry).toContain("../pages/dashboard.tsx");
     expect(registry).not.toContain("../pages/store.$slug.tsx");
     expect(registry).not.toContain("../pages/store.$slug.p.$productSlug.tsx");
