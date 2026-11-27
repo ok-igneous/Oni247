@@ -47,6 +47,24 @@ describe("production crawler renderer factory", () => {
     expect(response.body).toContain('rel="canonical" href="http://localhost/nesmage"');
   });
 
+  it("resolves platform business storefronts at oni247.org/{slug}", async () => {
+    vi.stubEnv("APP_BASE_URL", "https://oni247.org");
+    const loadSnapshot = vi.fn(async ({ slug, pathname, customDomain }: CrawlerSnapshotRequest) => ({
+      title: slug,
+      description: "Platform vanity URL",
+      body: `<main>${slug}:${pathname}:${customDomain ? "custom" : "platform"}</main>`,
+    }));
+    const app = await makeApp({ loadSnapshot });
+    const response = await app.inject({
+      method: "GET", url: "/nesmage", headers: { host: "oni247.org", "user-agent": "Googlebot" },
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toContain("<main>nesmage:/nesmage:platform</main>");
+    expect(loadSnapshot).toHaveBeenCalledWith({
+      slug: "nesmage", pathname: "/nesmage", origin: "http://oni247.org", customDomain: false,
+    });
+  });
+
   it("resolves verified custom-domain routes and passes their identity to snapshot loading", async () => {
     vi.stubEnv("APP_BASE_URL", "https://platform.example.com");
     const loadSnapshot = vi.fn(async ({ slug, customDomain }: CrawlerSnapshotRequest) => ({
