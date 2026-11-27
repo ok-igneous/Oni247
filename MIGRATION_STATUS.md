@@ -73,3 +73,16 @@ The new runtime is a first implementation, not a completed migration. Keep previ
 - previous production environment and GitHub `main` remain untouched.
 
 - Additional Cloudflare account inspection: no Workers scripts exist; no `workers.dev` subdomain has been initialized; R2 is not enabled on the account (Cloudflare returned the explicit dashboard-enablement requirement). These are account-setup blockers, not repository code defects.
+
+
+## Standalone staging database initialisation (2026-11-27)
+
+- Confirmed by the project owner that the new `oni247-staging-db` database is fresh and has no existing customer data to preserve.
+- Added `database/migrations/001_initial_schema.sql`, defining the 41 application tables and 13 PostgreSQL enum types represented by the current generated Kysely schema.
+- Applied the initial schema to the Neon staging database `oni247` using the dedicated `oni247_app` role. Verified 41 public application tables exist, including `platform_settings`.
+- Added and applied `database/migrations/002_migration_ledger.sql`; the ledger records `001_initial_schema`.
+- Ran a transactional platform-settings write/read/delete smoke check successfully.
+- This is a source-derived baseline for the fresh standalone staging database, not a byte-for-byte restoration of the previous hosted database schema. No customer records or production data were copied or fabricated.
+- RLS remains disabled. The staged RLS design still requires full policy, grants, tenant-isolation, public checkout/payment and concurrency tests before activation.
+- Application-level route tests against the live Render service remain outstanding. In particular, confirm `GET /_api/landing` now returns HTTP 200 after the schema is present, then exercise registration, verification, business creation, storefront and checkout.
+- The registration email-verification helper still contains a legacy Floot URL and must be corrected before standalone registration is accepted.
