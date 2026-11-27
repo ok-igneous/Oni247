@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
-import { sanitizeBlogContent } from "../../../helpers/sanitizeBlogContent";
+import { sanitizeBlogContent } from "../../../../../helpers/sanitizeBlogContent";
 import BlogArticleNext from "../../../_components/BlogArticle.next";
 import { getStorefrontData, resolveStorefrontHost, storefrontMetadata } from "../../../_lib/storefront.server";
 
