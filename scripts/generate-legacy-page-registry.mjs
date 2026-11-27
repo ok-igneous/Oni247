@@ -32,7 +32,7 @@ await walk(pagesDir);
 pages.sort();
 layouts.sort();
 
-const importPath = (file) => "../../" + file.replace(/\.tsx$/, ".tsx");
+// Keep generated dynamic imports extensionless so TypeScript Bundler resolution\n// and Next.js resolve the source .tsx modules without TS5097.\nconst importPath = (file) => "../../" + file.replace(/\.tsx$/, "");
 const pageEntries = pages.map((file) =>
   `  ${JSON.stringify("../" + file)}: () => import(${JSON.stringify(importPath(file))}),`,
 ).join("\n");
