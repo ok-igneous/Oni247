@@ -74,5 +74,5 @@ Next.js will own page routing, layouts, server rendering and public storefront r
 
 - Migration decision approved on 2026-11-27.
 - Migration branch: `nextjs-migration`.
-- This document records the plan; it does not claim the Next.js application has been implemented, built or tested.
+- The initial Next.js App Router foundation and legacy route bridge are implemented on `nextjs-migration`; they have not yet passed dependency installation, typecheck, tests or production build. This branch is not production-ready.
 - Hosting provider and S3-compatible media provider remain intentionally undecided.
