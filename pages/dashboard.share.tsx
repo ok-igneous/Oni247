@@ -29,13 +29,9 @@ const DashboardSharePage = () => {
   const products = productData?.products ?? [];
   const shopSlug = businessData?.business?.slug ?? "";
   const primaryDomain = businessData?.primaryDomain ?? null;
-  const platformRootDomain = businessData?.platformRootDomain ?? null;
-  const hasDedicatedHost = Boolean(primaryDomain);
-  const publicUrl = (path: string) => {
-    const base = primaryDomain
-      ? `https://${primaryDomain}`
-      : `${window.location.origin}`;
-    const route = hasDedicatedHost || !shopSlug ? path : `/${shopSlug}${path}`;
+  const publicUrl = (path: string, includeBusinessSlug = false) => {
+    const base = primaryDomain ? `https://${primaryDomain}` : window.location.origin;
+    const route = !primaryDomain && includeBusinessSlug && shopSlug ? `/${shopSlug}${path}` : path;
     return `${base}${route}`;
   };
   const showcases = useMemo(() => list.data?.showcases ?? [], [list.data]);
@@ -74,9 +70,9 @@ const DashboardSharePage = () => {
     }
   };
 
-  const copyLink = (path: string) => {
+  const copyLink = (path: string, includeBusinessSlug = false) => {
     void navigator.clipboard
-      .writeText(publicUrl(path))
+      .writeText(publicUrl(path, includeBusinessSlug))
       .then(() => toast.success("Link copied."))
       .catch(() => toast.error("Could not copy the link."));
   };
@@ -297,7 +293,7 @@ const DashboardSharePage = () => {
                     size="sm"
                     disabled={!shopSlug}
                     onClick={() =>
-                      copyLink(`/p/${product.slug}`)
+                      copyLink(`/p/${product.slug}`, true)
                     }
                   >
                     <Copy size={14} />
@@ -305,7 +301,7 @@ const DashboardSharePage = () => {
                   </Button>
                   <Button asChild variant="ghost" size="icon-sm">
                     <a
-                      href={publicUrl(`/p/${product.slug}`)}
+                      href={publicUrl(`/p/${product.slug}`, true)}
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={`Open ${product.name}`}
