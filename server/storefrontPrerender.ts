@@ -31,7 +31,7 @@ export function isPublicStorefrontPath(pathname: string): boolean {
   if (!section) return true;
   if (!STOREFRONT_SECTIONS.has(section.toLowerCase())) return false;
   if (["p", "b", "e", "g"].includes(section.toLowerCase())) {
-    return Boolean(detail && /^[^/]{1,160}$/.test(detail));
+    return Boolean(detail && /^[a-z0-9][a-z0-9-]{0,159}$/i.test(detail));
   }
   return !detail;
 }
@@ -55,7 +55,7 @@ export function isPublicCustomDomainPath(pathname: string): boolean {
   const [section, detail] = segments;
   if (!STOREFRONT_SECTIONS.has(section.toLowerCase())) return false;
   if (["p", "b", "e", "g"].includes(section.toLowerCase())) {
-    return Boolean(detail && /^[^/]{1,160}$/.test(detail));
+    return Boolean(detail && /^[a-z0-9][a-z0-9-]{0,159}$/i.test(detail));
   }
   return !detail;
 }
