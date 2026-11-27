@@ -21,7 +21,7 @@ async function walk(directory) {
     // /store/{slug} was an old public route and is not part of Oni247's URL
     // contract. All old pages/store.$slug.* route files are retired; the
     // shared storefront component is now pages/StorefrontPage.tsx.
-    if (relative.startsWith("pages/store.$slug")) continue;
+    if (relative.startsWith("pages/store.$slug") || relative === "pages/StorefrontPage.tsx") continue;
 
     if (relative.endsWith(".pageLayout.tsx")) layouts.push(relative);
     else pages.push(relative);
