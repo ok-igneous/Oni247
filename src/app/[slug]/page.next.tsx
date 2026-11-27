@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import StorefrontPageNext from "../_components/StorefrontPage.next";
+import LegacyAppClient from "../../LegacyAppClient";
 import { getStorefrontData, resolveStorefrontHost, storefrontMetadata } from "../_lib/storefront.server";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +14,6 @@ async function getPageData(params: Props["params"]) {
   const resolved = await resolveStorefrontHost(host);
   if (!resolved.platformHost) notFound();
   const data = await getStorefrontData(slug);
-  if (!data) notFound();
   const protocol = requestHeaders.get("x-forwarded-proto")?.split(",")[0]?.trim() || "https";
   const origin = host ? `${protocol}://${host}` : "https://www.oni247.org";
   return { slug, data, origin };
@@ -21,10 +21,12 @@ async function getPageData(params: Props["params"]) {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, data, origin } = await getPageData(params);
+  if (!data) return { title: "Oni247", robots: { index: false, follow: false } };
   return storefrontMetadata(data, `${origin}/${encodeURIComponent(slug)}`);
 }
 
 export default async function VanityStorefrontPage({ params }: Props) {
   const { slug, data, origin } = await getPageData(params);
+  if (!data) return <LegacyAppClient />;
   return <StorefrontPageNext slug={slug} initialData={data} customDomain={false} origin={origin} />;
 }
