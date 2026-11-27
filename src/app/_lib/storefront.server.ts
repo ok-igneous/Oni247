@@ -4,7 +4,7 @@ import type { OutputType } from "../../../endpoints/storefront_GET.schema";
 import type { OutputType as PublicGalleryOutput } from "../../../endpoints/galleries/public_GET.schema";
 import type { OutputType as PublicEventOutput } from "../../../endpoints/events/public_GET.schema";
 import type { OutputType as PublicEventsOutput } from "../../../endpoints/events/publicList_GET.schema";
-import { isPlatformHostname, normalizeDomainHost } from "../../../server/storefrontPrerender";
+import { isPlatformHostname, isUnsupportedPlatformSubdomain, normalizeDomainHost } from "../../../server/storefrontPrerender";
 
 export type StorefrontHostResolution = { slug: string | null; customDomain: boolean; platformHost: boolean };
 const apiOrigin = () => (process.env.ONI247_API_INTERNAL_URL || "http://127.0.0.1:3001").replace(/\/+$/, "");
@@ -16,11 +16,9 @@ export async function resolveStorefrontHost(hostHeader: string): Promise<Storefr
   const root = configuredPlatformRoot();
   const renderHost = normalizeDomainHost(`https://${process.env.RENDER_EXTERNAL_HOSTNAME || "oni247-staging.onrender.com"}`);
   const localHost = host === "localhost" || host === "127.0.0.1" || host === "::1";
-  const platformRoot = normalizeDomainHost(root)?.replace(/^www\\./, "") ?? null;
-  const unsupportedPlatformSubdomain = Boolean(
-    platformRoot && host.endsWith(`.${platformRoot}`) && host !== `www.${platformRoot}`,
-  );
-  if (unsupportedPlatformSubdomain) return { slug: null, customDomain: false, platformHost: false };
+  if (isUnsupportedPlatformSubdomain(host, root)) {
+    return { slug: null, customDomain: false, platformHost: false };
+  }
   if (isPlatformHostname(host, root) || localHost || (renderHost && host === renderHost)) return { slug: null, customDomain: false, platformHost: true };
 
   // Ask Fastify to resolve the host so the Next.js process does not open a second DB pool.
