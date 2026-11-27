@@ -96,7 +96,7 @@ const ProductDetailNext = ({ data, productSlug, customDomain, origin }: Props) =
         <p className={styles.body}>This item may have been removed or renamed.</p>
         {data && (
           <Button asChild variant="outline">
-            <Link to={path("")}>
+            <Link href={path("")}>
               <ArrowLeft size={16} />
               Back to the shop
             </Link>
@@ -131,7 +131,7 @@ const ProductDetailNext = ({ data, productSlug, customDomain, origin }: Props) =
           business from its main storefront.
         </p>
         <Button asChild variant="outline">
-          <Link to={storefrontPath(business.slug)}>Back to the shop</Link>
+          <Link href={path("")}>Back to the shop</Link>
         </Button>
       </div>
     );
@@ -566,11 +566,11 @@ const ProductDetailNext = ({ data, productSlug, customDomain, origin }: Props) =
       )}
 
       <StoreCartDockNext
-        slug={business.slug}
         currency={business.currency}
         cart={cart}
         open={cartOpen}
         onOpenChange={setCartOpen}
+        checkoutHref={path("/checkout")}
       />
     </div>
   );
