@@ -86,6 +86,23 @@ describe("production crawler renderer factory", () => {
     });
   });
 
+  it("does not resolve platform vanity slugs on an unverified host", async () => {
+    vi.stubEnv("PLATFORM_ROOT_DOMAIN", "oni247.org");
+    const loadSnapshot = vi.fn(async () => ({
+      title: "Unexpected",
+      description: "Should not render",
+      body: "<main>unexpected</main>",
+    }));
+    const resolveCustomDomain = vi.fn(async () => null);
+    const app = await makeApp({ loadSnapshot, resolveCustomDomain });
+    const response = await app.inject({
+      method: "GET", url: "/nesmage", headers: { host: "unverified.example.net", "user-agent": "Googlebot" },
+    });
+    expect(response.body).toContain('<div id="root"></div>');
+    expect(resolveCustomDomain).toHaveBeenCalledWith("unverified.example.net");
+    expect(loadSnapshot).not.toHaveBeenCalled();
+  });
+
   it("does not expose business subdomains as platform storefront URLs", async () => {
     vi.stubEnv("PLATFORM_ROOT_DOMAIN", "oni247.org");
     const resolveCustomDomain = vi.fn(async () => null);
