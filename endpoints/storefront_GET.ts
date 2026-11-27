@@ -57,8 +57,8 @@ export async function handle(request: Request) {
       );
     }
 
-    const resolvedPlan = subscriptionPlan.resolve(business);
     await loadPlanConfig();
+    const resolvedPlan = subscriptionPlan.resolve(business);
 
     // Read the active, verified gateway directly. Do not depend on a database helper
     // function that is not part of the standalone schema migrations.
