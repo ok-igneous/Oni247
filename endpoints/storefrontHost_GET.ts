@@ -2,7 +2,7 @@ import { sql } from "kysely";
 import { db } from "../helpers/db";
 import { loadPlanConfig } from "../helpers/planConfig";
 import { subscriptionPlan } from "../helpers/subscriptionPlan";
-import { normalizeDomainHost } from "../server/storefrontPrerender";
+import { isUnsupportedPlatformSubdomain, normalizeDomainHost } from "../server/storefrontPrerender";
 
 /** Resolve only verified, actively paid custom domains. Platform shops use /{slug}. */
 export async function handle(request: Request) {
@@ -17,11 +17,7 @@ export async function handle(request: Request) {
     const platformRoot = platform?.replace(/^www\./, "") ?? null;
     const isPlatformHost = host === platformRoot
       || host === (platformRoot ? `www.${platformRoot}` : null);
-    const isUnsupportedPlatformSubdomain = Boolean(
-      host && platformRoot && host.endsWith(`.${platformRoot}`) && host !== `www.${platformRoot}`,
-    );
-
-    if (!host || isPlatformHost || isUnsupportedPlatformSubdomain) {
+    if (!host || isPlatformHost || isUnsupportedPlatformSubdomain(host, configuredRoot)) {
       return new Response(JSON.stringify({ slug: null }), {
         headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
       });
