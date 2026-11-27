@@ -1,7 +1,7 @@
 import "server-only";
 import superjson from "superjson";
 import type { OutputType } from "../../../endpoints/storefront_GET.schema";
-import { isPlatformHostname, normalizeDomainHost, resolvePlatformSubdomainSlug } from "../../../server/storefrontPrerender";
+import { isPlatformHostname, normalizeDomainHost } from "../../../server/storefrontPrerender";
 
 export type StorefrontHostResolution = { slug: string | null; customDomain: boolean; platformHost: boolean };
 const apiOrigin = () => (process.env.ONI247_API_INTERNAL_URL || "http://127.0.0.1:3001").replace(/\/+$/, "");
@@ -23,8 +23,7 @@ export async function resolveStorefrontHost(hostHeader: string): Promise<Storefr
   if (!response.ok) return { slug: null, customDomain: false, platformHost: false };
   const result = await response.json() as { slug?: unknown };
   const slug = typeof result.slug === "string" && result.slug.length > 0 ? result.slug : null;
-  const platformSubdomain = Boolean(resolvePlatformSubdomainSlug(host, root));
-  return { slug, customDomain: Boolean(slug) && !isPlatformHostname(host, root), platformHost: false || platformSubdomain && false };
+  return { slug, customDomain: Boolean(slug), platformHost: false };
 }
 
 export async function getStorefrontData(slug: string): Promise<OutputType | null> {
