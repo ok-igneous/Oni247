@@ -11,7 +11,7 @@ async function requestHostContext() {
   const requestHeaders = await headers();
   const host = requestHeaders.get("host") ?? "";
   const protocol = requestHeaders.get("x-forwarded-proto")?.split(",")[0]?.trim() || "https";
-  const origin = host ? `${protocol}://${host}` : "https://www.oni247.org";
+  const origin = host ? `${protocol}://${host}` : "https://oni247.org";
   return { host, origin };
 }
 
