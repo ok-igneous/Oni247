@@ -1,6 +1,12 @@
+import { sql } from "kysely";
 import { db } from "../helpers/db";
-import { subscriptionPlan } from "../helpers/subscriptionPlan";
 import { loadPlanConfig } from "../helpers/planConfig";
+import { subscriptionPlan } from "../helpers/subscriptionPlan";
+import {
+  isPlatformHostname,
+  isUnsupportedPlatformSubdomain,
+  normalizeDomainHost,
+} from "../server/storefrontPrerender";
 
 const xmlEscape = (value: string) =>
   value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
@@ -19,14 +25,51 @@ const safeHost = (value: string | null | undefined): string | null => {
 
 export async function handle(request: Request) {
   await loadPlanConfig();
-  const platformOrigin = new URL(request.url).origin;
-  const businesses = await db.selectFrom("businesses")
+  const requestUrl = new URL(request.url);
+  const requestHost = normalizeDomainHost(requestUrl.host);
+  const configuredRoot = process.env.PLATFORM_ROOT_DOMAIN || process.env.APP_BASE_URL || "https://oni247.org";
+  const renderHost = normalizeDomainHost(process.env.RENDER_EXTERNAL_HOSTNAME);
+  const localHost = requestHost === "localhost" || requestHost === "127.0.0.1" || requestHost === "::1";
+  const platformHost = Boolean(requestHost && (
+    isPlatformHostname(requestHost, configuredRoot) ||
+    localHost ||
+    (renderHost && requestHost === renderHost)
+  ));
+
+  if (!requestHost || isUnsupportedPlatformSubdomain(requestHost, configuredRoot)) {
+    return new Response("Not found", { status: 404 });
+  }
+
+  const platformOrigin = platformHost
+    ? safeHost(process.env.APP_BASE_URL || configuredRoot) ?? requestUrl.origin
+    : requestUrl.origin;
+
+  const normalizedStoredHost = sql<string | null>`case
+    when lower("custom_domain") like 'http://%' then null
+    else lower(split_part(split_part(regexp_replace("custom_domain", '^https?://', '', 'i'), '/', 1), ':', 1))
+  end`;
+  const baseQuery = db.selectFrom("businesses")
     .select(["id", "slug", "plan", "websitePlan", "trialEndsAt", "planRenewsAt", "customDomain", "customDomainStatus"])
-    .where("status", "=", "published")
-    .execute();
+    .where("status", "=", "published");
+  const businesses = platformHost
+    ? await baseQuery.execute()
+    : await baseQuery
+      .where("customDomainStatus", "=", "verified")
+      .where(normalizedStoredHost, "=", requestHost)
+      .execute();
+
+  const businessesWithPlan = businesses
+    .map((business) => ({ business, plan: subscriptionPlan.resolve(business) }))
+    .filter(({ business, plan }) =>
+      platformHost || (business.customDomainStatus === "verified" && plan.canUseCustomDomain),
+    );
+
+  if (!platformHost && businessesWithPlan.length === 0) {
+    return new Response("Not found", { status: 404 });
+  }
 
   const urls = new Set<string>([new URL("/", platformOrigin).toString()]);
-  const businessIds = businesses.map((business) => business.id);
+  const businessIds = businessesWithPlan.map(({ business }) => business.id);
 
   if (businessIds.length > 0) {
     const [products, galleries, blogs, events] = await Promise.all([
@@ -50,26 +93,22 @@ export async function handle(request: Request) {
     const blogsByBusiness = byBusiness(blogs);
     const eventsByBusiness = byBusiness(events);
 
-    for (const business of businesses) {
-      const plan = subscriptionPlan.resolve(business);
-      const host = business.customDomainStatus === "verified" && plan.canUseCustomDomain
+    for (const { business, plan } of businessesWithPlan) {
+      const customOrigin = business.customDomainStatus === "verified" && plan.canUseCustomDomain
         ? safeHost(business.customDomain)
         : null;
-      const origin = host ?? platformOrigin;
-      const storePath = host ? "/" : `/${encodeURIComponent(business.slug)}`;
-      const add = (path: string) => urls.add(new URL(path, origin).toString());
+      const origin = customOrigin ?? platformOrigin;
+      const storePath = customOrigin ? "/" : `/${encodeURIComponent(business.slug)}`;
+      const add = (pathname: string) => urls.add(new URL(pathname, origin).toString());
       add(storePath);
 
       for (const product of productsByBusiness.get(business.id) ?? []) {
         add(`${storePath.replace(/\/$/, "")}/p/${encodeURIComponent(product.slug)}`);
       }
-
       if (plan.canUseMultiPage) {
         for (const page of ["products", "services", "about", "gallery", "blog", "events", "contact"]) {
           add(`${storePath.replace(/\/$/, "")}/${page}`);
         }
-      }
-      if (plan.canUseMultiPage) {
         for (const gallery of galleriesByBusiness.get(business.id) ?? []) {
           add(`${storePath.replace(/\/$/, "")}/g/${encodeURIComponent(gallery.slug)}`);
         }
