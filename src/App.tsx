@@ -45,9 +45,9 @@ function AppLoading() {
     <main className="app-loading" role="status" aria-label="Loading page">
       <div className="app-loading__skeleton" aria-hidden="true">
         <div className="app-loading__topbar">
-          <span className="app-loading__brand-mark" />
-          <span className="app-loading__topbar-line" />
-          <span className="app-loading__topbar-action" />
+          <span className="app-loading__brand-mark app-loading__shimmer" />
+          <span className="app-loading__topbar-line app-loading__shimmer" />
+          <span className="app-loading__topbar-action app-loading__shimmer" />
         </div>
 
         <div className="app-loading__content">
