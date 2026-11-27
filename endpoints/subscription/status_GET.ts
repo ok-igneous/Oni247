@@ -3,11 +3,13 @@ import { db } from "../../helpers/db";
 import { requireOwnedBusiness } from "../../helpers/requireOwnedBusiness";
 import { subscriptionPlan } from "../../helpers/subscriptionPlan";
 import { flutterwaveEnv } from "../../helpers/flutterwaveEnv";
+import { loadPlanConfig } from "../../helpers/planConfig";
 import type { OutputType } from "./status_GET.schema";
 
 export async function handle(request: Request) {
   try {
     const { business } = await requireOwnedBusiness(request);
+    await loadPlanConfig();
     const resolved = subscriptionPlan.resolve(business);
 
     const products = await db
