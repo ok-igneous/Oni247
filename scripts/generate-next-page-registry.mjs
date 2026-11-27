@@ -17,6 +17,10 @@ async function walk(directory) {
     }
     if (!entry.isFile() || !/\.tsx$/.test(entry.name)) continue;
     const relative = path.relative(root, absolute).split(path.sep).join("/");
+    // This file is the shared legacy storefront implementation imported by
+    // $slug.tsx. It is not a public route; storefront URLs are /{slug}, never
+    // /store/{slug}.
+    if (relative === "legacy-pages/store.$slug.tsx") continue;
     if (relative.endsWith(".pageLayout.tsx")) layouts.push(relative);
     else pages.push(relative);
   }
