@@ -95,6 +95,13 @@ const loadStorefrontPage = cache(async (requestUrl: string): Promise<NextStorefr
 
   if (!slug) return null;
 
+  // Keep the platform apex as the canonical host even when a visitor arrives
+  // through its www alias. Custom domains retain their own verified origin.
+  const canonicalOrigin =
+    customDomain || isLocalHost(hostname) || !normalizedRoot
+      ? url.origin
+      : `https://${normalizedRoot}`;
+
   if (customDomain && !isPublicCustomDomainPath(url.pathname)) {
     const firstSegment = url.pathname.split("/").filter(Boolean)[0]?.toLowerCase();
     if (firstSegment && PRIVATE_CUSTOM_DOMAIN_ROOTS.has(firstSegment)) return null;
@@ -139,7 +146,7 @@ const loadStorefrontPage = cache(async (requestUrl: string): Promise<NextStorefr
   const snapshot = await loader({
     slug,
     pathname: url.pathname,
-    origin: url.origin,
+    origin: canonicalOrigin,
     customDomain,
   }).catch((error: unknown) => {
     const message = error instanceof Error ? error.message : "";
@@ -167,7 +174,7 @@ const loadStorefrontPage = cache(async (requestUrl: string): Promise<NextStorefr
   return {
     slug,
     customDomain,
-    canonicalUrl: `${url.origin}${url.pathname}`,
+    canonicalUrl: `${canonicalOrigin}${url.pathname}`,
     title: seoTitle || snapshot.title,
     description: seoDescription || snapshot.description,
     image: isStoreHome ? shareImage || snapshot.image : snapshot.image || shareImage,
