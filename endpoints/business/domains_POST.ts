@@ -1,4 +1,5 @@
 import { randomBytes } from "node:crypto";
+import { isIP } from "node:net";
 import superjson from "superjson";
 import { sql } from "kysely";
 import { db } from "../../helpers/db";
@@ -15,19 +16,17 @@ const normalizeHostname = (value: unknown): string | null => {
   return hostname;
 };
 
-const RESERVED = new Set(["www", "admin", "api", "mail", "ftp", "localhost"]);
-
 export async function handle(request: Request) {
   try {
     const { user } = await getServerUserSession(request);
     const body = await request.json() as { hostname?: unknown };
     const hostname = normalizeHostname(body.hostname);
-    if (!hostname) return new Response(superjson.stringify({ error: "Enter a valid domain name without http:// or https://." }), { status: 400 });
+    if (!hostname || isIP(hostname)) return new Response(superjson.stringify({ error: "Enter a valid domain name without http:// or https://. IP addresses are not supported." }), { status: 400 });
 
     const platformRoot = (process.env.PLATFORM_ROOT_DOMAIN || process.env.APP_BASE_URL || "oni247.org")
       .replace(/^https?:\/\//i, "").split("/")[0].toLowerCase();
     if (hostname === platformRoot || hostname.endsWith("." + platformRoot) ||
-        RESERVED.has(hostname.split(".")[0])) {
+        hostname === "onrender.com" || hostname.endsWith(".onrender.com")) {
       return new Response(superjson.stringify({ error: "This hostname is reserved for Oni247." }), { status: 400 });
     }
 
