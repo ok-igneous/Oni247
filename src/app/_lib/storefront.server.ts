@@ -8,7 +8,7 @@ import { isPlatformHostname, isUnsupportedPlatformSubdomain, normalizeDomainHost
 
 export type StorefrontHostResolution = { slug: string | null; customDomain: boolean; platformHost: boolean };
 const apiOrigin = () => (process.env.ONI247_API_INTERNAL_URL || "http://127.0.0.1:3001").replace(/\/+$/, "");
-const configuredPlatformRoot = () => process.env.PLATFORM_ROOT_DOMAIN || process.env.APP_BASE_URL || "https://www.oni247.org";
+const configuredPlatformRoot = () => process.env.PLATFORM_ROOT_DOMAIN || process.env.APP_BASE_URL || "https://oni247.org";
 
 export async function resolveStorefrontHost(hostHeader: string): Promise<StorefrontHostResolution> {
   const host = normalizeDomainHost(`https://${hostHeader}`);
