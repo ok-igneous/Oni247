@@ -12,7 +12,7 @@ The snapshot comparison verifies path coverage, not byte-for-byte content parity
 
 ## Standalone work started
 
-- Added a Vite + React entry point and dynamic page/layout route loader.
+- The original standalone baseline used a Vite + React entry point and dynamic page/layout route loader; this has now been replaced on the separate `nextjs-migration` branch.
 - Added a Fastify server that discovers existing `endpoints/**` handlers and dispatches them under `/_api/**`.
 - Preserved multiple `Set-Cookie` response headers in the Web `Response` to Fastify bridge, with a single-cookie fallback for older runtimes.
 - Added graceful SIGINT/SIGTERM shutdown and closes the database pool after it has been initialized.
@@ -96,3 +96,15 @@ The new runtime is a first implementation, not a completed migration. Keep previ
 - Render deploy `dep-dc4o9tui0phs73b0r8kg` was triggered for the auth URL correction. Its latest observed state was `build_in_progress`; completion and live endpoint checks must be confirmed before calling the staging release verified.
 
 - Added `scripts/migrate.mjs` and the `npm run db:migrate` command. The runner applies numbered SQL files in order, records applied versions, and wraps each migration in a transaction. The runner itself has been reviewed but has not yet been executed from the Render runtime.
+
+
+## Next.js migration implementation (2026-11-27)
+
+- Added Next.js 16.4.6 App Router, root layout, optional catch-all route and a browser-only compatibility boundary for the existing interactive React app.
+- Moved all 209 files from the root `pages/` directory to `legacy-pages/`. This is required because Next.js reserves root `pages/` for its Pages Router; leaving the legacy directory in place would make Next interpret unrelated component files as routes.
+- Added a generated static import registry for 69 legacy page modules and 70 page-layout modules. The Vite `import.meta.glob()` route discovery was removed from `src/App.tsx`.
+- Removed the Vite `index.html`, `vite.config.ts`, direct Vite dependency, Vite React plugin, and Vite web scripts. Development/build/start scripts now invoke Next.js. Vitest remains for the existing test suite; it is not the web runtime.
+- Added a Node.js Next route handler for same-origin `/_api/*` requests. It preserves the incoming host/protocol and multiple Set-Cookie headers when proxying to Fastify. The API must be private behind one trusted Next.js proxy hop; do not expose the API listener publicly with `TRUST_PROXY=1`.
+- Split the local API port into `API_PORT` and added `API_ORIGIN` for the Next.js proxy. Fastify remains a separate service.
+- Added Next.js rewrites for `/sitemap.xml` and `/robots.txt` to the Fastify service.
+- **Not yet verified:** dependencies have not been installed; the route registry has not been generated in a checked-out workspace; TypeScript, unit tests, Next.js production build, custom-domain host forwarding, cookie forwarding, crawler SEO rendering and browser route parity have not been run. No staging deployment or production cutover has occurred.
