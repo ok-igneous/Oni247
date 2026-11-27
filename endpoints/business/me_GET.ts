@@ -14,8 +14,13 @@ export async function handle(request: Request) {
       .limit(1)
       .executeTakeFirst();
 
+    const configuredRoot = process.env.PLATFORM_ROOT_DOMAIN || "oni247.org";
+    const platformRootDomain = new URL(
+      configuredRoot.includes("://") ? configuredRoot : `https://${configuredRoot}`,
+    ).hostname.toLowerCase();
+
     return new Response(
-      superjson.stringify({ business: business ?? null } satisfies OutputType),
+      superjson.stringify({ business: business ?? null, platformRootDomain } satisfies OutputType),
       { headers: { "Content-Type": "application/json" } },
     );
   } catch (error) {
