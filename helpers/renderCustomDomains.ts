@@ -11,7 +11,7 @@ type RenderCustomDomain = {
 export type RenderDomainSyncResult = {
   configured: boolean;
   domainId?: string;
-  verificationStatus: "not_configured" | "unverified" | "verified" | "error";
+  verificationStatus: "not_registered" | "unverified" | "verified" | "error";
   tlsReady: boolean;
   message: string;
 };
@@ -151,7 +151,7 @@ export async function syncRenderCustomDomain(
   const { apiKey, serviceId } = config();
   if (!apiKey || !serviceId) {
     return {
-      configured: false, verificationStatus: "not_configured", tlsReady: false,
+      configured: false, verificationStatus: "not_registered", tlsReady: false,
       message: "Render domain automation is not configured. Set RENDER_API_KEY and RENDER_SERVICE_ID on the Oni247 server.",
     };
   }
