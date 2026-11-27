@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 const apiOrigin = (process.env.ONI247_API_INTERNAL_URL ?? "http://127.0.0.1:3001").replace(/\/+$/, "");
 const renderHost = (process.env.RENDER_EXTERNAL_HOSTNAME ?? "oni247-staging.onrender.com").replace(/\./g, "\\.");
 const customHostPattern = `^(?!www\\.oni247\\.org$)(?!oni247\\.org$)(?!${renderHost}$).+$`;
+const legacyStorefrontSections = "(p|s|b|e|g|products|services|about|gallery|blog|events|contact|track|checkout|book|booking|f)";
 
 const nextConfig: NextConfig = {
   pageExtensions: ["next.tsx", "next.ts", "next.jsx", "next.js"],
@@ -10,9 +11,10 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   async rewrites() {
     return {
-      // Nested paths on custom domains and business subdomains remain on the legacy SPA until migrated.
+      // Do not rewrite /_next assets: only known legacy storefront paths on custom hosts.
       beforeFiles: [
-        { source: "/:path+", has: [{ type: "host", value: customHostPattern }], destination: `${apiOrigin}/:path+` },
+        { source: `/:section${legacyStorefrontSections}`, has: [{ type: "host", value: customHostPattern }], destination: `${apiOrigin}/:section` },
+        { source: `/:section${legacyStorefrontSections}/:path*`, has: [{ type: "host", value: customHostPattern }], destination: `${apiOrigin}/:section/:path*` },
       ],
       afterFiles: [
         { source: "/_api/:path*", destination: `${apiOrigin}/_api/:path*` },
