@@ -1,6 +1,7 @@
 import superjson from "superjson";
 import { sql } from "kysely";
 import { db } from "../../helpers/db";
+import { hasPaidCustomDomainAccess } from "../../helpers/domainEntitlement";
 import { requireOwnedBusiness } from "../../helpers/requireOwnedBusiness";
 import type { OutputType } from "./overview_GET.schema";
 
@@ -22,7 +23,8 @@ export async function handle(request: Request) {
     const configuredRoot = process.env.APP_BASE_URL || "https://oni247.org";
     const platformRootDomain = new URL(configuredRoot.includes("://") ? configuredRoot : `https://${configuredRoot}`)
       .hostname.toLowerCase();
-    const primary = await sql<{ hostname: string }>`select hostname from business_domains
+    const canUseCustomDomains = await hasPaidCustomDomainAccess(business.ownerId);
+    const primary = canUseCustomDomains ? await sql<{ hostname: string }>`select hostname from business_domains
       where business_id = ${business.id} and is_primary = true
         and status = 'active' and ssl_status = 'active'
       limit 1`.execute(db);
