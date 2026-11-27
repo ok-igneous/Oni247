@@ -166,9 +166,7 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
               <a
                 href={data?.primaryDomain
                   ? `https://${data.primaryDomain}`
-                  : data?.platformWildcardReady && data.platformRootDomain
-                    ? `https://${business.slug}.${data.platformRootDomain}`
-                    : `/${business.slug}`}
+                  : `https://${data?.platformRootDomain ?? "oni247.org"}/${business.slug}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
