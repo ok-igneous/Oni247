@@ -17,7 +17,7 @@ export type CrawlerRendererDependencies = {
   readIndexHtml(): Promise<string>;
 };
 
-function unavailable(reply: FastifyReply) {
+function unavailable(reply: any) {
   reply.header("Cache-Control", "no-store");
   reply.header("Retry-After", "30");
   return reply.code(503).type("text/html; charset=utf-8").send(
@@ -25,7 +25,7 @@ function unavailable(reply: FastifyReply) {
   );
 }
 
-function notFound(reply: FastifyReply) {
+function notFound(reply: any) {
   return reply.code(404).type("text/html; charset=utf-8").send(
     "<!doctype html><title>Page not found</title><meta name=\"robots\" content=\"noindex\"><h1>Page not found</h1>",
   );
