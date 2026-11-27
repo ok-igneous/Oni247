@@ -1,0 +1,39 @@
+import { execFile } from "node:child_process";
+import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { promisify } from "node:util";
+import { afterEach, describe, expect, it } from "vitest";
+
+const execFileAsync = promisify(execFile);
+const temporaryDirectories: string[] = [];
+
+afterEach(async () => {
+  await Promise.all(temporaryDirectories.splice(0).map((directory) =>
+    rm(directory, { recursive: true, force: true }),
+  ));
+});
+
+describe("Next.js legacy route registry", () => {
+  it("registers /{slug} and never registers /store/{slug}", async () => {
+    const fixture = await mkdtemp(path.join(os.tmpdir(), "oni247-route-registry-"));
+    temporaryDirectories.push(fixture);
+
+    const pages = path.join(fixture, "legacy-pages");
+    await mkdir(pages, { recursive: true });
+    await Promise.all([
+      writeFile(path.join(pages, "_index.tsx"), "export default function Home() {}"),
+      writeFile(path.join(pages, "$slug.tsx"), "export default function Vanity() {}"),
+      writeFile(path.join(pages, "store.$slug.tsx"), "export default function SharedStore() {}"),
+      writeFile(path.join(pages, "dashboard.tsx"), "export default function Dashboard() {}"),
+    ]);
+
+    const generator = path.resolve(process.cwd(), "scripts/generate-next-page-registry.mjs");
+    await execFileAsync(process.execPath, [generator], { cwd: fixture });
+
+    const registry = await readFile(path.join(fixture, "src/generated/pageRegistry.ts"), "utf8");
+    expect(registry).toContain("../legacy-pages/$slug.tsx");
+    expect(registry).toContain("../legacy-pages/dashboard.tsx");
+    expect(registry).not.toContain("../legacy-pages/store.$slug.tsx");
+  });
+});
