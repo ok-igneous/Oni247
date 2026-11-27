@@ -34,7 +34,7 @@ import { resolveVariantSelection } from "../../../helpers/resolveVariantSelectio
 import { useStoreCart } from "../../../helpers/useStoreCart";
 import { trackStoreEvent } from "../../../helpers/trackStoreEvent";
 import { storeThemeEngine } from "../../../helpers/storeThemeEngine";
-import styles from "../../../pages/store.$slug.p.$productSlug.module.css";
+import styles from "../../../legacy-pages/store.$slug.p.$productSlug.module.css";
 
 type Props = { data: import("../../../endpoints/storefront_GET.schema").OutputType; productSlug: string; customDomain: boolean; origin: string };
 const ProductDetailNext = ({ data, productSlug, customDomain, origin }: Props) => {

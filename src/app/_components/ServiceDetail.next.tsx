@@ -10,7 +10,7 @@ import { postStorefrontEnquiry } from "../../../endpoints/storefront/enquiry_POS
 import { storeThemeEngine } from "../../../helpers/storeThemeEngine";
 import type { OutputType } from "../../../endpoints/storefront_GET.schema";
 import { StorefrontHeaderNext } from "./StorefrontHeader.next";
-import styles from "../../../pages/store.$slug.s.$serviceSlug.module.css";
+import styles from "../../../legacy-pages/store.$slug.s.$serviceSlug.module.css";
 
 type Props = { data: OutputType; serviceId: string; customDomain: boolean };
 

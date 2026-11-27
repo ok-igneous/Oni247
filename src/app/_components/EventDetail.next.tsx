@@ -18,7 +18,7 @@ import { eventTimeState, formatEventRange, registrationInfo, startsInText } from
 import type { OutputType as EventData } from "../../../endpoints/events/public_GET.schema";
 import type { PublicEventItem } from "../../../endpoints/events/publicList_GET.schema";
 import { postSubmitEvent } from "../../../endpoints/events/submit_POST.schema";
-import styles from "../../../pages/store.$slug.e.$eventSlug.module.css";
+import styles from "../../../legacy-pages/store.$slug.e.$eventSlug.module.css";
 
 const calendarStamp = (date: Date) => date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
 const icsText = (value: string) =>
