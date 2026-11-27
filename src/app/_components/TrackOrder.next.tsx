@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
 import { Check, Landmark, MessageCircle, Phone, Store } from "lucide-react";
 import { Button } from "../../../components/Button";
