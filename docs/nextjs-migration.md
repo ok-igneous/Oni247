@@ -115,4 +115,15 @@ and backend integration have been built and tested.
 - `/login`, `/register`, `/forgot-password`, and `/verify-email` use Next.js App Router pages.
 - `/dashboard` now has a Next.js protected layout and overview page. The existing Fastify endpoints remain authoritative for session lookup, login, registration, email verification, tenant scoping, and dashboard data.
 - The Next.js development command starts Next.js on port 3000 and Fastify on port 3001. Next.js rewrites API and SEO requests to Fastify.
-- Other dashboard sections and the public business storefront are not yet migrated. The landing page metadata is currently a safe static fallback; dynamic SEO metadata must be moved server-side with the landing data before production cutover. Do not switch the production start command or remove the legacy frontend until those routes are migrated and verified.
+- The public storefront homepage now has a Next.js server-rendered route for `/{slug}` and for the root of a verified custom domain or business subdomain. Storefront data is loaded through the existing storefront endpoint handler and public database query path. Dynamic title, description, canonical, Open Graph and Twitter metadata are generated on the server.
+- Unmigrated nested storefront routes are deliberately forwarded to the existing Fastify/Vite SPA. This preserves product, gallery, blog, event, checkout and tracking URLs during migration. Custom-domain nested paths are forwarded before Next.js dynamic route matching; only the custom-domain root is served by the new Next.js storefront at this stage. Do not switch the production start command or remove the legacy frontend until those routes are migrated and verified.
+
+
+## Storefront routing checkpoint
+
+- Platform host `/` serves the configurable Oni247 landing page.
+- A published business subdomain or verified custom domain `/` resolves to that business storefront.
+- Platform vanity URL `/{slug}` loads the published business storefront.
+- Unknown or unverified custom hosts do not receive another business's storefront.
+- Unmigrated nested storefront routes are forwarded to the existing Fastify-served frontend as a compatibility bridge.
+- The Next.js storefront receives server-prefetched data, so business content and SEO metadata are present in the initial HTML response.
