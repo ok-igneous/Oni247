@@ -71,7 +71,7 @@ const directViteDependencies = Object.keys({
 const requiredFiles = [
   "src/app/store/[[...path]]/page.next.tsx",
   "src/app/legacy/[[...path]]/page.next.tsx",
-  "src/app/_api/[...path]/route.next.ts",
+  "src/app/%5Fapi/[...path]/route.next.ts",
   "server/nextApiProxy.ts",
   "scripts/generate-legacy-page-registry.mjs",
 ];
