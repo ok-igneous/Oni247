@@ -26,12 +26,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const { host } = await requestHostContext();
+  const { host, origin } = await requestHostContext();
   const resolved = await resolveStorefrontHost(host);
   if (resolved.slug) {
     const data = await getStorefrontData(resolved.slug);
     if (!data) notFound();
-    return <StorefrontPageNext slug={resolved.slug} initialData={data} customDomain={resolved.customDomain} />;
+    return <StorefrontPageNext slug={resolved.slug} initialData={data} customDomain={resolved.customDomain} origin={origin} />;
   }
   if (!resolved.platformHost) notFound();
   return <HomePageNext />;
