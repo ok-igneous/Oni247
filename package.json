@@ -7,7 +7,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "concurrently -k \"vite --host 0.0.0.0\" \"tsx watch server/index.ts\"",
+    "dev": "concurrently -k \"next dev --hostname 0.0.0.0 --port 3000\" \"tsx watch server/index.ts\"",
     "dev:web": "vite --host 0.0.0.0",
     "dev:server": "tsx watch server/index.ts",
     "build": "tsc --noEmit && vite build && next build",
@@ -19,7 +19,9 @@
     "dev:next": "concurrently -k \"next dev --hostname 0.0.0.0 --port 3000\" \"tsx watch server/index.ts\"",
     "build:next": "next build",
     "start:next": "next start --hostname 0.0.0.0",
-    "dev:next:web": "next dev --hostname 0.0.0.0 --port 3000"
+    "dev:next:web": "next dev --hostname 0.0.0.0 --port 3000",
+    "dev:legacy": "concurrently -k \"vite --host 0.0.0.0\" \"tsx watch server/index.ts\"",
+    "start:next:stack": "concurrently -k \"next start --hostname 0.0.0.0\" \"node --import tsx server/index.ts\""
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.850.0",
