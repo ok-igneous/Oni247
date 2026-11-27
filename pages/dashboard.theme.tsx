@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Helmet } from "react-helmet";\nimport { useSearchParams } from "react-router-dom";
+import { Helmet } from "react-helmet";
+import { useSearchParams } from "react-router-dom";
 import { ArrowDown, ArrowUp, ImagePlus, RotateCcw, Save, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "../components/Button";
