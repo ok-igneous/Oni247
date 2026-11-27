@@ -137,3 +137,33 @@
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.55);
   --shadow-focus: 0 0 0 3px rgba(70, 168, 123, 0.3);
 }
+
+
+/* Minimal, branded-neutral application loading state */
+.app-loading {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 24px;
+  background: var(--background, #faf7f0);
+  color: var(--muted-foreground, #5f6d64);
+}
+.app-loading__spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--border, #ded5c4);
+  border-top-color: var(--primary, #0e5c3f);
+  border-radius: 50%;
+  animation: app-loading-spin 750ms linear infinite;
+}
+.app-loading__label {
+  font: 500 13px/1.4 var(--font-family-base, system-ui, sans-serif);
+  letter-spacing: .01em;
+}
+@keyframes app-loading-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .app-loading__spinner { animation-duration: 2s; }
+}
