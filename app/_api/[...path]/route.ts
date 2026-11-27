@@ -13,7 +13,7 @@ const HOP_BY_HOP = new Set([
 async function proxyRequest(request: Request): Promise<Response> {
   const incoming = new URL(request.url);
   const apiPath = incoming.pathname.slice("/_api".length) || "/";
-  const target = new URL(apiPath + incoming.search, apiOrigin);
+  const target = new URL("/_api" + apiPath + incoming.search, apiOrigin);
   const headers = new Headers();
 
   request.headers.forEach((value, key) => {
