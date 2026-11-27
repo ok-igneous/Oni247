@@ -10,7 +10,7 @@ export function useNextSearchParams() {
   const router = useRouter();
 
   const setParams = useCallback((
-    next: URLSearchParamsInit,
+    next: string | Array<[string, string]> | Record<string, string> | URLSearchParams,
     options?: { replace?: boolean },
   ) => {
     const query = new URLSearchParams(next).toString();
