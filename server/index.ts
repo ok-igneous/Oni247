@@ -110,7 +110,13 @@ async function invokeEndpoint(
     let authenticatedUserId: number | undefined;
     try {
       const auth = await getServerUserSession(webRequest);
-      authenticatedUserId = auth.user.id;
+      // PostgreSQL BIGINT IDs are returned as strings by postgres.js by default.
+      // Convert the verified session identity before entering the request DB context.
+      const userId = Number(auth.user.id);
+      if (!Number.isSafeInteger(userId) || userId <= 0) {
+        throw new Error("Authenticated session contains an invalid user ID.");
+      }
+      authenticatedUserId = userId;
     } catch (error) {
       if (!(error instanceof NotAuthenticatedError)) throw error;
     }
