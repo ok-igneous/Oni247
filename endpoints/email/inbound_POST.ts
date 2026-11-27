@@ -1,4 +1,3 @@
-// floot:external
 import superjson from "superjson";
 import { handleInboundEmail, type InboundEmail } from "../../helpers/handleInboundEmail";
 import { inboundSecret } from "../../helpers/emailConfig";
@@ -18,14 +17,14 @@ const same = (a: string, b: string) => {
 /**
  * Receives replies from any mail forwarder (a small script on your own mail server, Postmark, or a
  * Cloudflare Email Worker). Send JSON: { from, to: [..], subject, text, html, messageId } with the
- * header "x-inbound-secret" (or ?k=) set to EMAIL_INBOUND_SECRET. Postmark's inbound shape also works.
+ * header "x-inbound-secret" set to EMAIL_INBOUND_SECRET. Postmark's inbound shape also works.
  */
 export async function handle(request: Request) {
   const done = (status: number, body: unknown) => new Response(superjson.stringify(body), { status, headers: { "Content-Type": "application/json" } });
   try {
     const secret = await inboundSecret();
     if (secret.length < 16) return done(503, { error: "Inbound email is not set up." });
-    const given = request.headers.get("x-inbound-secret") ?? new URL(request.url).searchParams.get("k") ?? "";
+    const given = request.headers.get("x-inbound-secret") ?? "";
     if (!same(given, secret)) return done(401, { error: "Not allowed." });
 
     const raw = JSON.parse(await request.text()) as Record<string, unknown>;
