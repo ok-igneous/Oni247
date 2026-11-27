@@ -16,6 +16,12 @@ const STOREFRONT_SECTIONS = new Set([
   "events", "contact",
 ]);
 
+/** The former /store/{slug} pattern is intentionally unsupported. */
+export function isRemovedLegacyStorePath(pathname: string): boolean {
+  const firstSegment = pathname.split("/").filter(Boolean)[0]?.toLowerCase();
+  return firstSegment === "store";
+}
+
 /** Only vanity storefront paths are eligible; static, API and account routes are excluded. */
 export function isPublicStorefrontPath(pathname: string): boolean {
   const segments = pathname.split("/").filter(Boolean);
