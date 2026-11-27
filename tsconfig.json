@@ -30,6 +30,10 @@
     "node_modules",
     "dist",
     "**/*.example.ts",
-    "**/*.example.tsx"
+    "**/*.example.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/*.test.ts",
+    "**/*.test.tsx"
   ]
 }
