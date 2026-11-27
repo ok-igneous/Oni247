@@ -40,9 +40,18 @@ const routeEntries = Object.entries(pageModules)
 const landingPage = routeEntries.find((entry) => entry.key === "_index")!.Component;
 const vanityHomePage = routeEntries.find((entry) => entry.key === "$slug")!.Component;
 
+function AppLoading() {
+  return (
+    <main className="app-loading" role="status" aria-label="Loading">
+      <span className="app-loading__spinner" aria-hidden="true" />
+      <span className="app-loading__label">Getting things ready</span>
+    </main>
+  );
+}
+
 function HostAwareRoot() {
   const host = useStorefrontHost();
-  if (!host.resolved) return <div role="status" style={{ padding: 24 }}>Loading Oni247…</div>;
+  if (!host.resolved) return <AppLoading />;
   const Page = host.slug ? vanityHomePage : landingPage;
   return <Page />;
 }
@@ -51,7 +60,7 @@ export function App() {
   const vanityRoutes = routeEntries.filter((entry) => entry.key.startsWith("$slug."));
   return (
     <StorefrontHostProvider>
-      <Suspense fallback={<div role="status" style={{ padding: 24 }}>Loading Oni247…</div>}>
+      <Suspense fallback={<AppLoading />}>
         <Routes>
           <Route path="/" element={<HostAwareRoot />} />
           {routeEntries.filter((entry) => entry.key !== "_index").map(({ path, Component, key }) => (
