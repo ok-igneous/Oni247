@@ -1,6 +1,7 @@
 import "server-only";
 import superjson from "superjson";
 import type { OutputType } from "../../../endpoints/storefront_GET.schema";
+import type { OutputType as PublicGalleryOutput } from "../../../endpoints/galleries/public_GET.schema";
 import { isPlatformHostname, normalizeDomainHost } from "../../../server/storefrontPrerender";
 
 export type StorefrontHostResolution = { slug: string | null; customDomain: boolean; platformHost: boolean };
@@ -45,4 +46,13 @@ export function storefrontMetadata(data: OutputType, canonicalUrl: string) {
     openGraph: { type: "website" as const, title, description, siteName: data.business.name, url: canonicalUrl, ...(image ? { images: [{ url: image }] } : {}) },
     twitter: { card: image ? "summary_large_image" as const : "summary" as const, title, description, ...(image ? { images: [image] } : {}) },
   };
+}
+
+export async function getPublicGalleryData(slug: string, gallerySlug: string): Promise<PublicGalleryOutput | null> {
+  const url = new URL("/_api/galleries/public", apiOrigin());
+  url.searchParams.set("slug", slug);
+  url.searchParams.set("gallerySlug", gallerySlug);
+  const response = await fetch(url, { cache: "no-store", headers: { accept: "application/json" } });
+  if (!response.ok) return null;
+  return superjson.parse<PublicGalleryOutput>(await response.text());
 }
