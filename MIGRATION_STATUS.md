@@ -132,3 +132,11 @@ The new runtime is a first implementation, not a completed migration. Keep previ
 - Set the example canonical host to `https://oni247.org` and `PLATFORM_ROOT_DOMAIN=oni247.org`.
 - Added regression assertions that reject `/store` and `/store/{slug}`, verify `oni247.org/{slug}`, reject unverified hosts and exclude the old route from the generated registry. Tests are committed but have not been executed.
 - Dependency installation, typecheck, Vitest, Next.js build and HTTP/browser tests remain outstanding.
+
+## Server-rendered storefront hardening (2026-11-27)
+
+- The public App Router catch-all now returns a real Next.js 404 for the removed `/store` and `/store/{slug}` URL pattern instead of falling through to the legacy SPA.
+- Server-rendered blog article HTML now passes through the existing `sanitizeBlogContent` allowlist sanitizer before it is inserted into the initial HTML response. This closes an XSS path where stored blog markup could otherwise execute in the SSR response.
+- Added regression tests for removed-route detection and malicious blog markup.
+- The custom-domain resolver already requires a published business, a verified domain and an active paid subscription. The plan resolver explicitly excludes trials and expired subscriptions from the custom-domain entitlement.
+- These tests are committed but remain unexecuted until dependencies can be installed and the project can be built locally or in CI.
