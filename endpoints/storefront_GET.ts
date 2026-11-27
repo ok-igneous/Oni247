@@ -61,8 +61,15 @@ export async function handle(request: Request) {
     const resolvedPlan = subscriptionPlan.resolve(business);
     await loadPlanConfig();
 
-    const gatewayResult = await sql<{ enabled: boolean }>`select app_private.has_public_payment_gateway(${business.id}) as enabled`.execute(db);
-    const gatewayEnabled = Boolean(gatewayResult.rows[0]?.enabled);
+    const activeGateway = await db
+      .selectFrom("paymentGateways")
+      .select("id")
+      .where("businessId", "=", business.id)
+      .where("enabled", "=", true)
+      .where("verifiedAt", "is not", null)
+      .limit(1)
+      .executeTakeFirst();
+    const gatewayEnabled = Boolean(activeGateway);
     const services: OutputType["services"] = readServices(business.contentSettings)
       .filter((s) => s.published)
       .map((s) => {
