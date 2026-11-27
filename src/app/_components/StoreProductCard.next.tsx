@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { ImageOff, Plus } from "lucide-react";
-import { Badge } from "./Badge";
-import { Button } from "./Button";
-import { formatMoney } from "../helpers/formatMoney";
-import styles from "./StoreProductCard.module.css";
+import { Badge } from "../../../components/Badge";
+import { Button } from "../../../components/Button";
+import { formatMoney } from "../../../helpers/formatMoney";
+import styles from "../../../components/StoreProductCard.module.css";
 
 export type StoreProduct = {
   id: string;
