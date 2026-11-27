@@ -39,7 +39,10 @@ export async function proxyToApi(request: Request, apiPath: string): Promise<Res
         responseHeaders.append(key, value);
       }
     });
-    for (const cookie of upstream.headers.getSetCookie()) {
+    const headersWithCookies = upstream.headers as Headers & { getSetCookie?: () => string[] };
+    const setCookies = headersWithCookies.getSetCookie?.()
+      ?? (upstream.headers.get("set-cookie") ? [upstream.headers.get("set-cookie")!] : []);
+    for (const cookie of setCookies) {
       responseHeaders.append("set-cookie", cookie);
     }
 
