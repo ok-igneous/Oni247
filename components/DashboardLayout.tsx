@@ -34,7 +34,7 @@ const navGroups: NavGroup[] = [
     { to: "/dashboard/theme", label: "Theme", icon: Palette },
   ]},
   { id: "site", label: "Domain & SEO", icon: Globe, items: [
-    { to: "/dashboard/business", label: "Business & domain", icon: Store },
+    { to: "/dashboard/business", label: "Business & publishing", icon: Store },
     { to: "/dashboard/theme?tab=seo", label: "SEO & sharing", icon: Globe },
   ]},
   { id: "commerce", label: "Store & orders", icon: Package, items: [
@@ -112,7 +112,7 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
 
   const renderNavItem = (item: NavItem) => (
     <NavLink key={item.to} to={item.to} end={item.end} onClick={() => setMobileMenuOpen(false)}
-      className={({ isActive }) => `${styles.navItem} ${isActive ? styles.navItemActive : ""}`}>
+      className={({ isActive }) => { const [path, query] = item.to.split("?"); const queryMatches = query ? location.search === `?${query}` : !location.search; return `${styles.navItem} ${(isActive && queryMatches && location.pathname === path) ? styles.navItemActive : ""}`; }}>
       <item.icon size={17} strokeWidth={1.9} />
       <span>{item.label}</span>
     </NavLink>
