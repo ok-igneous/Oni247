@@ -12,9 +12,9 @@ describe("getStorefrontBaseUrl", () => {
   });
 
   it("uses the business slug on platform vanity URLs", () => {
-    expect(getStorefrontBaseUrl("nesmage", "https://oni247.com", "/nesmage"))
-      .toBe("https://oni247.com/nesmage/");
-    expect(getStorefrontBaseUrl("nesmage", "https://oni247.com", "/nesmage/products"))
-      .toBe("https://oni247.com/nesmage/");
+    expect(getStorefrontBaseUrl("nesmage", "https://oni247.org", "/nesmage"))
+      .toBe("https://oni247.org/nesmage/");
+    expect(getStorefrontBaseUrl("nesmage", "https://oni247.org", "/nesmage/products"))
+      .toBe("https://oni247.org/nesmage/");
   });
 });
