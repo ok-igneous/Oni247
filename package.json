@@ -10,7 +10,7 @@
     "dev": "concurrently -k \"vite --host 0.0.0.0\" \"tsx watch server/index.ts\"",
     "dev:web": "vite --host 0.0.0.0",
     "dev:server": "tsx watch server/index.ts",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && vite build && next build",
     "start": "node --import tsx server/index.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -18,7 +18,7 @@
     "db:migrate": "node scripts/migrate.mjs",
     "dev:next": "next dev --hostname 0.0.0.0 --port 3000",
     "build:next": "next build",
-    "start:next": "next start --hostname 0.0.0.0 --port 3000"
+    "start:next": "next start --hostname 0.0.0.0"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.850.0",
