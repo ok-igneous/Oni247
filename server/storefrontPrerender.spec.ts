@@ -65,6 +65,18 @@ describe("crawler storefront helpers", () => {
     }
   });
 
+  it("rejects encoded, malformed and path-like detail identifiers", () => {
+    for (const path of [
+      "/nesmage/p/%2Fadmin",
+      "/nesmage/p/%ZZ",
+      "/nesmage/p/../admin",
+      "/nesmage/b/a%2Fb",
+    ]) expect(isPublicStorefrontPath(path), path).toBe(false);
+
+    for (const path of ["/p/%2Fadmin", "/p/%ZZ", "/b/a%2Fb"]) {
+      expect(isPublicCustomDomainPath(path), path).toBe(false);
+    }
+  });
   it("allows only public vanity routes on custom-domain roots", () => {
     for (const path of ["/", "/products", "/p/solar-inverter", "/b/news", "/e/open-day", "/g/projects", "/contact"]) {
       expect(isPublicCustomDomainPath(path), path).toBe(true);
