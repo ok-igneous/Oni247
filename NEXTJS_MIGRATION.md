@@ -6,7 +6,8 @@ Effective 2026-11-27, Oni247 is migrating from React/Vite to **Next.js with Type
 
 ### Target topology
 
-- Web application: Next.js App Router, React and TypeScript.
+- Web application: Next.js App Router, React and TypeScript. Vite's web entry point, Vite config and Vite production scripts are removed from the migration branch.
+- Temporary route-compatibility bridge: a generated static import registry loads the existing 69 page modules and 70 layout modules; React Router remains inside the Next.js client boundary until each route group is converted to native App Router segments. This bridge is not a Vite runtime.
 - API/business services: preserve the existing Node.js 22 + Fastify endpoint handlers initially as a separate API service. Do not rewrite 118+ endpoint handlers as part of the frontend migration.
 - Database: PostgreSQL, Kysely and postgres.js remain the persistence layer until a separately justified change is approved.
 - Authentication: preserve the existing HTTP-only `oni247_session` session contract and validate cookie/session behavior across the Next.js/API boundary.
@@ -28,7 +29,7 @@ Next.js will own page routing, layouts, server rendering and public storefront r
    - Inventory crawler rendering, metadata, sitemap, robots, custom domains and slug routing.
    - Inventory authentication, email, payment callbacks, uploads and all environment variables.
 2. **Next.js foundation**
-   - Pin a current supported Next.js 16 stable patch (not canary); use the existing Node.js 22 runtime only after verifying compatibility.
+   - Pin Next.js 16.4.6 (stable, not canary) and use the existing Node.js 22 runtime.
    - Add the Next.js App Router in the migration branch.
    - Configure strict TypeScript, linting, tests, environment validation and production build scripts.
    - Next.js must be the only web development server, build system and production web runtime in the completed migration. Vite is not an approved transitional or target runtime. Replace its entry point and route discovery with Next.js before declaring the foundation complete.
@@ -42,7 +43,7 @@ Next.js will own page routing, layouts, server rendering and public storefront r
    - Preserve business slug and verified custom-domain resolution.
    - Verify canonical URLs, Open Graph metadata, structured data, sitemap and robots behavior.
 5. **API and security boundary**
-   - Keep Fastify handlers intact initially behind same-origin `/_api/*` routing.
+   - Keep Fastify handlers intact initially behind same-origin `/_api/*` routing. The Next.js Node route handler forwards the original host/protocol and all Set-Cookie headers; the API must be private behind exactly one trusted Next.js proxy hop.
    - Validate cookie forwarding, CSRF protections, CORS policy, rate limits, tenant isolation and authorization.
    - Do not weaken or activate staged PostgreSQL RLS without its documented prerequisites and tests.
 6. **Media and provider portability**
