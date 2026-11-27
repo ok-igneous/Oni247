@@ -11,6 +11,7 @@ import styles from "./dashboard.domains.module.css";
 type Domain = {
   id: string; hostname: string; domain_type: string; status: string;
   ssl_status: string; is_primary: boolean; verified_at: string | null;
+  render_verification_status: string; last_error: string | null; last_checked_at: string | null;
 };
 type DomainResponse = { domains: Domain[] };
 type AddResponse = {
@@ -156,6 +157,7 @@ export default function DashboardDomainsPage() {
           {(domain.status === "pending" || domain.status === "verified") && <Button size="sm" variant="outline" disabled={checkingId === domain.id} onClick={() => void verify(domain.id)}>{checkingId === domain.id ? "Checking…" : domain.status === "pending" ? "Verify domain" : "Check DNS & SSL"}</Button>}
           {domain.status === "verified" && <p className={styles.warning}>Ownership verified. Render DNS verification or HTTPS certificate provisioning may still be in progress. Check again after a few minutes.</p>}
           {domain.status === "active" && <p className={styles.warning}>Your domain is connected and HTTPS is verified.</p>}
+          {domain.render_verification_status === "error" && domain.last_error && <p className={styles.warning}>{domain.last_error}</p>}
           {domain.status === "failed" && <p className={styles.warning}>Domain setup failed. Contact support with this hostname.</p>}
           {domain.status === "active" && !domain.is_primary && <Button size="sm" variant="outline" onClick={() => void setPrimary(domain.id)}>Set as primary</Button>}
           <Button size="sm" variant="ghost" onClick={() => void removeDomain(domain)}>Remove</Button>
