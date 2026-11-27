@@ -1,6 +1,8 @@
 import { sql } from "kysely";
 import { db } from "../helpers/db";
 import { normalizeDomainHost } from "../server/storefrontPrerender";
+import { loadPlanConfig } from "../helpers/planConfig";
+import { subscriptionPlan } from "../helpers/subscriptionPlan";
 
 /** Resolve only verified custom domains; platform storefronts use /{slug}. */
 export async function handle(request: Request) {
@@ -20,14 +22,17 @@ export async function handle(request: Request) {
         when lower("custom_domain") like 'http://%' then null
         else lower(split_part(split_part(regexp_replace("custom_domain", '^https?://', '', 'i'), '/', 1), ':', 1))
       end`;
+      await loadPlanConfig();
       const business = await db.selectFrom("businesses")
-        .select("slug")
+        .select(["slug", "plan", "websitePlan", "trialEndsAt", "planRenewsAt", "premiumTrialUsed"])
         .where("status", "=", "published")
         .where("customDomainStatus", "=", "verified")
         .where(normalizedStoredHost, "=", host)
         .limit(1)
         .executeTakeFirst();
-      slug = business?.slug ?? null;
+      slug = business && subscriptionPlan.resolve(business).canUseCustomDomain
+        ? business.slug
+        : null;
     }
 
     return new Response(JSON.stringify({ slug }), {
