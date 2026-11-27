@@ -436,7 +436,7 @@ export default function CheckoutNext({ slug, customDomain = false, returnRef }: 
             )}
             {order.trackingCode && (
               <Button asChild variant="outline" size="lg">
-                <Link href={checkoutPath(business.slug, "/track/" + order.trackingCode)}>
+                <Link href={checkoutPath(business.slug, "/track/" + order.trackingCode, customDomain)}>
                   <PackageCheck size={17} /> Track this order
                 </Link>
               </Button>
