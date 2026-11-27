@@ -35,7 +35,7 @@ SELECT
   'verified',
   custom_domain_verified_at,
   'pending',
-  true
+  false
 FROM businesses
 WHERE custom_domain IS NOT NULL
   AND custom_domain_status = 'verified'
