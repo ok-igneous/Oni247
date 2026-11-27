@@ -1,5 +1,5 @@
 import { lookup } from "node:dns/promises";
-import tls from "node:tls";
+import { connect as tlsConnect } from "node:tls";
 import { isIP } from "node:net";
 
 type RenderCustomDomain = {
@@ -31,7 +31,6 @@ const requestRender = async <T>(path: string, init: RequestInit = {}): Promise<T
       Accept: "application/json",
       Authorization: `Bearer ${apiKey}`,
       ...(init.body ? { "Content-Type": "application/json" } : {}),
-      ...init.headers,
     },
   });
   const text = await response.text();
@@ -65,7 +64,7 @@ const isPublicAddress = (address: string): boolean => {
 
 const tlsHandshake = (hostname: string, address: string): Promise<boolean> =>
   new Promise((resolve) => {
-    const socket = tls.connect({
+    const socket = tlsConnect({
       host: address,
       port: 443,
       servername: hostname,
