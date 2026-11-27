@@ -1,6 +1,7 @@
 import superjson from "superjson";
 import { sql } from "kysely";
 import { db } from "../../helpers/db";
+import { hasPaidCustomDomainAccess } from "../../helpers/domainEntitlement";
 import { getServerUserSession } from "../../helpers/getServerUserSession";
 import type { OutputType } from "./me_GET.schema";
 
@@ -14,7 +15,8 @@ export async function handle(request: Request) {
     const platformRootDomain = new URL(
       configuredBase.includes("://") ? configuredBase : `https://${configuredBase}`,
     ).hostname.toLowerCase();
-    const primary = business
+    const canUseCustomDomains = business ? await hasPaidCustomDomainAccess(user.id) : false;
+    const primary = business && canUseCustomDomains
       ? await sql<{ hostname: string }>`select hostname from business_domains
           where business_id = ${business.id} and is_primary = true
             and status = 'active' and ssl_status = 'active'
