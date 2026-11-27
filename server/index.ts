@@ -31,7 +31,22 @@ const trustProxy = trustProxySetting === "true"
         ? (_address: string, hop: number) => hop < 1
         : false;
 
-const app = Fastify({ logger: true, bodyLimit: 60 * 1024 * 1024, trustProxy });
+const app = Fastify({
+  logger: {
+    serializers: {
+      req(request) {
+        return {
+          method: request.method,
+          // Query strings may contain payment references or secrets.
+          url: request.url.split("?")[0],
+          hostname: request.hostname,
+        };
+      },
+    },
+  },
+  bodyLimit: 60 * 1024 * 1024,
+  trustProxy,
+});
 
 type EndpointModule = { handle?: (request: Request) => Promise<Response> | Response };
 const endpointFiles = new Map<string, string>();
@@ -76,6 +91,28 @@ async function invokeEndpoint(
 ) {
   const file = endpointFiles.get(`${method} ${route}`);
   if (!file) return reply.code(404).send({ error: "API endpoint not found" });
+
+  const ratePolicy: Record<string, { limit: number; windowSeconds: number }> = {
+    "auth/login_with_password": { limit: 20, windowSeconds: 15 * 60 },
+    "storefront/order": { limit: 10, windowSeconds: 10 * 60 },
+    "storefront/enquiry": { limit: 10, windowSeconds: 10 * 60 },
+    "storefront/orderPay": { limit: 8, windowSeconds: 10 * 60 },
+    "pay/start": { limit: 8, windowSeconds: 10 * 60 },
+  };
+  const policy = method === "POST" ? ratePolicy[route] : undefined;
+  if (policy) {
+    try {
+      const { checkIpRateLimit } = await import("../helpers/ipRateLimit");
+      const result = await checkIpRateLimit(request.ip, route, policy.limit, policy.windowSeconds);
+      if (!result.allowed) {
+        reply.header("Retry-After", String(result.retryAfterSeconds));
+        return reply.code(429).send({ error: "Too many requests. Please wait and try again." });
+      }
+    } catch (error) {
+      request.log.error({ err: error, route }, "Request rate limiter unavailable");
+      return reply.code(503).send({ error: "This service is temporarily unavailable. Please try again shortly." });
+    }
+  }
 
   try {
     const endpoint = await import(pathToFileURL(file).href) as EndpointModule;
