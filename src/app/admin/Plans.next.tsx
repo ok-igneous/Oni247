@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { toast } from "sonner";
 import { ArrowDown, ArrowUp, Check, Pencil, Plus, Star, Trash2 } from "lucide-react";
