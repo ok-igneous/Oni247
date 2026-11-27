@@ -1,5 +1,4 @@
 import superjson from "superjson";
-import { sql } from "kysely";
 import { db } from "../helpers/db";
 import { schema, type OutputType } from "./storefront_GET.schema";
 import { subscriptionPlan } from "../helpers/subscriptionPlan";
@@ -61,8 +60,17 @@ export async function handle(request: Request) {
     const resolvedPlan = subscriptionPlan.resolve(business);
     await loadPlanConfig();
 
-    const gatewayResult = await sql<{ enabled: boolean }>`select app_private.has_public_payment_gateway(${business.id}) as enabled`.execute(db);
-    const gatewayEnabled = Boolean(gatewayResult.rows[0]?.enabled);
+    // Read the active, verified gateway directly. Do not depend on a database helper
+    // function that is not part of the standalone schema migrations.
+    const activeGateway = await db
+      .selectFrom("paymentGateways")
+      .select("id")
+      .where("businessId", "=", business.id)
+      .where("enabled", "=", true)
+      .where("verifiedAt", "is not", null)
+      .limit(1)
+      .executeTakeFirst();
+    const gatewayEnabled = Boolean(activeGateway);
     const services: OutputType["services"] = readServices(business.contentSettings)
       .filter((s) => s.published)
       .map((s) => {
