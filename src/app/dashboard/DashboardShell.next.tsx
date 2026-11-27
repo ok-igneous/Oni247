@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   BarChart3, CalendarDays, ChevronDown, ChevronRight, ClipboardList,
   CreditCard, ExternalLink, FileText, FolderTree, Images, Inbox,
@@ -89,12 +89,23 @@ function DashboardNavigation({ children }: { children: ReactNode }) {
   const { data } = useMyBusiness();
   const { data: access } = useTeamAccess();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
     content: true, appearance: true, site: true,
   });
 
   useEffect(() => { setMobileMenuOpen(false); }, [pathname]);
+  useEffect(() => {
+    const activeGroup = navGroups.find(group => group.items.some(item => {
+      const [path, query] = item.to.split("?");
+      if (pathname !== path) return false;
+      if (!query) return !searchParams.toString();
+      const [key, value] = query.split("=");
+      return searchParams.get(key) === value;
+    }));
+    if (activeGroup) setExpandedGroups(current => ({ ...current, [activeGroup.id]: true }));
+  }, [pathname, searchParams]);
   useEffect(() => {
     try {
       const saved = window.localStorage.getItem("oni247-dashboard-nav-groups");
@@ -130,7 +141,11 @@ function DashboardNavigation({ children }: { children: ReactNode }) {
 
   const renderNavItem = (item: NavItem) => {
     const path = item.to.split("?")[0];
-    const active = item.end ? pathname === path : pathname === path;
+    const query = item.to.split("?")[1];
+    const queryMatches = query
+      ? (() => { const [key, value] = query.split("="); return searchParams.get(key) === value; })()
+      : !searchParams.toString();
+    const active = pathname === path && queryMatches;
     const Icon = item.icon;
     return <Link key={item.to} href={item.to} onClick={() => setMobileMenuOpen(false)}
       aria-current={active ? "page" : undefined}
@@ -159,7 +174,13 @@ function DashboardNavigation({ children }: { children: ReactNode }) {
         <nav className={styles.nav} aria-label="Dashboard navigation">
           {renderNavItem(overview)}
           {visibleGroups.map(group => {
-            const active = group.items.some(item => pathname === item.to.split("?")[0]);
+            const active = group.items.some(item => {
+              const [path, query] = item.to.split("?");
+              if (pathname !== path) return false;
+              if (!query) return !searchParams.toString();
+              const [key, value] = query.split("=");
+              return searchParams.get(key) === value;
+            });
             const expanded = Boolean(expandedGroups[group.id]);
             const Icon = group.icon;
             return <section className={styles.navGroup} key={group.id}>
