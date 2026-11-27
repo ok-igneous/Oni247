@@ -40,7 +40,7 @@ Next.js will own page routing, layouts, server rendering and public storefront r
    - Preserve URL compatibility and add redirects only where explicitly required.
 4. **SEO and storefront rendering**
    - Implement server-rendered public storefront pages and metadata.
-   - Use `https://oni247.org/{slug}` for platform storefronts and preserve verified paid custom-domain resolution. Do not expose `/store/{slug}` or business subdomain URLs.
+   - Use `https://oni247.org/{slug}` for platform storefronts and preserve verified custom-domain resolution. Do not expose `/store/{slug}` or business subdomain URLs.
    - Verify canonical URLs, Open Graph metadata, structured data, sitemap and robots behavior.
 5. **API and security boundary**
    - Keep Fastify handlers intact initially behind same-origin `/_api/*` routing. The Next.js Node route handler forwards the original host/protocol and all Set-Cookie headers; the API must be private behind exactly one trusted Next.js proxy hop.
@@ -75,7 +75,7 @@ Next.js will own page routing, layouts, server rendering and public storefront r
 - Migration decision approved on 2026-11-27.
 - Migration branch: `nextjs-migration`.
 - Next.js owns the web route entry point and dynamic metadata for public storefront URLs.
-- Added request-host resolution for platform vanity URLs at `https://oni247.org/{slug}` and verified custom domains. Custom-domain ownership is checked against published businesses with `customDomainStatus = verified`; business subdomains and `/store/{slug}` are not supported.
+- Added request-host resolution for platform vanity URLs at `https://oni247.org/{slug}` and verified custom domains. Custom-domain ownership is checked against published businesses with `customDomainStatus = verified`; business subdomains and `/store/{slug}` are not supported. Subscription-entitlement enforcement for custom-domain activation remains a separate release check.
 - Public storefront, product, blog, event, page and gallery routes now load their public data on the server and return crawlable HTML, canonical URLs, Open Graph/Twitter metadata and JSON-LD where the existing snapshot renderer supports it.
 - Server rendering reuses the existing public Fastify endpoint handlers and crawler snapshot builder; it does not duplicate or weaken the public data access rules.
 - A hydration bridge temporarily hands the page to the existing interactive React Router storefront after initial hydration. This is a deliberate compatibility stage: the first response is server-rendered, but the full storefront interaction layer is not yet a completely native App Router implementation.
