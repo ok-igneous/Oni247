@@ -33,6 +33,15 @@ pages.sort();
 layouts.sort();
 
 const importPath = (file) => "../../" + file;
+const legacyRootPageSlugs = pages
+  .filter((file) => {
+    if (!file.startsWith("pages/") || file.slice("pages/".length).includes("/")) return false;
+    const basename = path.basename(file, ".tsx");
+    return basename !== "_index" && !basename.includes(".") && !basename.includes("$");
+  })
+  .map((file) => path.basename(file, ".tsx"))
+  .sort();
+
 const pageEntries = pages.map((file) =>
   `  ${JSON.stringify("../" + file)}: () => import(${JSON.stringify(importPath(file))}),`,
 ).join("\n");
@@ -57,4 +66,5 @@ ${layoutEntries}
 
 await mkdir(outputDir, { recursive: true });
 await writeFile(path.join(outputDir, "legacyPageRegistry.ts"), source, "utf8");
+await writeFile(path.join(outputDir, "legacyRootPageSlugs.ts"), `export const legacyRootPageSlugs: string[] = ${JSON.stringify(legacyRootPageSlugs, null, 2)};\n`, "utf8");
 console.info(`[oni247] Generated legacy compatibility registry: ${pages.length} pages, ${layouts.length} layouts.`);
