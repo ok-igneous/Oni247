@@ -15,7 +15,7 @@ async function getPageData(params: Props["params"]) {
   const [data, others] = await Promise.all([getPublicEventData(resolved.slug, eventSlug), getPublicEventsData(resolved.slug)]);
   if (!data || !data.event.published) notFound();
   const protocol = requestHeaders.get("x-forwarded-proto")?.split(",")[0]?.trim() || "https";
-  const origin = host ? `${protocol}://${host}` : "https://www.oni247.org";
+  const origin = host ? `${protocol}://${host}` : "https://oni247.org";
   const canonical = new URL(`/e/${encodeURIComponent(eventSlug)}`, origin).toString();
   return { data, others: others.events, eventSlug, origin, canonical };
 }
