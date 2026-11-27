@@ -15,14 +15,19 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(here, "..");
 const endpointsRoot = path.join(projectRoot, "endpoints");
-// Do not trust client-supplied X-Forwarded-* headers unless deployment explicitly
-// declares a trusted reverse-proxy hop count (or opts into full proxy trust).
+const apiHost = process.env.HOST ?? "127.0.0.1";
+// A loopback-only API is reachable only by the local Next.js proxy, so trusting
+// one hop is safe by default. Any non-loopback bind must configure proxy trust
+// explicitly and remain on a private network.
+const loopbackHost = apiHost === "127.0.0.1" || apiHost === "localhost" || apiHost === "::1";
 const trustProxySetting = process.env.TRUST_PROXY?.trim().toLowerCase();
 const trustProxy = trustProxySetting === "true"
   ? true
   : trustProxySetting && /^\d+$/.test(trustProxySetting)
     ? (_address: string, hop: number) => hop < Number(trustProxySetting)
-    : false;
+    : loopbackHost
+      ? (_address: string, hop: number) => hop < 1
+      : false;
 
 const app = Fastify({ logger: true, bodyLimit: 60 * 1024 * 1024, trustProxy });
 
@@ -205,7 +210,7 @@ app.addHook("onClose", async () => {
 });
 
 const port = Number.parseInt(process.env.API_PORT ?? "3001", 10);
-const host = process.env.HOST ?? "127.0.0.1";
+const host = apiHost;
 console.info("[oni247] Startup: binding private API listener", { host, port });
 await app.listen({ port, host });
 console.info("[oni247] Startup: private API listener ready", { host, port });
