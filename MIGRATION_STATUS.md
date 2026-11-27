@@ -91,3 +91,5 @@ The new runtime is a first implementation, not a completed migration. Keep previ
 - Added the `schema_migrations` ledger and recorded both initial migration versions. A core relational smoke test successfully inserted and removed a temporary user, password record, session, business, category, product, customer and order; all temporary rows were removed.
 - Replaced hardcoded Floot verification/reset links in registration, resend-verification and forgot-password handlers with `PUBLIC_APP_URL` (falling back to the incoming request origin). Configured Render staging with `PUBLIC_APP_URL=https://oni247-staging.onrender.com`.
 - Render deploy `dep-dc4o9tui0phs73b0r8kg` was triggered for the auth URL correction. Its latest observed state was `build_in_progress`; completion and live endpoint checks must be confirmed before calling the staging release verified.
+
+- Added `scripts/migrate.mjs` and the `npm run db:migrate` command. The runner applies numbered SQL files in order, records applied versions, and wraps each migration in a transaction. The runner itself has been reviewed but has not yet been executed from the Render runtime.
