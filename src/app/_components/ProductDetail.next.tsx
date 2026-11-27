@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -552,11 +554,12 @@ const ProductDetailNext = ({ data, productSlug, customDomain, origin }: Props) =
       )}
 
       <StoreCartDockNext
+        slug={business.slug}
+        customDomain={customDomain}
         currency={business.currency}
         cart={cart}
         open={cartOpen}
         onOpenChange={setCartOpen}
-        checkoutHref={path("/checkout")}
       />
     </div>
   );
