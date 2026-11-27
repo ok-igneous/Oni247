@@ -107,3 +107,11 @@ baseline.
 The isolated Next.js foundation is not yet the production frontend. Do not
 remove Vite, React Router, or the legacy route tree until the replacement routes
 and backend integration have been built and tested.
+
+
+## Migrated routes
+
+- `/login`, `/register`, `/forgot-password`, and `/verify-email` use Next.js App Router pages.
+- `/dashboard` now has a Next.js protected layout and overview page. The existing Fastify endpoints remain authoritative for session lookup, login, registration, email verification, tenant scoping, and dashboard data.
+- The Next.js development command starts Next.js on port 3000 and Fastify on port 3001. Next.js rewrites API and SEO requests to Fastify.
+- Other dashboard sections and the public storefront are not yet migrated. Do not switch the production start command or remove the legacy frontend until those routes are migrated and verified.
