@@ -127,8 +127,10 @@ export default function DashboardDomainsPage() {
         {domains.map(domain => <article className={styles.domain} key={domain.id}>
           <div className={styles.domainInfo}><strong>{domain.hostname}</strong><span>{domain.domain_type === "platform_subdomain" ? "Oni247 subdomain" : "Customer-owned domain"}</span></div>
           <div className={styles.statuses}><span className={styles.status}>{domain.status}</span><span className={styles.status}>SSL: {domain.ssl_status}</span>{domain.is_primary && <span className={styles.primary}>Primary</span>}</div>
-          {domain.status === "pending" && <Button size="sm" variant="outline" disabled={checkingId === domain.id} onClick={() => void verify(domain.id)}>{checkingId === domain.id ? "Checking…" : "Verify TXT record"}</Button>}
-          {domain.status === "verified" && <p className={styles.warning}>Ownership verified. SSL provisioning and activation are still pending.</p>}
+          {(domain.status === "pending" || domain.status === "verified") && <Button size="sm" variant="outline" disabled={checkingId === domain.id} onClick={() => void verify(domain.id)}>{checkingId === domain.id ? "Checking…" : domain.status === "pending" ? "Verify domain" : "Check DNS & SSL"}</Button>}
+          {domain.status === "verified" && <p className={styles.warning}>Ownership verified. Render DNS verification or HTTPS certificate provisioning may still be in progress. Check again after a few minutes.</p>}
+          {domain.status === "active" && <p className={styles.warning}>Your domain is connected and HTTPS is verified.</p>}
+          {domain.status === "failed" && <p className={styles.warning}>Domain setup failed. Contact support with this hostname.</p>}
         </article>)}
       </div>}
     </section>
