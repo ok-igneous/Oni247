@@ -6,7 +6,7 @@ import { normalizeDomainHost, resolvePlatformSubdomainSlug } from "../server/sto
 export async function handle(request: Request) {
   try {
     const url = new URL(request.url);
-    const configuredRoot = process.env.PLATFORM_ROOT_DOMAIN || process.env.APP_BASE_URL || null;
+    const configuredRoot = process.env.PLATFORM_ROOT_DOMAIN || process.env.APP_BASE_URL || "https://www.oni247.org";
     const requestedHost = url.searchParams.get("host");
     const requestHost = requestedHost ? normalizeDomainHost(`https://${requestedHost}`) : normalizeDomainHost(`https://${url.hostname}`);
     if (!requestHost) return new Response(JSON.stringify({ slug: null }), { headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" } });
