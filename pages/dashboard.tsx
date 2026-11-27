@@ -63,8 +63,8 @@ const DashboardPage = () => {
     );
   }
 
-  const pageUrl = data.platformRootDomain
-    ? `https://${data.slug}.${data.platformRootDomain}`
+  const pageUrl = data.primaryDomain
+    ? `https://${data.primaryDomain}`
     : `${window.location.origin}/${data.slug}`;
   const isPublished = data.status === "published";
 
