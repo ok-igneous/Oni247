@@ -12,6 +12,7 @@ import {
   X,
   ExternalLink,
   FolderTree,
+  Globe2,
   Inbox,
   LayoutGrid,
   LogOut,
@@ -40,6 +41,7 @@ import styles from "./DashboardLayout.module.css";
 const navItems = [
   { to: "/dashboard", label: "Overview", icon: LayoutGrid, end: true },
   { to: "/dashboard/business", label: "Business", icon: Store, end: false },
+  { to: "/dashboard/domains", label: "Domains", icon: Globe2, end: false },
   { to: "/dashboard/presence", label: "Presence", icon: Sparkles, end: false },
   { to: "/dashboard/theme", label: "Theme", icon: Sparkles, end: false },
   { to: "/dashboard/galleries", label: "Gallery", icon: Sparkles, end: false },
@@ -162,7 +164,9 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
           {business && isPublished && (
             <Button asChild variant="outline" size="sm" className={styles.fullWidth}>
               <a
-                href={`/${business.slug}`}
+                href={data?.primaryDomain
+                  ? `https://${data.primaryDomain}`
+                  : `https://${data?.platformRootDomain ?? "oni247.org"}/${business.slug}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >

@@ -7,11 +7,13 @@ import { Button } from "../components/Button";
 import { Skeleton } from "../components/Skeleton";
 import { formatMoney } from "../helpers/formatMoney";
 import { buildWhatsAppOrderUrl } from "../helpers/buildWhatsAppOrderUrl";
+import { useStorefrontHost } from "../helpers/storefrontHost";
 import { getShowcase } from "../endpoints/showcase_GET.schema";
 import styles from "./s.$code.module.css";
 
 const ShowcasePage = () => {
   const { code } = useParams<{ code: string }>();
+  const host = useStorefrontHost();
   const { data, isFetching, error } = useQuery({
     queryKey: ["showcase", code],
     queryFn: () => getShowcase({ code: code as string }),
@@ -44,6 +46,7 @@ const ShowcasePage = () => {
   }
 
   const { showcase, business, products } = data;
+  const businessPath = host.slug === business.slug ? "" : `/${business.slug}`;
   const whatsapp = business.whatsappNumber ?? business.phone ?? "";
   const shareDescription =
     showcase.description ?? `${products.length} picks from ${business.name}.`;
@@ -62,7 +65,7 @@ const ShowcasePage = () => {
       </Helmet>
 
       <header className={styles.head}>
-        <Link to={`/${business.slug}`} className={styles.shopLink}>
+        <Link to={businessPath || "/"} className={styles.shopLink}>
           {business.logoUrl ? (
             <img src={business.logoUrl} alt="" className={styles.logo} />
           ) : (
@@ -80,7 +83,7 @@ const ShowcasePage = () => {
         {products.map((product) => (
           <Link
             key={product.id}
-            to={`/${business.slug}/p/${product.slug}`}
+            to={`${businessPath}/p/${product.slug}`}
             className={styles.card}
           >
             <div className={styles.media}>
@@ -110,7 +113,7 @@ const ShowcasePage = () => {
 
       <div className={styles.actions}>
         <Button asChild size="lg">
-          <Link to={`/${business.slug}`}>See the full shop</Link>
+          <Link to={businessPath || "/"}>See the full shop</Link>
         </Button>
         {whatsapp && (
           <Button asChild variant="outline" size="lg">

@@ -57,11 +57,9 @@ export async function handle(request: Request) {
       );
     }
 
-    await loadPlanConfig();
     const resolvedPlan = subscriptionPlan.resolve(business);
+    await loadPlanConfig();
 
-    // Read the active, verified gateway directly. Do not depend on a database helper
-    // function that is not part of the standalone schema migrations.
     const activeGateway = await db
       .selectFrom("paymentGateways")
       .select("id")
@@ -165,7 +163,6 @@ export async function handle(request: Request) {
         })(),
         canUseProductLinks: resolvedPlan.canUseProductLinks,
         canUseMultiPage: resolvedPlan.canUseMultiPage,
-        showPlatformBranding: resolvedPlan.source === "free",
         blogSettings: parseBlogSettings(blogSettings),
         checkout: {
           deliveryEnabled: checkout.deliveryEnabled,
