@@ -102,7 +102,7 @@ The new runtime is a first implementation, not a completed migration. Keep previ
 
 - Added Next.js 16.4.6 App Router, root layout, optional catch-all route and a browser-only compatibility boundary for the existing interactive React app.
 - Moved all 209 files from the root `pages/` directory to `legacy-pages/`. This is required because Next.js reserves root `pages/` for its Pages Router; leaving the legacy directory in place would make Next interpret unrelated component files as routes.
-- Added a generated static import registry for 69 legacy page modules and 70 page-layout modules. The Vite `import.meta.glob()` route discovery was removed from `src/App.tsx`.
+- Added a generated static import registry for 68 routable legacy page modules and 70 page-layout modules; the shared storefront implementation is excluded from route registration. The Vite `import.meta.glob()` route discovery was removed from `src/App.tsx`.
 - Removed the Vite `index.html`, `vite.config.ts`, direct Vite dependency, Vite React plugin, and Vite web scripts. Development/build/start scripts now invoke Next.js. Vitest remains for the existing test suite; it is not the web runtime.
 - Added a shared Node.js proxy helper and Next route handlers for same-origin `/_api/*`, `/sitemap.xml` and `/robots.txt`. It preserves the incoming host/protocol and multiple Set-Cookie headers when proxying to Fastify. Added regression tests for host/cookie forwarding and API-unavailable behavior; tests have not been run. The API must be private behind one trusted Next.js proxy hop; do not expose the API listener publicly with `TRUST_PROXY=1`.
 - Split the local API port into `API_PORT` and added `API_ORIGIN` for the Next.js proxy. Fastify remains a separate service.
@@ -111,7 +111,7 @@ The new runtime is a first implementation, not a completed migration. Keep previ
 
 
 - Fastify was converted to an API-only listener; the old Vite `dist/index.html` static fallback and crawler interception are no longer registered on the API service. The legacy crawler rendering modules remain in the repository as source material for the Next.js SEO migration, but are not active.
-- Static GitHub tree validation after the page-directory move found 69 page modules, 70 layout modules, no route-name collisions, no root `pages/` directory, no `index.html` or `vite.config.ts`, and no direct `vite` dependency in `package.json`.
+- Static GitHub tree validation after the page-directory move found 69 legacy page TSX files, of which 68 are registered routes, plus 70 layout modules, no route-name collisions, no root `pages/` directory, no `index.html` or `vite.config.ts`, and no direct `vite` dependency in `package.json`.
 - Vitest remains temporarily as the test runner for the existing 19 tests. It is not used as the web development server or build system; replacing the test runner is a separate cleanup item if the requirement is to eliminate every transitive Vite package as well.
 
 ## Native Next.js storefront SSR milestone (2026-11-27)
