@@ -6,6 +6,7 @@ process.on("uncaughtExceptionMonitor", (error, origin) => {
 console.info("[oni247] Startup: initializing API server");
 import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
 import { sql } from "kysely";
+import { isPlatformHostname, normalizeDomainHost } from "./storefrontPrerender";
 import { readdir } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -168,12 +169,20 @@ app.all("/_api/*", async (request, reply) => {
   return invokeEndpoint(request.method.toUpperCase(), route, request, reply);
 });
 
-// The existing sitemap handler is now exposed at the conventional public URL.
+// SEO endpoints are proxied with the original request host so custom domains
+// receive their own canonical sitemap and robots Sitemap URL.
 app.get("/sitemap.xml", async (request, reply) =>
-  invokeEndpoint("GET", "sitemap", request, reply, process.env.APP_BASE_URL?.trim() ? process.env.APP_BASE_URL.trim().replace(/\/+$/, "") : undefined),
+  invokeEndpoint("GET", "sitemap", request, reply),
 );
 app.get("/robots.txt", async (request, reply) => {
-  const baseUrl = process.env.APP_BASE_URL?.trim() || `${request.protocol}://${request.host}`;
+  const requestHost = normalizeDomainHost(request.host);
+  const platformRoot = process.env.PLATFORM_ROOT_DOMAIN || process.env.APP_BASE_URL || "https://oni247.org";
+  const renderHost = normalizeDomainHost(process.env.RENDER_EXTERNAL_HOSTNAME);
+  const isPlatformHost = isPlatformHostname(requestHost ?? "", platformRoot)
+    || Boolean(requestHost && renderHost && requestHost === renderHost);
+  const baseUrl = isPlatformHost
+    ? (process.env.APP_BASE_URL?.trim() || `${request.protocol}://${request.host}`)
+    : `${request.protocol}://${request.host}`;
   const sitemap = new URL("/sitemap.xml", baseUrl).toString();
   return reply.type("text/plain; charset=utf-8").send(
     `User-agent: *\nAllow: /\nDisallow: /dashboard\nDisallow: /admin\nDisallow: /login\nDisallow: /register\nDisallow: /track\nDisallow: /_api/\nSitemap: ${sitemap}\n`,
