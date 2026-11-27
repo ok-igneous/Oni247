@@ -28,6 +28,11 @@ export async function handle(request: Request) {
 
     await db.transaction().execute(async (trx) => {
       await sql`delete from business_domains where id = ${domain.id}`.execute(trx);
+      await sql`update businesses
+        set custom_domain = null, custom_domain_status = 'disabled',
+            custom_domain_verified_at = null, updated_at = now()
+        where id = ${domain.business_id}
+          and lower(split_part(split_part(regexp_replace(custom_domain, '^https?://', '', 'i'), '/', 1), ':', 1)) = ${domain.hostname}`.execute(trx);
       if (domain.is_primary) {
         const next = await sql<{ id: string }>`select id from business_domains
           where business_id = ${domain.business_id} and status = 'active' and ssl_status = 'active'
