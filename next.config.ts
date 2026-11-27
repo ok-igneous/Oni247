@@ -1,22 +1,25 @@
 import type { NextConfig } from "next";
 
-const apiOrigin = (process.env.ONI247_API_INTERNAL_URL ?? "http://127.0.0.1:3001").replace(/\/+$/, "");
+const apiOrigin = (process.env.ONI247_API_INTERNAL_URL ?? "http://127.0.0.1:3001").replace(/\\/+$/, "");
+const renderHost = (process.env.RENDER_EXTERNAL_HOSTNAME ?? "oni247-staging.onrender.com").replace(/\\./g, "\\\\.");
+const customHostPattern = `^(?!([a-z0-9-]+\\\\.)?oni247\\\\.org$)(?!${renderHost}$).+$`;
 
 const nextConfig: NextConfig = {
-  // The existing root-level pages/ directory belongs to the legacy Vite
-  // file-router. Only files ending in .next.tsx are Next.js route modules
-  // until the legacy router is retired.
   pageExtensions: ["next.tsx", "next.ts", "next.jsx", "next.js"],
   poweredByHeader: false,
   reactStrictMode: true,
   async rewrites() {
-    // Keep Fastify as the API authority while Next.js takes over page rendering.
-    // This preserves the existing HTTP-only session cookie and tenant-aware API.
-    return [
-      { source: "/_api/:path*", destination: `${apiOrigin}/_api/:path*` },
-      { source: "/sitemap.xml", destination: `${apiOrigin}/sitemap.xml` },
-      { source: "/robots.txt", destination: `${apiOrigin}/robots.txt` },
-    ];
+    return {
+      beforeFiles: [
+        { source: "/:path+", has: [{ type: "host", value: customHostPattern }], destination: `${apiOrigin}/:path+` },
+      ],
+      afterFiles: [
+        { source: "/_api/:path*", destination: `${apiOrigin}/_api/:path*` },
+        { source: "/sitemap.xml", destination: `${apiOrigin}/sitemap.xml` },
+        { source: "/robots.txt", destination: `${apiOrigin}/robots.txt` },
+      ],
+      fallback: [{ source: "/:path*", destination: `${apiOrigin}/:path*` }],
+    };
   },
 };
 
