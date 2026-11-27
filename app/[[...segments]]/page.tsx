@@ -9,6 +9,7 @@ import {
 } from "../../server/nextStorefront";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 type PageProps = {
   params: Promise<{ segments?: string[] }>;
