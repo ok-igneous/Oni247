@@ -125,16 +125,19 @@ export default function DashboardDomainsPage() {
       <div><h1 className={styles.title}>Domains</h1><p className={styles.subtitle}>Connect a domain you own to your Oni247 business page. Your free oni247.org/slug address remains available.</p></div>
     </header>
 
-    <section className={styles.panel}>
+    {customDomainsAllowed ? <section className={styles.panel}>
       <div className={styles.panelTitle}><Globe2 size={19}/><h2>Connect your domain</h2></div>
       <p className={styles.help}>Enter the root domain you own, such as <strong>example.com</strong> or <strong>example.com.ng</strong>, or its <strong>www</strong> hostname. Oni247 configures the root and www records together so Render can redirect the secondary address. Do not include https:// or a page path.</p>
       <div className={styles.addRow}>
         <Input value={hostname} onChange={event => setHostname(event.target.value)} placeholder="www.example.com" autoComplete="url" />
         <Button onClick={() => void addDomain()} disabled={saving || !hostname.trim()}>{saving ? "Adding…" : <><Plus size={16}/> Add domain</>}</Button>
       </div>
-    </section>
+    </section> : <section className={styles.panel}>
+      <div className={styles.panelTitle}><Globe2 size={19}/><h2>Custom domains require a paid plan</h2></div>
+      <p className={styles.help}>Upgrade to an active paid Oni247 plan to connect a domain you own. Your free oni247.org/slug address remains available on every plan.</p>
+    </section>}
 
-    {instructions && <section className={styles.panel}>
+    {customDomainsAllowed && instructions && <section className={styles.panel}>
       <div className={styles.panelTitle}><CheckCircle2 size={19}/><h2>DNS verification instructions</h2></div>
       <p className={styles.help}>Add this TXT record in the DNS settings where you purchased your domain. DNS changes can take time to appear.</p>
       <div className={styles.record}>
