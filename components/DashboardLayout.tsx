@@ -164,7 +164,9 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
           {business && isPublished && (
             <Button asChild variant="outline" size="sm" className={styles.fullWidth}>
               <a
-                href={`/${business.slug}`}
+                href={data?.platformRootDomain
+                  ? `https://${business.slug}.${data.platformRootDomain}`
+                  : `/${business.slug}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
