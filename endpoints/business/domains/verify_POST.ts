@@ -3,11 +3,15 @@ import superjson from "superjson";
 import { sql } from "kysely";
 import { db } from "../../../helpers/db";
 import { getServerUserSession } from "../../../helpers/getServerUserSession";
+import { hasPaidCustomDomainAccess } from "../../../helpers/domainEntitlement";
 import { syncRenderCustomDomain } from "../../../helpers/renderCustomDomains";
 
 export async function handle(request: Request) {
   try {
     const { user } = await getServerUserSession(request);
+    if (!(await hasPaidCustomDomainAccess(user.id))) {
+      return new Response(superjson.stringify({ error: "Custom domains are available on active paid plans only. Your Oni247 /slug address remains available." }), { status: 403 });
+    }
     const body = await request.json() as { domainId?: unknown };
     if (typeof body.domainId !== "string" || !body.domainId) {
       return new Response(superjson.stringify({ error: "A domain ID is required." }), { status: 400 });
