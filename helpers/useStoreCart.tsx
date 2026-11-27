@@ -62,20 +62,24 @@ const readCart = (slug: string): StoreCartLine[] => {
  * product id).
  */
 export const useStoreCart = (slug: string) => {
-  const [items, setItems] = useState<StoreCartLine[]>(() => readCart(slug));
+  // Keep the server render and first browser render identical. The saved cart is
+  // hydrated after mount, then persisted only after that business cart is loaded.
+  const [items, setItems] = useState<StoreCartLine[]>([]);
+  const [loadedSlug, setLoadedSlug] = useState<string | null>(null);
 
   useEffect(() => {
     setItems(readCart(slug));
+    setLoadedSlug(slug);
   }, [slug]);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || loadedSlug !== slug) return;
     try {
       window.localStorage.setItem(storageKey(slug), JSON.stringify(items));
     } catch {
       /* quota or private mode — the cart simply does not survive a reload */
     }
-  }, [slug, items]);
+  }, [slug, items, loadedSlug]);
 
   const add = useCallback((item: StoreCartItem, quantity: number = 1) => {
     const lineId = lineIdFor(item);
