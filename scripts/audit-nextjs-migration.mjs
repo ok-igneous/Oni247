@@ -63,13 +63,16 @@ const collisions = [...grouped.entries()]
   .filter(([, files]) => files.length > 1)
   .map(([route, files]) => ({ route, files }));
 
-for (const file of ["server", "endpoints", "src"]) {
-  // Route and host resolution must not reintroduce the retired business-subdomain resolver.
-  const directory = path.join(root, file);
-  await walk(directory);
+const hostResolutionSources = await Promise.all([
+  readFile(path.join(root, "server", "storefrontPrerender.ts"), "utf8"),
+  readFile(path.join(root, "server", "crawlerRenderer.ts"), "utf8"),
+  readFile(path.join(root, "endpoints", "storefrontHost_GET.ts"), "utf8"),
+]);
+if (hostResolutionSources.some((source) =>
+  source.includes("resolvePlatformSubdomainSlug") || source.includes("resolvePlatformSubdomain(")
+)) {
+  findings.push({ file: "source", issue: "Retired business-subdomain resolver remains", count: 1 });
 }
-const forbiddenSubdomainResolver = routeFiles.some(({ file }) => file.includes("resolvePlatformSubdomainSlug"));
-if (forbiddenSubdomainResolver) findings.push({ file: "source", issue: "Retired business-subdomain resolver remains", count: 1 });
 
 const subscriptionSource = await readFile(path.join(root, "helpers", "subscriptionPlan.tsx"), "utf8");
 const hostEndpointSource = await readFile(path.join(root, "endpoints", "storefrontHost_GET.ts"), "utf8");
