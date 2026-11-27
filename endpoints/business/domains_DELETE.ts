@@ -2,6 +2,7 @@ import superjson from "superjson";
 import { sql } from "kysely";
 import { db } from "../../helpers/db";
 import { getServerUserSession } from "../../helpers/getServerUserSession";
+import { hasPaidCustomDomainAccess } from "../../helpers/domainEntitlement";
 import { deleteRenderCustomDomain } from "../../helpers/renderCustomDomains";
 
 export async function handle(request: Request) {
