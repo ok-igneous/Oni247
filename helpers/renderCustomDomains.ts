@@ -40,7 +40,7 @@ const requestRender = async <T>(path: string, init: RequestInit = {}): Promise<T
   return (text ? JSON.parse(text) : null) as T;
 };
 
-const isPublicAddress = (address: string): boolean => {
+export const isPublicAddress = (address: string): boolean => {
   const family = isIP(address);
   if (family === 4) {
     const parts = address.split(".").map(Number);
