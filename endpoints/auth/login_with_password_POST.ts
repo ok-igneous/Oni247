@@ -2,7 +2,7 @@
 import { db } from "../../helpers/db";
 import { sql } from "kysely";
 import { schema } from "./login_with_password_POST.schema";
-import { compare } from "bcryptjs";
+import { compare, hash } from "bcryptjs";
 import { randomBytes } from "crypto";
 import {
   setServerSession,
@@ -10,6 +10,10 @@ import {
 } from "../../helpers/getSetServerSession";
 import { User } from "../../helpers/User";
 import superjson from "superjson";
+
+// Perform the same bcrypt work for unknown emails as for incorrect passwords.
+// Generate once at module load; the random value is never used for authentication.
+const dummyPasswordHashPromise = hash(randomBytes(32).toString("hex"), 10);
 
 // Configuration constants
 const RATE_LIMIT_CONFIG = {
@@ -113,6 +117,7 @@ export async function handle(request: Request) {
         .execute();
 
       if (userResults.length === 0) {
+        await compare(password, await dummyPasswordHashPromise);
         // Log failed attempt for non-existent user
         await trx
           .insertInto("loginAttempts")
