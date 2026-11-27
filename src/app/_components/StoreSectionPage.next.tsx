@@ -21,7 +21,7 @@ import styles from "../../../pages/store.$slug.$page.module.css";
 
 const pages = ["products", "services", "about", "gallery", "blog", "events", "contact"] as const;
 
-export default function StoreSectionPageNext({ slug, page, initialData }: { slug: string; page: string; initialData: StorefrontOutput }) {
+export default function StoreSectionPageNext({ slug, page, initialData, customDomain = false }: { slug: string; page: string; initialData: StorefrontOutput; customDomain?: boolean }) {
   const { data } = useStorefront(slug, initialData);
   const [galleries, setGalleries] = useState<Array<{ id: string; slug: string; name: string; description: string | null; coverImageUrl: string | null; imageCount: number }>>([]);
   const [galleryError, setGalleryError] = useState(false);
@@ -52,20 +52,21 @@ export default function StoreSectionPageNext({ slug, page, initialData }: { slug
   }, [slug, page, galleryRetry]);
 
   const business = data?.business ?? initialData.business;
+  const storefrontPath = (suffix = "") => customDomain ? (suffix ? `/${suffix.replace(/^\\/+/, "")}` : "/") : `/${encodeURIComponent(slug)}${suffix ? `/${suffix.replace(/^\\/+/, "")}` : ""}`;
   const isValidPage = (pages as readonly string[]).includes(page);
   const appearance = business.appearanceSettings ?? {};
   const theme = storeThemeEngine(business.themeId, appearance);
   const title = page === "about" ? "About us" : page.charAt(0).toUpperCase() + page.slice(1);
   const homePage = typeof appearance.homePage === "string" ? appearance.homePage : "home";
   const navItems = [
-    { label: "Home", href: homePage === "home" ? `/${slug}` : `/${slug}/${homePage}` },
+    { label: "Home", href: homePage === "home" ? storefrontPath() : storefrontPath(homePage) },
     ...pages.filter(item => item !== homePage &&
       (item !== "products" || initialData.products.length > 0) &&
       (item !== "services" || initialData.services.length > 0) &&
       (item !== "blog" || initialData.blogPosts.length > 0) &&
       (item !== "events" || initialData.events.length > 0)
-    ).map(item => ({ label: item[0].toUpperCase() + item.slice(1), href: `/${slug}/${item}`, active: item === page })),
-    { label: "Track order", href: `/${slug}/track` },
+    ).map(item => ({ label: item[0].toUpperCase() + item.slice(1), href: storefrontPath(item), active: item === page })),
+    { label: "Track order", href: storefrontPath("track") },
   ];
 
   const products = data?.products ?? initialData.products;
@@ -99,7 +100,7 @@ export default function StoreSectionPageNext({ slug, page, initialData }: { slug
     } finally { setSending(false); }
   };
 
-  if (!isValidPage) return <main className={styles.page}><h1>Page not found</h1><Link href={`/${slug}`}>Back to website</Link></main>;
+  if (!isValidPage) return <main className={styles.page}><h1>Page not found</h1><Link href={storefrontPath()}>Back to website</Link></main>;
   if (business.appearanceSettings?.siteMode !== "multi_page" || !business.canUseMultiPage) {
     return <main className={styles.page}><div className={styles.main}><h1>Premium Plus page</h1><p>This business is currently using its one-page website.</p><Link href={`/${slug}`}>Back to website</Link></div></main>;
   }
@@ -123,18 +124,18 @@ export default function StoreSectionPageNext({ slug, page, initialData }: { slug
             <label>Search products<Input value={search} onChange={event => { setSearch(event.target.value); setVisible(12); }} placeholder="Search products" /></label>
             {categories.length > 0 && <label>Category<select value={category} onChange={event => { setCategory(event.target.value); setVisible(12); }}><option value="all">All categories</option>{categories.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>}
           </div>
-          <div className={styles.grid}>{visibleProducts.map(product => <StoreProductCardNext key={product.id} product={product} to={business.canUseProductLinks ? `/${slug}/p/${product.slug}` : undefined} onAdd={() => handleAdd(product)} />)}</div>
+          <div className={styles.grid}>{visibleProducts.map(product => <StoreProductCardNext key={product.id} product={product} to={business.canUseProductLinks ? storefrontPath(`p/${product.slug}`) : undefined} onAdd={() => handleAdd(product)} />)}</div>
           {products.length === 0 && <p>No products have been published yet.</p>}
           {products.length > visibleProducts.length && <div className={styles.shareBar}><Button variant="outline" onClick={() => setVisible(count => count + 12)}>Show more products</Button></div>}
         </>}
 
-        {page === "services" && <div className={styles.grid}>{initialData.services.map(service => <StoreServiceCardNext key={service.id} service={service} businessSlug={slug} />)}</div>}
+        {page === "services" && <div className={styles.grid}>{initialData.services.map(service => <StoreServiceCardNext key={service.id} service={service} businessSlug={slug} customDomain={customDomain} />)}</div>}
 
-        {page === "gallery" && (galleryLoading ? <p>Loading galleries…</p> : galleryError ? <section><p>We could not load the galleries right now.</p><Button onClick={() => setGalleryRetry(value => value + 1)}>Try again</Button></section> : galleries.length === 0 ? <p>No public galleries have been added yet.</p> : <div className={styles.grid}>{galleries.map(gallery => <article key={gallery.id}>{gallery.coverImageUrl && <Link href={`/${slug}/g/${gallery.slug}`}><img src={gallery.coverImageUrl} alt={gallery.name} loading="lazy" /></Link>}<h2><Link href={`/${slug}/g/${gallery.slug}`}>{gallery.name}</Link></h2>{gallery.description && <p>{gallery.description}</p>}<p>{gallery.imageCount} {gallery.imageCount === 1 ? "photo" : "photos"}</p><Link href={`/${slug}/g/${gallery.slug}`}>Open gallery →</Link></article>)}</div>)}
+        {page === "gallery" && (galleryLoading ? <p>Loading galleries…</p> : galleryError ? <section><p>We could not load the galleries right now.</p><Button onClick={() => setGalleryRetry(value => value + 1)}>Try again</Button></section> : galleries.length === 0 ? <p>No public galleries have been added yet.</p> : <div className={styles.grid}>{galleries.map(gallery => <article key={gallery.id}>{gallery.coverImageUrl && <Link href={storefrontPath(`g/${gallery.slug}`)}><img src={gallery.coverImageUrl} alt={gallery.name} loading="lazy" /></Link>}<h2><Link href={`/${slug}/g/${gallery.slug}`}>{gallery.name}</Link></h2>{gallery.description && <p>{gallery.description}</p>}<p>{gallery.imageCount} {gallery.imageCount === 1 ? "photo" : "photos"}</p><Link href={`/${slug}/g/${gallery.slug}`}>Open gallery →</Link></article>)}</div>)}
 
-        {page === "blog" && <div className={styles.list}>{initialData.blogPosts.map(post => <article key={post.id}>{post.coverImageUrl && <Link href={`/${slug}/b/${post.slug}`}><img className={styles.articleCover} src={post.coverImageUrl} alt="" loading="lazy" /></Link>}<h2><Link href={`/${slug}/b/${post.slug}`}>{post.title}</Link></h2>{post.excerpt && <p>{post.excerpt}</p>}<Link href={`/${slug}/b/${post.slug}`}>Read article →</Link></article>)}{initialData.blogPosts.length === 0 && <p>No articles have been published yet.</p>}</div>}
+        {page === "blog" && <div className={styles.list}>{initialData.blogPosts.map(post => <article key={post.id}>{post.coverImageUrl && <Link href={storefrontPath(`b/${post.slug}`)}><img className={styles.articleCover} src={post.coverImageUrl} alt="" loading="lazy" /></Link>}<h2><Link href={`/${slug}/b/${post.slug}`}>{post.title}</Link></h2>{post.excerpt && <p>{post.excerpt}</p>}<Link href={`/${slug}/b/${post.slug}`}>Read article →</Link></article>)}{initialData.blogPosts.length === 0 && <p>No articles have been published yet.</p>}</div>}
 
-        {page === "events" && <div className={styles.grid}>{initialData.events.map(event => <article key={event.id}>{event.coverImageUrl && <Link href={`/${slug}/e/${event.slug}`}><img src={event.coverImageUrl} alt="" loading="lazy" /></Link>}<h2><Link href={`/${slug}/e/${event.slug}`}>{event.title}</Link></h2><p>{new Date(event.startsAt).toLocaleString()}</p>{event.venue && <p>{event.venue}</p>}<Link href={`/${slug}/e/${event.slug}`}>{event.registrationEnabled ? "Details & register →" : "View event →"}</Link></article>)}{initialData.events.length === 0 && <p>There are no events right now. Check back soon.</p>}</div>}
+        {page === "events" && <div className={styles.grid}>{initialData.events.map(event => <article key={event.id}>{event.coverImageUrl && <Link href={storefrontPath(`e/${event.slug}`)}><img src={event.coverImageUrl} alt="" loading="lazy" /></Link>}<h2><Link href={`/${slug}/e/${event.slug}`}>{event.title}</Link></h2><p>{new Date(event.startsAt).toLocaleString()}</p>{event.venue && <p>{event.venue}</p>}<Link href={`/${slug}/e/${event.slug}`}>{event.registrationEnabled ? "Details & register →" : "View event →"}</Link></article>)}{initialData.events.length === 0 && <p>There are no events right now. Check back soon.</p>}</div>}
 
         {page === "contact" && <section className={styles.contactSection}>
           {business.phone && <p>Phone: <a href={`tel:${business.phone}`}>{business.phone}</a></p>}
@@ -153,7 +154,7 @@ export default function StoreSectionPageNext({ slug, page, initialData }: { slug
         <div className={styles.shareBottom}><span>Share this page</span><div className={styles.shareWrap}><button type="button" className={styles.shareButton} onClick={() => setShareOpen(value => !value)} aria-expanded={shareOpen}>Share</button>{shareOpen && <div className={styles.shareMenu}><a href={`https://wa.me/?text=${shareText}`} target="_blank" rel="noreferrer">WhatsApp</a><a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noreferrer">Facebook</a><button type="button" onClick={() => { void navigator.clipboard.writeText(shareUrl).then(() => { toast.success("Page link copied."); setShareOpen(false); }, () => toast.error("Could not copy the link.")); }}>Copy link</button></div>}</div></div>
       </main>
       {showFooter && <footer className={styles.footer}><Link href={`/${slug}`}>← Back to home</Link><span>© {new Date().getFullYear()} {business.name}</span></footer>}
-      <StoreCartDockNext slug={slug} currency={business.currency} cart={cart} open={cartOpen} onOpenChange={setCartOpen} />
+      <StoreCartDockNext slug={slug} currency={business.currency} cart={cart} open={cartOpen} onOpenChange={setCartOpen} customDomain={customDomain} />
       {optionsProduct && <StoreOptionsDialog product={optionsProduct} onClose={() => setOptionsProduct(null)} onConfirm={item => { cart.add(item); setCartOpen(true); }} />}
     </div>
   );
