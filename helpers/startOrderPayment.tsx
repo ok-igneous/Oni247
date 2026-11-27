@@ -19,7 +19,7 @@ export const startOrderPayment = async (
   const gateway = await db.selectFrom("paymentGateways").selectAll().where("businessId", "=", order.businessId).where("enabled", "=", true).limit(1).executeTakeFirst();
   if (!gateway) return { ok: false, error: "Online payment is not available right now." };
   const reference = `ord-${order.trackingCode}-${nanoid(6)}`.replace(/[^A-Za-z0-9-]/g, "");
-  const back = `${origin}/store/${business.slug}/checkout?ref=${encodeURIComponent(order.trackingCode)}`;
+  const back = `${origin}/${encodeURIComponent(business.slug)}/checkout?ref=${encodeURIComponent(order.trackingCode)}`;
   const started = await initCheckout(gateway.provider as GatewayProvider, await decryptSecret(gateway.secretEnc), {
     reference,
     amount: Number.parseFloat(order.totalAmount),
