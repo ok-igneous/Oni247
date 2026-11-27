@@ -14,17 +14,18 @@ async function getPageData(params: Props["params"]) {
   if (!resolved.platformHost) notFound();
   const data = await getStorefrontData(slug);
   if (!data) notFound();
-  return { slug, data };
+  const protocol = requestHeaders.get("x-forwarded-proto")?.split(",")[0]?.trim() || "https";
+  const origin = host ? `${protocol}://${host}` : "https://www.oni247.org";
+  return { slug, data, origin };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const [{ slug, data }, requestHeaders] = await Promise.all([getPageData(params), headers()]);
-  const host = requestHeaders.get("host") ?? "www.oni247.org";
-  const protocol = requestHeaders.get("x-forwarded-proto")?.split(",")[0]?.trim() || "https";
-  return storefrontMetadata(data, `${protocol}://${host}/${encodeURIComponent(slug)}`);
+  const { slug, data, origin } = await getPageData(params);
+  return storefrontMetadata(data, `${origin}/${encodeURIComponent(slug)}`);
 }
 
 export default async function VanityStorefrontPage({ params }: Props) {
   const { slug, data } = await getPageData(params);
-  return <StorefrontPageNext slug={slug} initialData={data} customDomain={false} />;
+  const { origin } = await getPageData(params);
+  return <StorefrontPageNext slug={slug} initialData={data} customDomain={false} origin={origin} />;
 }
