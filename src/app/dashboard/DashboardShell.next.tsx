@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { Suspense, useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
@@ -210,5 +210,5 @@ function DashboardNavigation({ children }: { children: ReactNode }) {
 }
 
 export function DashboardShellNext({ children }: { children: ReactNode }) {
-  return <DashboardRouteGuard><DashboardNavigation>{children}</DashboardNavigation></DashboardRouteGuard>;
+  return <DashboardRouteGuard><Suspense fallback={<AuthLoadingState title="Loading dashboard" />}><DashboardNavigation>{children}</DashboardNavigation></Suspense></DashboardRouteGuard>;
 }
