@@ -3,7 +3,7 @@ import superjson from "superjson";
 
 export const ALLOWED_IMAGE_TYPES = ["image/png","image/jpeg","image/webp"] as const;
 export const ALLOWED_VIDEO_TYPES = ["video/mp4","video/webm"] as const;
-export const MAX_IMAGE_BYTES = 3 * 1024 * 1024;
+export const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 export const MAX_VIDEO_BYTES = 50 * 1024 * 1024;
 
 export const schema = z.object({
@@ -14,7 +14,7 @@ export const schema = z.object({
   if(value.kind==="video"&&!(ALLOWED_VIDEO_TYPES as readonly string[]).includes(value.contentType))ctx.addIssue({code:"custom",message:"Use an MP4 or WebM video.",path:["contentType"]});
   if(value.kind!=="video"&&!(ALLOWED_IMAGE_TYPES as readonly string[]).includes(value.contentType))ctx.addIssue({code:"custom",message:"Use a PNG, JPG or WebP image.",path:["contentType"]});
   if(value.kind==="video"&&value.sizeBytes>MAX_VIDEO_BYTES)ctx.addIssue({code:"custom",message:"Video must be 50 MB or smaller.",path:["sizeBytes"]});
-  if(value.kind!=="video"&&value.sizeBytes>MAX_IMAGE_BYTES)ctx.addIssue({code:"custom",message:"Image must be 3 MB or smaller.",path:["sizeBytes"]});
+  if(value.kind!=="video"&&value.sizeBytes>MAX_IMAGE_BYTES)ctx.addIssue({code:"custom",message:"Image must be 10 MB or smaller.",path:["sizeBytes"]});
 });
 export type InputType = z.infer<typeof schema>;
 export type OutputType = { presignedUrl: string; url: string };
