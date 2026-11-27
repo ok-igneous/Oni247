@@ -23,18 +23,33 @@ export async function handle(request: Request) {
       const platform = normalizeDomainHost(configuredRoot);
       const platformRoot = platform?.replace(/^www\./, "") ?? null;
       if (host && host !== platformRoot && host !== (platformRoot ? `www.${platformRoot}` : null)) {
-        const normalizedStoredHost = sql<string | null>`case
-          when lower("custom_domain") like 'http://%' then null
-          else lower(split_part(split_part(regexp_replace("custom_domain", '^https?://', '', 'i'), '/', 1), ':', 1))
-        end`;
-        const business = await db.selectFrom("businesses")
-          .select("slug")
-          .where("status", "=", "published")
-          .where("customDomainStatus", "=", "verified")
-          .where(normalizedStoredHost, "=", host)
-          .limit(1)
-          .executeTakeFirst();
-        slug = business?.slug ?? null;
+        const domainMatch = await sql<{ slug: string }>`
+          select b.slug
+            from business_domains d
+            join businesses b on b.id = d.business_id
+           where d.hostname = ${host}
+             and d.domain_type = 'customer_domain'
+             and d.status = 'active'
+             and d.ssl_status = 'active'
+             and b.status = 'published'
+           limit 1`.execute(db);
+        slug = domainMatch.rows[0]?.slug ?? null;
+
+        // Keep previously verified single-domain records working during migration.
+        if (!slug) {
+          const normalizedStoredHost = sql<string | null>`case
+            when lower("custom_domain") like 'http://%' then null
+            else lower(split_part(split_part(regexp_replace("custom_domain", '^https?://', '', 'i'), '/', 1), ':', 1))
+          end`;
+          const business = await db.selectFrom("businesses")
+            .select("slug")
+            .where("status", "=", "published")
+            .where("customDomainStatus", "=", "verified")
+            .where(normalizedStoredHost, "=", host)
+            .limit(1)
+            .executeTakeFirst();
+          slug = business?.slug ?? null;
+        }
       }
     }
 
