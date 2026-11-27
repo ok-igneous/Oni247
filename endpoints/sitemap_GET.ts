@@ -1,5 +1,6 @@
 import { db } from "../helpers/db";
 import { subscriptionPlan } from "../helpers/subscriptionPlan";
+import { loadPlanConfig } from "../helpers/planConfig";
 
 const xmlEscape = (value: string) =>
   value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
@@ -17,6 +18,7 @@ const safeHost = (value: string | null | undefined): string | null => {
 };
 
 export async function handle(request: Request) {
+  await loadPlanConfig();
   const platformOrigin = new URL(request.url).origin;
   const businesses = await db.selectFrom("businesses")
     .select(["id", "slug", "plan", "websitePlan", "trialEndsAt", "planRenewsAt", "customDomain", "customDomainStatus"])
@@ -49,7 +51,8 @@ export async function handle(request: Request) {
     const eventsByBusiness = byBusiness(events);
 
     for (const business of businesses) {
-      const host = business.customDomainStatus === "verified"
+      const plan = subscriptionPlan.resolve(business);
+      const host = business.customDomainStatus === "verified" && plan.canUseCustomDomain
         ? safeHost(business.customDomain)
         : null;
       const origin = host ?? platformOrigin;
@@ -61,7 +64,6 @@ export async function handle(request: Request) {
         add(`${storePath.replace(/\/$/, "")}/p/${encodeURIComponent(product.slug)}`);
       }
 
-      const plan = subscriptionPlan.resolve(business);
       if (plan.canUseMultiPage) {
         for (const page of ["products", "services", "about", "gallery", "blog", "events", "contact"]) {
           add(`${storePath.replace(/\/$/, "")}/${page}`);
