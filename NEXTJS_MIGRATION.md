@@ -82,3 +82,9 @@ Next.js will own page routing, layouts, server rendering and public storefront r
 - Private storefront flows such as checkout, order tracking, service booking and forms remain on the compatibility bridge.
 - **Not yet verified:** dependencies have not been installed; TypeScript, unit tests, production build, live database host resolution, custom-domain requests, browser hydration, metadata output and route parity have not been run. No staging deployment or production cutover has occurred.
 - Hosting provider and S3-compatible media provider remain intentionally undecided.
+
+### Additional SSR hardening
+
+- The legacy `/store` and `/store/{slug}` paths return a real Next.js 404; they do not fall through to the client application.
+- Blog article HTML is sanitized with the project's existing allowlist sanitizer before it is embedded in server-rendered HTML.
+- Custom-domain SSR requires a published business, a verified domain and an active paid subscription. Trials and expired subscriptions do not qualify.
