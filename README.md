@@ -4,7 +4,8 @@ Oni247 is an independent website and storefront platform.
 
 ## Stack
 
-- React 19, Vite and React Router for the web application.
+- Next.js App Router and React 19 for the new web application.
+- React Router and Vite remain only as the temporary legacy frontend during migration.
 - Node.js 22 and Fastify for the API server.
 - PostgreSQL, Kysely and postgres.js for persistence.
 - JWT-backed HTTP-only sessions.
@@ -17,6 +18,8 @@ cp .env.example .env
 npm install
 npm run dev
 ```
+
+The default development command now starts the Next.js frontend on port 3000 and the existing Fastify API on port 3001. Use `npm run dev:legacy` only when you need to compare the old frontend during migration.
 
 Configure a PostgreSQL database, a 32+ character `JWT_SECRET`, and S3-compatible storage credentials in `.env`. The Vite frontend runs on port 5173; Fastify runs on port 3001. Vite proxies `/_api` requests to Fastify.
 
@@ -57,9 +60,7 @@ Verify its production compilation:
 npm run build:next
 ```
 
-The Next.js foundation currently uses `src/app` and the `.next.tsx` route
-suffix so the existing root-level `pages/` files remain owned by the legacy
-Vite router. The main `npm run build` now checks both applications; the
+The Next.js application uses `src/app` and the `.next.tsx` route suffix so the existing root-level `pages/` files remain isolated while the legacy router is retired. The main `npm run build` now checks both applications; the
 production start command remains unchanged for now.
 
 See [docs/nextjs-migration.md](./docs/nextjs-migration.md) for the staged
