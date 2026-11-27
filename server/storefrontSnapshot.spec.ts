@@ -76,6 +76,29 @@ describe("storefrontSnapshot", () => {
     expect(result.jsonLd).toMatchObject({ url: "https://shop.example.com" });
   });
 
+  it("sanitizes blog HTML before including it in server-rendered storefront output", () => {
+    const result = storefrontSnapshot(
+      {
+        business,
+        blogPosts: [{
+          slug: "safe-formatting",
+          title: "News",
+          excerpt: "Latest update",
+          content: '<h2>Safe heading</h2><p onclick="alert(1)">Safe text</p><script>alert(document.cookie)</script><a href="javascript:alert(2)">unsafe link</a>',
+        }],
+      },
+      "/nesmage/b/safe-formatting",
+      "https://oni247.org",
+    );
+
+    expect(result.body).toContain("<h2>Safe heading</h2>");
+    expect(result.body).toContain("<p>Safe text</p>");
+    expect(result.body).not.toContain("<script");
+    expect(result.body).not.toContain("onclick");
+    expect(result.body).not.toContain("javascript:");
+    expect(result.body).not.toContain("document.cookie");
+  });
+
   it("rejects unavailable or plan-restricted product pages", () => {
     expect(() => storefrontSnapshot(
       { business: { ...business, canUseProductLinks: false }, products: [product] },
