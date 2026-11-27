@@ -121,14 +121,15 @@ const loadStorefrontPage = cache(async (requestUrl: string): Promise<NextStorefr
     import("../endpoints/galleries/public_GET"),
   ]);
 
-  let publicBusiness: { name?: string; appearanceSettings?: Record<string, unknown> } | null = null;
+  type PublicBusinessMetadata = { name?: string; appearanceSettings?: Record<string, unknown> };
+  const captured = { business: null as PublicBusinessMetadata | null };
   const storefrontWithMetadata = async (request: Request) => {
     const response = await storefrontEndpoint(request);
     if (!response.ok) return response;
 
     const body = await response.text();
-    const parsed = superjson.parse<{ business?: typeof publicBusiness }>(body);
-    publicBusiness = parsed.business ?? null;
+    const parsed = superjson.parse<{ business?: PublicBusinessMetadata }>(body);
+    captured.business = parsed.business ?? null;
 
     return new Response(body, {
       status: response.status,
@@ -143,15 +144,12 @@ const loadStorefrontPage = cache(async (requestUrl: string): Promise<NextStorefr
     gallery: galleryEndpoint,
   });
 
-  let snapshot;
-  try {
-    snapshot = await loader({
-      slug,
-      pathname: url.pathname,
-      origin: url.origin,
-      customDomain,
-    });
-  } catch (error) {
+  const snapshot = await loader({
+    slug,
+    pathname: url.pathname,
+    origin: url.origin,
+    customDomain,
+  }).catch((error: unknown) => {
     const message = error instanceof Error ? error.message : "";
     if ([
       "Public storefront not found",
@@ -164,9 +162,9 @@ const loadStorefrontPage = cache(async (requestUrl: string): Promise<NextStorefr
       throw new PublicStorefrontNotFoundError();
     }
     throw error;
-  }
+  });
 
-  const appearance = publicBusiness?.appearanceSettings ?? {};
+  const appearance = captured.business?.appearanceSettings ?? {};
   const seoTitle = typeof appearance.seoTitle === "string" ? appearance.seoTitle.trim() : "";
   const seoDescription = typeof appearance.seoDescription === "string" ? appearance.seoDescription.trim() : "";
   const shareImage = typeof appearance.shareImageUrl === "string" ? appearance.shareImageUrl.trim() : "";
