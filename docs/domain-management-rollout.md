@@ -17,8 +17,8 @@ Set these environment variables on the Oni247 Render web service:
 
 - `PLATFORM_ROOT_DOMAIN=oni247.org`
 - `RENDER_API_KEY`: a Render API key with permission to manage custom domains in the workspace containing Oni247.
-- `RENDER_SERVICE_ID`: the ID of the Oni247 web service.
-- `RENDER_CUSTOM_DOMAIN_TARGET`: the exact Oni247 service hostname, e.g. `oni247-staging.onrender.com`, used for customer `www` CNAME instructions.
+- `RENDER_SERVICE_ID=srv-dc3ej8c0916s738jhr7g`: the currently connected Oni247 web service.
+- `RENDER_CUSTOM_DOMAIN_TARGET=oni247-staging.onrender.com`: the exact service hostname used for customer `www` CNAME instructions.
 
 Do not commit real credentials. The example file contains blank values.
 
@@ -36,7 +36,12 @@ Render may bill for custom domains beyond the workspace's included allowance. Co
 
 ## Platform business subdomains
 
-For `*.oni247.org`, add the wildcard hostname once to the Oni247 Render service and configure the wildcard DNS record to the service's `onrender.com` hostname. Render's wildcard setup also requires its documented `_acme-challenge` and `_cf-custom-hostname` CNAME validation records. The platform root domain must also point to Render for Render wildcard routing to work. The current apex DNS and email records must be preserved; do not change authoritative nameservers as part of this setup.
+For `*.oni247.org`, add the wildcard hostname once to the Oni247 Render service and configure these DNS records at WhoGoHost:
+- `* CNAME oni247-staging.onrender.com`
+- `_acme-challenge CNAME oni247-staging.verify.renderdns.com`
+- `_cf-custom-hostname CNAME oni247-staging.hostname.renderdns.com`
+
+Render's wildcard setup requires all three records. The platform root domain must also point to Render for Render wildcard routing to work. The `_cf-custom-hostname` record is Render's own verification mechanism; it does not mean Oni247 is using a Cloudflare account or Cloudflare DNS. The current apex DNS and email records must be preserved; do not change authoritative nameservers as part of this setup.
 
 Oni247 resolves individual business subdomains from business slugs in the application database. Do not create one Render custom-domain entry per Oni247 business subdomain.
 
