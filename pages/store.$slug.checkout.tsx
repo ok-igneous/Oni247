@@ -260,7 +260,7 @@ const CheckoutPage = () => {
           return;
         }
         toast.error(order.paymentError ?? "Could not open the payment page.");
-        window.location.assign(`/store/${slug}/checkout?ref=${encodeURIComponent(order.trackingCode ?? order.orderRef)}`);
+        window.location.assign(`${storefrontPath(slug, "/checkout")}?ref=${encodeURIComponent(order.trackingCode ?? order.orderRef)}`);
         return;
       }
       setPlaced({ order, name, phone, method });
