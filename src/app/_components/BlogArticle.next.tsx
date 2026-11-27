@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-import { EngagementSection } from "../../../../components/EngagementSection";
-import { storeThemeEngine } from "../../../../helpers/storeThemeEngine";
-import type { OutputType } from "../../../../endpoints/storefront_GET.schema";
-import { StorefrontHeaderNext } from "../../_components/StorefrontHeader.next";
-import styles from "../../../../pages/store.$slug.b.$blogSlug.module.css";
+import { EngagementSection } from "../../../components/EngagementSection";
+import { storeThemeEngine } from "../../../helpers/storeThemeEngine";
+import type { OutputType } from "../../../endpoints/storefront_GET.schema";
+import { StorefrontHeaderNext } from "./StorefrontHeader.next";
+import styles from "../../../pages/store.$slug.b.$blogSlug.module.css";
 
 type Props = {
   data: OutputType;
