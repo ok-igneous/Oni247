@@ -4,18 +4,27 @@ Oni247 is an independent website and storefront platform.
 
 ## Approved architecture
 
-- Next.js App Router, React and TypeScript for the web application (migration in progress).
-- Node.js 22 + Fastify for the existing API/business services during the staged migration.
+- Next.js 16 App Router, React and TypeScript for the web application.
+- Node.js 22 + Fastify for the existing API/business services.
 - PostgreSQL, Kysely and postgres.js for persistence.
 - JWT-backed HTTP-only sessions using the existing `oni247_session` cookie contract.
 - Provider-neutral S3-compatible object storage.
-- Portable Node.js deployment; no hosting provider is selected yet.
+- Portable Node.js deployment; no hosting provider is selected.
+- No Cloudflare deployment target.
 
-## Development
+## Development on `nextjs-migration`
 
-The current source still contains the legacy Vite frontend while the Next.js migration is being prepared. Do not assume the Next.js runtime is ready until its implementation and checks are complete.
+1. Use Node.js 22 or newer and PostgreSQL.
+2. Copy `.env.example` to `.env`; configure the database, JWT and S3-compatible storage.
+3. Keep the Fastify API bound to the private/local API port (`API_PORT=3001` by default).
+4. Set `API_ORIGIN` to the private API service origin. The API must not be publicly reachable when `TRUST_PROXY=1`.
+5. Install dependencies with `npm install`.
+6. Apply schema migrations to a disposable development database.
+7. Run `npm run dev` to start Next.js and Fastify together.
 
-See [NEXTJS_MIGRATION.md](./NEXTJS_MIGRATION.md) for the approved architecture, migration phases and release gates. See [STANDALONE_MIGRATION.md](./STANDALONE_MIGRATION.md) for existing standalone runtime details and data-safety requirements.
+The current Next.js branch uses a compatibility bridge for the existing page modules. It is not yet the final native App Router implementation and is not approved for production deployment.
+
+See [NEXTJS_MIGRATION.md](./NEXTJS_MIGRATION.md) for the migration plan and outstanding release gates. See [STANDALONE_MIGRATION.md](./STANDALONE_MIGRATION.md) for the previous standalone baseline and data-safety history.
 
 ## Deployment safety
 
