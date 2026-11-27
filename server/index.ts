@@ -31,7 +31,22 @@ const trustProxy = trustProxySetting === "true"
         ? (_address: string, hop: number) => hop < 1
         : false;
 
-const app = Fastify({ logger: true, bodyLimit: 60 * 1024 * 1024, trustProxy });
+const app = Fastify({
+  logger: {
+    serializers: {
+      req(request) {
+        return {
+          method: request.method,
+          // Query strings may contain payment references or credentials.
+          url: request.url.split("?")[0],
+          hostname: request.hostname,
+        };
+      },
+    },
+  },
+  bodyLimit: 60 * 1024 * 1024,
+  trustProxy,
+});
 
 type EndpointModule = { handle?: (request: Request) => Promise<Response> | Response };
 const endpointFiles = new Map<string, string>();

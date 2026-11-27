@@ -306,9 +306,8 @@ export async function handle(request: Request) {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Could not record the order.";
-    return fail(message);
+    // Keep SQL, provider, and infrastructure details out of shopper responses.
+    return fail("Could not place your order. Please try again.", 500);
   }
 }
 

@@ -145,10 +145,9 @@ export async function handle(request: Request) {
       { headers: { "Content-Type": "application/json" } },
     );
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Could not record the sale.";
-    return new Response(superjson.stringify({ error: message }), {
-      status: 400,
+    // Keep SQL and infrastructure details out of operator-facing responses.
+    return new Response(superjson.stringify({ error: "Could not record the sale. Please try again." }), {
+      status: 500,
     });
   }
 }
