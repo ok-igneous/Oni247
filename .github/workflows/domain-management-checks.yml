@@ -1,6 +1,10 @@
 name: Oni247 domain management checks
 
 on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [feat/oni247-domain-management]
   workflow_dispatch:
 
 permissions:
