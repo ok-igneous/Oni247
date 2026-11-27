@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const apiOrigin = (process.env.ONI247_API_INTERNAL_URL ?? "http://127.0.0.1:3001").replace(/\/+$/, "");
+
 const nextConfig: NextConfig = {
   // The existing root-level pages/ directory belongs to the legacy Vite
   // file-router. Only files ending in .next.tsx are Next.js route modules
@@ -7,6 +9,15 @@ const nextConfig: NextConfig = {
   pageExtensions: ["next.tsx", "next.ts", "next.jsx", "next.js"],
   poweredByHeader: false,
   reactStrictMode: true,
+  async rewrites() {
+    // Keep Fastify as the API authority while Next.js takes over page rendering.
+    // This preserves the existing HTTP-only session cookie and tenant-aware API.
+    return [
+      { source: "/_api/:path*", destination: `${apiOrigin}/_api/:path*` },
+      { source: "/sitemap.xml", destination: `${apiOrigin}/sitemap.xml` },
+      { source: "/robots.txt", destination: `${apiOrigin}/robots.txt` },
+    ];
+  },
 };
 
 export default nextConfig;
