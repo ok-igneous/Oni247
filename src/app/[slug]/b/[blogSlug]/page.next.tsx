@@ -16,7 +16,7 @@ async function getPageData(params: Props["params"]) {
   const post = data?.blogPosts.find((item) => item.slug === blogSlug);
   if (!data || !post) notFound();
   const protocol = requestHeaders.get("x-forwarded-proto")?.split(",")[0]?.trim() || "https";
-  const origin = host ? `${protocol}://${host}` : "https://www.oni247.org";
+  const origin = host ? `${protocol}://${host}` : "https://oni247.org";
   const canonical = new URL(`/${encodeURIComponent(slug)}/b/${encodeURIComponent(blogSlug)}`, origin).toString();
   return { data, blogSlug, origin, canonical, post };
 }
