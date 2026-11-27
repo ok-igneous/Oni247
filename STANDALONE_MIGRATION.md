@@ -2,9 +2,9 @@
 
 The official development branch remains `main`; the staged framework migration is isolated on `nextjs-migration`. Keep the existing live application unchanged until the replacement has passed acceptance tests and a cutover is explicitly approved.
 
-## Current source baseline (before Next.js migration)
+## Historical source baseline (before Next.js migration)
 
-- Frontend: React 19 + Vite + React Router.
+- Frontend baseline: React 19 + Vite + React Router. This is historical context only; the `nextjs-migration` branch removes the Vite web runtime.
 - Backend/API: Node.js 22 + Fastify.
 - API handlers: `endpoints/**`, discovered by the existing Fastify runtime and exposed under `/_api/**`.
 - Database: PostgreSQL through Kysely and postgres.js.
@@ -20,18 +20,11 @@ No hosting provider is selected. The deployment must remain portable across stan
 
 See [NEXTJS_MIGRATION.md](./NEXTJS_MIGRATION.md) for the full route migration, API boundary, SEO, media, testing and cutover plan.
 
-## Existing local runtime
+## Next.js branch development
 
-Until the Next.js migration is implemented and verified, the current source runs with:
+On `nextjs-migration`, use Node.js 22 or newer, PostgreSQL, `npm install`, and the current `.env.example`. Run `npm run dev` to start Next.js and the Fastify API. The API must remain private behind the trusted Next.js proxy when `TRUST_PROXY=1`.
 
-1. Node.js 22 or newer and PostgreSQL.
-2. `cp .env.example .env` and configure database, JWT and S3-compatible storage values.
-3. `npm install`.
-4. Apply schema migrations to a disposable development database.
-5. `npm run dev` (current Vite frontend and Fastify API).
-6. Run `npm run audit:standalone`, `npm run typecheck`, `npm test` and `npm run build`.
-
-These commands describe the current baseline, not the completed Next.js target. The scripts will be updated as the migration is implemented.
+The branch currently uses a compatibility bridge for the 69 existing page modules. Native App Router conversion, server-rendered public storefronts, crawler rendering and full verification are still outstanding. Do not deploy this branch to production.
 
 ## Database security / RLS
 
