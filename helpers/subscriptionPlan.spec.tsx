@@ -68,6 +68,34 @@ describe("subscriptionPlan", () => {
     expect(result.lapsed).toBe(true);
   });
 
+  it("allows custom domains only for an active paid subscription, never for trials", () => {
+    const paid = subscriptionPlan.resolve({
+      plan: "premium",
+      websitePlan: "one_page",
+      trialEndsAt: null,
+      planRenewsAt: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000),
+      premiumTrialUsed: true,
+    }, now);
+    const trial = subscriptionPlan.resolve({
+      plan: "free",
+      websitePlan: "one_page",
+      trialEndsAt: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000),
+      planRenewsAt: null,
+      premiumTrialUsed: true,
+    }, now);
+    const expired = subscriptionPlan.resolve({
+      plan: "premium",
+      websitePlan: "premium_plus",
+      trialEndsAt: null,
+      planRenewsAt: new Date(now.getTime() - 1000),
+      premiumTrialUsed: true,
+    }, now);
+
+    expect(paid.canUseCustomDomain).toBe(true);
+    expect(trial.canUseCustomDomain).toBe(false);
+    expect(expired.canUseCustomDomain).toBe(false);
+  });
+
   it("applies the 50% registration promo to the selected duration", () => {
     expect(subscriptionPlan.priceFor("one_page", 12, true)).toBe(9000);
     expect(subscriptionPlan.priceFor("premium_plus", 2, true)).toBe(3000);

@@ -131,6 +131,8 @@ export const subscriptionPlan = {
       canCreateCollection: has("collections"),
       canUseProductLinks: has("product_links"),
       canUseTrackingLinks: has("tracking_links"),
+      // Custom domains are a paid-only entitlement; trials and expired plans do not qualify.
+      canUseCustomDomain: paid,
       canEditPresence: !this.presenceRequiresPremium || has("presence_edit"),
       canUseMultiPage: premiumPlus,
       canUseGalleries: has("galleries"),

@@ -15,7 +15,7 @@ async function getPageData(params: Props["params"]) {
   const data = await getPublicGalleryData(resolved.slug, gallerySlug);
   if (!data) notFound();
   const protocol = requestHeaders.get("x-forwarded-proto")?.split(",")[0]?.trim() || "https";
-  const origin = host ? `${protocol}://${host}` : "https://www.oni247.org";
+  const origin = host ? `${protocol}://${host}` : "https://oni247.org";
   const canonical = new URL(`/g/${encodeURIComponent(gallerySlug)}`, origin).toString();
   return { data, gallerySlug, origin, canonical };
 }

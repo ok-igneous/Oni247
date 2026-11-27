@@ -51,7 +51,11 @@ for (const item of findings) {
 }
 
 const pageFiles = sourceFiles.filter((file) =>
-  file.startsWith("pages/") && file.endsWith(".tsx") && !file.endsWith(".pageLayout.tsx")
+  file.startsWith("pages/") &&
+  file.endsWith(".tsx") &&
+  !file.endsWith(".pageLayout.tsx") &&
+  file !== "pages/StorefrontPage.tsx" &&
+  !file.startsWith("pages/store.$slug")
 );
 const toRoutePath = (file) => {
   const baseName = path.basename(file, ".tsx");

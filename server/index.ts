@@ -6,27 +6,30 @@ process.on("uncaughtExceptionMonitor", (error, origin) => {
 console.info("[oni247] Startup: initializing API server");
 import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
 import { sql } from "kysely";
-import fastifyStatic from "@fastify/static";
+import { isPlatformHostname, normalizeDomainHost } from "./storefrontPrerender";
 import { readdir } from "node:fs/promises";
-import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { registerCrawlerStorefrontRoutes } from "./crawlerRoutes";
-import { createCrawlerStorefrontRenderer } from "./crawlerRenderer";
-import { createCrawlerSnapshotLoader } from "./crawlerSnapshotLoader";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(here, "..");
 const endpointsRoot = path.join(projectRoot, "endpoints");
-// Do not trust client-supplied X-Forwarded-* headers unless deployment explicitly
-// declares a trusted reverse-proxy hop count (or opts into full proxy trust).
+const apiHost = process.env.HOST ?? "127.0.0.1";
+// A loopback-only API is reachable only by the local Next.js proxy, so trusting
+// one hop is safe by default. Any non-loopback bind must configure proxy trust
+// explicitly and remain on a private network.
+const loopbackHost = apiHost === "127.0.0.1" || apiHost === "localhost" || apiHost === "::1";
 const trustProxySetting = process.env.TRUST_PROXY?.trim().toLowerCase();
 const trustProxy = trustProxySetting === "true"
   ? true
-  : trustProxySetting && /^\d+$/.test(trustProxySetting)
-    ? (_address: string, hop: number) => hop < Number(trustProxySetting)
-    : false;
+  : trustProxySetting === "false"
+    ? false
+    : trustProxySetting && /^\d+$/.test(trustProxySetting)
+      ? (_address: string, hop: number) => hop < Number(trustProxySetting)
+      : loopbackHost
+        ? (_address: string, hop: number) => hop < 1
+        : false;
 
 const app = Fastify({ logger: true, bodyLimit: 60 * 1024 * 1024, trustProxy });
 
@@ -173,83 +176,32 @@ app.all("/_api/*", async (request, reply) => {
   return invokeEndpoint(request.method.toUpperCase(), route, request, reply);
 });
 
-// The existing sitemap handler is now exposed at the conventional public URL.
+// SEO endpoints are proxied with the original request host so custom domains
+// receive their own canonical sitemap and robots Sitemap URL.
 app.get("/sitemap.xml", async (request, reply) =>
-  invokeEndpoint("GET", "sitemap", request, reply, process.env.APP_BASE_URL?.trim() ? process.env.APP_BASE_URL.trim().replace(/\/+$/, "") : undefined),
+  invokeEndpoint("GET", "sitemap", request, reply),
 );
 app.get("/robots.txt", async (request, reply) => {
-  const baseUrl = process.env.APP_BASE_URL?.trim() || `${request.protocol}://${request.host}`;
+  const requestHost = normalizeDomainHost(request.host);
+  const platformRoot = process.env.PLATFORM_ROOT_DOMAIN || process.env.APP_BASE_URL || "https://oni247.org";
+  const renderHost = normalizeDomainHost(process.env.RENDER_EXTERNAL_HOSTNAME);
+  const isPlatformHost = isPlatformHostname(requestHost ?? "", platformRoot)
+    || Boolean(requestHost && renderHost && requestHost === renderHost);
+  const baseUrl = isPlatformHost
+    ? (process.env.APP_BASE_URL?.trim() || `${request.protocol}://${request.host}`)
+    : `${request.protocol}://${request.host}`;
   const sitemap = new URL("/sitemap.xml", baseUrl).toString();
   return reply.type("text/plain; charset=utf-8").send(
     `User-agent: *\nAllow: /\nDisallow: /dashboard\nDisallow: /admin\nDisallow: /login\nDisallow: /register\nDisallow: /track\nDisallow: /_api/\nSitemap: ${sitemap}\n`,
   );
 });
 
-// Serve database-backed public storefront HTML to crawlers while keeping the SPA
-// for human visitors. Route matching and HTML injection are covered by unit tests.
-
-const distDir = path.join(projectRoot, "dist");
-const hasProductionBuild = existsSync(path.join(distDir, "index.html"));
-
-const renderCrawlerStorefront = createCrawlerStorefrontRenderer({
-  hasProductionBuild,
-  resolvePlatformSubdomain: async (slug) => {
-    const { db } = await import("../helpers/db");
-    const business = await db.selectFrom("businesses")
-      .select("slug")
-      .where("slug", "=", slug)
-      .where("status", "=", "published")
-      .limit(1)
-      .executeTakeFirst();
-    return business?.slug ?? null;
-  },
-  resolveCustomDomain: async (hostname) => {
-    const { db } = await import("../helpers/db");
-    // Normalize the stored domain in PostgreSQL so we return only one matching
-    // published business instead of loading every verified domain into Node.
-    const normalizedStoredHost = sql<string | null>`case
-      when lower("custom_domain") like 'http://%' then null
-      else lower(split_part(split_part(regexp_replace("custom_domain", '^https?://', '', 'i'), '/', 1), ':', 1))
-    end`;
-    const business = await db.selectFrom("businesses")
-      .select("slug")
-      .where("status", "=", "published")
-      .where("customDomainStatus", "=", "verified")
-      .where(normalizedStoredHost, "=", hostname)
-      .limit(1)
-      .executeTakeFirst();
-    return business?.slug ?? null;
-  },
-  loadSnapshot: createCrawlerSnapshotLoader({
-    storefront: async (request) => (await import("../endpoints/storefront_GET")).handle(request),
-    galleryList: async (request) => (await import("../endpoints/galleries/publicList_GET")).handle(request),
-    gallery: async (request) => (await import("../endpoints/galleries/public_GET")).handle(request),
-  }),
-  readIndexHtml: () => import("node:fs/promises").then(({ readFile }) =>
-    readFile(path.join(distDir, "index.html"), "utf8"),
-  ),
-});
-
-
-// Intercept only crawler requests for public storefront paths. Human visitors
-// continue through the unchanged SPA fallback.
-registerCrawlerStorefrontRoutes(app, renderCrawlerStorefront);
-
-
-if (hasProductionBuild) {
-  await app.register(fastifyStatic, {
-    root: distDir,
-    prefix: "/",
-    wildcard: false,
-    index: false,
-    decorateReply: true,
-  });
-}
+// Next.js owns all public web rendering. Fastify is deliberately API-only.
 app.setNotFoundHandler((request, reply) => {
-  if (request.url.startsWith("/_api/")) return reply.code(404).send({ error: "Not found" });
-  if (request.method !== "GET" && request.method !== "HEAD") return reply.code(404).send({ error: "Not found" });
-  if (!hasProductionBuild) return reply.code(404).send({ error: "Frontend build not found. Run npm run build." });
-  return reply.type("text/html; charset=utf-8").sendFile("index.html");
+  if (request.url.startsWith("/_api/")) {
+    return reply.code(404).send({ error: "API endpoint not found" });
+  }
+  return reply.code(404).send({ error: "Not found" });
 });
 
 app.addHook("onClose", async () => {
@@ -259,11 +211,11 @@ app.addHook("onClose", async () => {
   }
 });
 
-const port = Number.parseInt(process.env.API_PORT ?? process.env.PORT ?? "3001", 10);
-const host = process.env.HOST ?? "0.0.0.0";
-console.info("[oni247] Startup: binding HTTP listener", { host, port, hasProductionBuild });
+const port = Number.parseInt(process.env.API_PORT ?? "3001", 10);
+const host = apiHost;
+console.info("[oni247] Startup: binding private API listener", { host, port });
 await app.listen({ port, host });
-console.info("[oni247] Startup: HTTP listener ready", { host, port });
+console.info("[oni247] Startup: private API listener ready", { host, port });
 
 let shutdownStarted = false;
 const shutdown = async (signal: NodeJS.Signals) => {

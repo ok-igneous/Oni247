@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
+import { sanitizeBlogContent } from "../../../../helpers/sanitizeBlogContent";
 import BlogArticleNext from "../../_components/BlogArticle.next";
 import { getStorefrontData, resolveStorefrontHost, storefrontMetadata } from "../../_lib/storefront.server";
 
@@ -16,7 +17,7 @@ async function getPageData(params: Props["params"]) {
   const post = data?.blogPosts.find((item) => item.slug === blogSlug);
   if (!data || !post) notFound();
   const protocol = requestHeaders.get("x-forwarded-proto")?.split(",")[0]?.trim() || "https";
-  const origin = host ? `${protocol}://${host}` : "https://www.oni247.org";
+  const origin = host ? `${protocol}://${host}` : "https://oni247.org";
   const canonical = new URL(`/b/${encodeURIComponent(blogSlug)}`, origin).toString();
   return { data, blogSlug, origin, canonical, post };
 }
@@ -49,5 +50,5 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CustomDomainBlogArticlePage({ params }: Props) {
   const { data, blogSlug, origin } = await getPageData(params);
-  return <BlogArticleNext data={data} blogSlug={blogSlug} customDomain origin={origin} />;
+  return <BlogArticleNext data={data} blogSlug={blogSlug} customDomain origin={origin} safeContent={sanitizeBlogContent(data.blogPosts.find((post) => post.slug === blogSlug)?.content ?? "")} />;
 }

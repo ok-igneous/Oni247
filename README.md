@@ -4,12 +4,21 @@ Oni247 is an independent website and storefront platform.
 
 ## Stack
 
-- Next.js App Router and React 19 for the new web application.
-- React Router and Vite remain only as the temporary legacy frontend during migration.
-- Node.js 22 and Fastify for the API server.
+- Next.js App Router and React 19 own the web runtime, routing and production build.
+- Fastify is an API-only service; it no longer serves the frontend or a Vite build.
+- React Router remains only inside a temporary compatibility layer for pages not yet migrated to App Router.
 - PostgreSQL, Kysely and postgres.js for persistence.
 - JWT-backed HTTP-only sessions.
 - S3-compatible object storage.
+
+Vite is not used to develop, serve or build the application. Vitest remains the current test runner and brings Vite as a transitive development dependency only; it is not part of the production runtime.
+
+## Canonical storefront URLs
+
+- Platform storefronts: `https://oni247.org/{slug}` (for example, `https://oni247.org/nesmage`).
+- `/store/{slug}` is not a supported route and returns 404. Unknown root-level slugs return 404 unless they match a known legacy static page.
+- Business subdomains are not used.
+- Verified custom domains serve the storefront at their own domain root and require an active paid subscription. Trials and expired subscriptions do not qualify.
 
 ## Run locally
 
@@ -19,49 +28,25 @@ npm install
 npm run dev
 ```
 
-The default development command now starts the Next.js frontend on port 3000 and the existing Fastify API on port 3001. Use `npm run dev:legacy` only when you need to compare the old frontend during migration.
+Next.js runs on port 3000. Fastify listens privately on 127.0.0.1:3001 and is reached through Next.js API proxy routes. Set a PostgreSQL `DATABASE_URL`, a 32+ character `JWT_SECRET`, and S3-compatible storage credentials in `.env`.
 
-Configure a PostgreSQL database, a 32+ character `JWT_SECRET`, and S3-compatible storage credentials in `.env`. The Vite frontend runs on port 5173; Fastify runs on port 3001. Vite proxies `/_api` requests to Fastify.
-
-For production:
+## Build and run
 
 ```bash
+npm run typecheck
+npm test
 npm run build
 npm start
 ```
 
-The Fastify server serves the compiled `dist` directory and dispatches the existing endpoint handlers under `/_api`.
+The production start command runs Next.js on the hosting platform's public `PORT` and Fastify on the private `API_PORT` (default 3001). Fastify does not expose a public listener by default.
 
 ## Deployment safety
 
-Development now proceeds from `main`. This does not authorize a production deployment: hosting must not be switched until database migration, media handling, authentication, payments, email, security and end-to-end checks are complete.
+The migration branch is not production-ready until dependencies are installed and typecheck, tests, Next.js production build, authentication, payment, custom-domain, SEO and browser acceptance checks pass. Do not change production DNS, webhooks or customer traffic without explicit cutover approval.
 
-See [STANDALONE_MIGRATION.md](./STANDALONE_MIGRATION.md) for the deployment and readiness checklist.
+See [STANDALONE_MIGRATION.md](./STANDALONE_MIGRATION.md) and [docs/nextjs-migration.md](./docs/nextjs-migration.md) for the migration and release gates.
 
 ## Product specifications
 
 - [Editable Portfolio / Professional Profile Builder](docs/features/editable-portfolio-builder.md) — requirements for an owner-editable portfolio, including profile content, sections, projects, services, image uploads, theme integration, SEO, drafts, and publishing.
-
-## Next.js migration preview
-
-Next.js App Router is being introduced alongside the existing application. The
-legacy Vite/Fastify runtime remains the active deployment until the Next.js
-routes and backend integration pass the migration checks.
-
-Run the isolated Next.js app locally:
-
-```bash
-npm run dev:next
-```
-
-Verify its production compilation:
-
-```bash
-npm run build:next
-```
-
-The Next.js application uses `src/app` and the `.next.tsx` route suffix so the existing root-level `pages/` files remain isolated while the legacy router is retired. The main `npm run build` now checks both applications; the
-production start command remains unchanged for now.
-
-See [docs/nextjs-migration.md](./docs/nextjs-migration.md) for the staged
-migration plan and safety gates.
