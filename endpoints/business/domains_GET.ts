@@ -13,7 +13,7 @@ export async function handle(request: Request) {
       .limit(1)
       .executeTakeFirst();
     if (!business) {
-      return new Response(superjson.stringify({ domains: [] }), {
+      return new Response(superjson.stringify({ domains: [], customDomainsAllowed: false }), {
         headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
       });
     }
