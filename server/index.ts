@@ -259,7 +259,7 @@ app.addHook("onClose", async () => {
   }
 });
 
-const port = Number.parseInt(process.env.PORT ?? "3001", 10);
+const port = Number.parseInt(process.env.API_PORT ?? process.env.PORT ?? "3001", 10);
 const host = process.env.HOST ?? "0.0.0.0";
 console.info("[oni247] Startup: binding HTTP listener", { host, port, hasProductionBuild });
 await app.listen({ port, host });
