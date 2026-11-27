@@ -27,7 +27,7 @@ describe("storefrontSnapshot", () => {
     const result = storefrontSnapshot(
       { business, products: [product] },
       "/nesmage",
-      "https://oni247.example",
+      "https://oni247.org",
     );
     expect(result.title).toBe("NesMage <Tech> — Oni247");
     expect(result.body).toContain("NesMage &lt;Tech&gt;");
@@ -40,7 +40,7 @@ describe("storefrontSnapshot", () => {
     const result = storefrontSnapshot(
       { business, products: [product] },
       "/nesmage/p/solar-inverter",
-      "https://oni247.example",
+      "https://oni247.org",
     );
     expect(result.title).toBe("Solar Inverter — NesMage <Tech>");
     expect(result.description).toBe("Reliable <backup> power");
@@ -57,7 +57,7 @@ describe("storefrontSnapshot", () => {
     const result = storefrontSnapshot(
       { business, services: [{ name: "Phone repair", description: "Screen replacement" }] },
       "/nesmage/services",
-      "https://oni247.example",
+      "https://oni247.org",
     );
     expect(result.title).toBe("Services — NesMage <Tech>");
     expect(result.body).toContain("<h1>Services</h1>");
@@ -80,12 +80,12 @@ describe("storefrontSnapshot", () => {
     expect(() => storefrontSnapshot(
       { business: { ...business, canUseProductLinks: false }, products: [product] },
       "/nesmage/p/solar-inverter",
-      "https://oni247.example",
+      "https://oni247.org",
     )).toThrow("Public product not found");
     expect(() => storefrontSnapshot(
       { business, products: [] },
       "/nesmage/p/missing",
-      "https://oni247.example",
+      "https://oni247.org",
     )).toThrow("Public product not found");
   });
 
@@ -93,7 +93,7 @@ describe("storefrontSnapshot", () => {
     expect(() => storefrontSnapshot(
       { business: { ...business, canUseMultiPage: false } },
       "/nesmage/about",
-      "https://oni247.example",
+      "https://oni247.org",
     )).toThrow("Public page not found");
   });
 });
