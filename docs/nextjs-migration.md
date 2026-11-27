@@ -90,7 +90,7 @@ baseline.
 
 ## Current checkpoint
 
-- Next.js 16 is installed alongside React 19.
+- Next.js 16 is declared as a dependency alongside the existing React 19 stack.
 - A Next.js App Router root layout and a minimal migration-check page exist under
   `src/app`.
 - The Next.js provider bridge creates a per-render QueryClient and deliberately
