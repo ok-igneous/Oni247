@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { ImageOff, Plus } from "lucide-react";
 import { Badge } from "../../../components/Badge";

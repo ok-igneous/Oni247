@@ -1,3 +1,5 @@
+"use client";
+
 import type { CSSProperties } from "react";
 import { Suspense, useEffect } from "react";
 import Link from "next/link";

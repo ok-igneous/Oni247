@@ -7,7 +7,7 @@ import { Badge } from "../../../components/Badge";
 import { Button } from "../../../components/Button";
 import { Skeleton } from "../../../components/Skeleton";
 import { useDashboardOverview } from "../../../helpers/useDashboardOverview";
-import styles from "../../../pages/dashboard.module.css";
+import styles from "../../../legacy-pages/dashboard.module.css";
 
 export default function DashboardOverviewNext() {
   const { data, isFetching, error } = useDashboardOverview();
