@@ -1,3 +1,5 @@
+"use client";
+
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { ChevronDown, ChevronUp, MessageCircle, Search, Users } from "lucide-react";
