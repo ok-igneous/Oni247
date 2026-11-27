@@ -36,6 +36,15 @@ describe("storefrontSnapshot", () => {
     expect(result.jsonLd).toMatchObject({ "@type": "Store", name: business.name });
   });
 
+  it("does not expose paid product-detail links when the plan lacks that feature", () => {
+    const result = storefrontSnapshot(
+      { business: { ...business, canUseProductLinks: false }, products: [product] },
+      "/nesmage",
+      "https://oni247.org",
+    );
+    expect(result.body).toContain("<strong>Solar Inverter</strong>");
+    expect(result.body).not.toContain("/nesmage/p/solar-inverter");
+  });
   it("renders product detail metadata and price", () => {
     const result = storefrontSnapshot(
       { business, products: [product] },
