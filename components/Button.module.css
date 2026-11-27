@@ -30,41 +30,44 @@
 
   /* Size variants - ensuring proper touch targets */
   .sm {
-    height: 1.5rem;
-    padding: 0 var(--spacing-2);
+    min-height: 2.25rem;
+    padding: 0 0.75rem;
     font-size: 0.875rem;
+    line-height: 1.2;
   }
 
   .md {
-    height: 2.5rem;
-    padding: 0 var(--spacing-3);
+    min-height: 2.625rem;
+    padding: 0 1rem;
     font-size: 0.9375rem;
+    line-height: 1.2;
   }
 
   .lg {
-    height: 3rem;
-    padding: 0 var(--spacing-4);
+    min-height: 3rem;
+    padding: 0 1.125rem;
     font-size: 1rem;
+    line-height: 1.2;
     border-radius: var(--radius-md);
   }
 
   /* Icon button sizes */
   .icon,
   .icon-md {
-    width: 2rem;
-    height: 2rem;
+    width: 2.625rem;
+    min-height: 2.625rem;
     padding: 0;
   }
 
   .icon-sm {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 2.25rem;
+    min-height: 2.25rem;
     padding: 0;
   }
 
   .icon-lg {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 3rem;
+    min-height: 3rem;
     padding: 0;
     border-radius: var(--radius-md);
   }
