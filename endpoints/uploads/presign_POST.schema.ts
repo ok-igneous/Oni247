@@ -26,8 +26,25 @@ export const postPresignUpload = async (body: InputType, init?: RequestInit): Pr
     headers: {"Content-Type":"application/json", ...(init?.headers ?? {})},
   });
   if (!result.ok) {
-    const errorObject = superjson.parse<{error:string}>(await result.text());
-    throw new Error(errorObject.error);
+    const body = await result.text();
+    let message: string | undefined;
+    const readMessage = (value: unknown): string | undefined => {
+      if (!value || typeof value !== "object") return undefined;
+      const record = value as Record<string, unknown>;
+      if (typeof record.error === "string") return record.error;
+      if (typeof record.message === "string") return record.message;
+      return undefined;
+    };
+    try {
+      message = readMessage(superjson.parse<unknown>(body));
+    } catch {
+      // Some infrastructure errors are plain JSON or text rather than SuperJSON.
+    }
+    if (!message) {
+      try { message = readMessage(JSON.parse(body) as unknown); }
+      catch { /* Use the status-based fallback for non-JSON error pages. */ }
+    }
+    throw new Error(message || `Request failed (HTTP ${result.status}). Please try again.`);
   }
   return superjson.parse<OutputType>(await result.text());
 };
