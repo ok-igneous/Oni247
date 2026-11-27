@@ -53,7 +53,7 @@ export async function handle(request: Request) {
       is_default: true,
     };
 
-    return new Response(superjson.stringify({ domains: paidAccess ? [defaultAddress, ...rows.rows] : [defaultAddress],
+    return new Response(superjson.stringify({ domains: [defaultAddress, ...rows.rows],
       customDomainsAllowed: paidAccess }), {
       headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
     });
