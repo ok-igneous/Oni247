@@ -1,3 +1,5 @@
+"use client";
+
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ArrowDown, ArrowUp, ImagePlus, Pencil, Plus, Star, Trash2 } from "lucide-react";
