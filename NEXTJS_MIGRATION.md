@@ -32,7 +32,7 @@ Next.js will own page routing, layouts, server rendering and public storefront r
    - Pin Next.js 16.4.6 (stable, not canary) and use the existing Node.js 22 runtime.
    - Add the Next.js App Router in the migration branch.
    - Configure strict TypeScript, linting, tests, environment validation and production build scripts.
-   - Next.js must be the only web development server, build system and production web runtime in the completed migration. Vite is not an approved transitional or target runtime. Replace its entry point and route discovery with Next.js before declaring the foundation complete.
+   - Next.js is the web development server, build system and production web runtime on this branch. Vite's app entry point, config, scripts and direct dependencies have been removed. Vitest remains only as the existing test runner while its tests are migrated; it is not used to serve or build the application.
 3. **Route and component migration**
    - Migrate shared layouts and public routes in small, testable groups.
    - Migrate dashboard/admin routes without changing business behavior.
