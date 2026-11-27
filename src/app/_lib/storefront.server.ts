@@ -15,7 +15,12 @@ export async function resolveStorefrontHost(hostHeader: string): Promise<Storefr
   if (!host) return { slug: null, customDomain: false, platformHost: false };
   const root = configuredPlatformRoot();
   const renderHost = normalizeDomainHost(`https://${process.env.RENDER_EXTERNAL_HOSTNAME || "oni247-staging.onrender.com"}`);
-  const localHost = host === "localhost" || host === "127.0.0.1";
+  const localHost = host === "localhost" || host === "127.0.0.1" || host === "::1";
+  const platformRoot = normalizeDomainHost(root)?.replace(/^www\\./, "") ?? null;
+  const unsupportedPlatformSubdomain = Boolean(
+    platformRoot && host.endsWith(`.${platformRoot}`) && host !== `www.${platformRoot}`,
+  );
+  if (unsupportedPlatformSubdomain) return { slug: null, customDomain: false, platformHost: false };
   if (isPlatformHostname(host, root) || localHost || (renderHost && host === renderHost)) return { slug: null, customDomain: false, platformHost: true };
 
   // Ask Fastify to resolve the host so the Next.js process does not open a second DB pool.
