@@ -165,8 +165,11 @@ const loadStorefrontPage = cache(async (requestUrl: string): Promise<NextStorefr
   });
 
   const appearance = captured.business?.appearanceSettings ?? {};
-  const seoTitle = typeof appearance.seoTitle === "string" ? appearance.seoTitle.trim() : "";
-  const seoDescription = typeof appearance.seoDescription === "string" ? appearance.seoDescription.trim() : "";
+  const isStoreHome = customDomain
+    ? url.pathname === "/"
+    : url.pathname.split("/").filter(Boolean).length === 1;
+  const seoTitle = isStoreHome && typeof appearance.seoTitle === "string" ? appearance.seoTitle.trim() : "";
+  const seoDescription = isStoreHome && typeof appearance.seoDescription === "string" ? appearance.seoDescription.trim() : "";
   const shareImage = typeof appearance.shareImageUrl === "string" ? appearance.shareImageUrl.trim() : "";
 
   return {
@@ -175,7 +178,7 @@ const loadStorefrontPage = cache(async (requestUrl: string): Promise<NextStorefr
     canonicalUrl: `${url.origin}${url.pathname}`,
     title: seoTitle || snapshot.title,
     description: seoDescription || snapshot.description,
-    image: shareImage || snapshot.image,
+    image: isStoreHome ? shareImage || snapshot.image : snapshot.image || shareImage,
     body: snapshot.body,
     jsonLd: snapshot.jsonLd,
   };
