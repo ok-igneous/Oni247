@@ -115,8 +115,9 @@ and backend integration have been built and tested.
 - `/login`, `/register`, `/forgot-password`, and `/verify-email` use Next.js App Router pages.
 - `/dashboard` now has a Next.js protected layout and overview page. The existing Fastify endpoints remain authoritative for session lookup, login, registration, email verification, tenant scoping, and dashboard data.
 - The Next.js development command starts Next.js on port 3000 and Fastify on port 3001. Next.js rewrites API and SEO requests to Fastify.
-- The public storefront homepage now has a Next.js server-rendered route for `/{slug}` and for the root of a verified custom domain or business subdomain. Storefront data is loaded through the existing storefront endpoint handler and public database query path. Dynamic title, description, canonical, Open Graph and Twitter metadata are generated on the server.
-- Unmigrated nested storefront routes are deliberately forwarded to the existing Fastify/Vite SPA. This preserves product, gallery, blog, event, checkout and tracking URLs during migration. Known custom-domain storefront section paths are forwarded before Next.js dynamic route matching; Next.js static assets are not rewritten. Only the custom-domain root is served by the new Next.js storefront at this stage. Do not switch the production start command or remove the legacy frontend until those routes are migrated and verified.
+- The public storefront homepage has a Next.js server-rendered route for `/{slug}` and for the root of a verified custom domain or business subdomain. Storefront data is loaded through the existing storefront endpoint handler and public database query path. Dynamic title, description, canonical, Open Graph and Twitter metadata are generated on the server.
+- Blog article detail routes are now implemented in Next.js for `/{slug}/b/{blogSlug}` and `/b/{blogSlug}` on a verified custom domain or business subdomain. They use server-prefetched storefront data, server-generated article metadata, Next.js navigation, the existing engagement API, and the existing theme/header components. The custom-domain rewrite no longer forwards the `/b` section to the legacy app.
+- Other nested storefront routes remain on the Fastify/Vite compatibility path. This currently includes product and service details, event and gallery details, checkout, booking, and tracking. Do not switch the production start command or remove the legacy frontend until these routes are migrated and verified.
 
 
 ## Storefront routing checkpoint
@@ -125,5 +126,6 @@ and backend integration have been built and tested.
 - A published business subdomain or verified custom domain `/` resolves to that business storefront.
 - Platform vanity URL `/{slug}` loads the published business storefront.
 - Unknown or unverified custom hosts do not receive another business's storefront.
-- Unmigrated nested storefront routes are forwarded to the existing Fastify-served frontend as a compatibility bridge.
-- The Next.js storefront receives server-prefetched data, so business content and SEO metadata are present in the initial HTML response.
+- Migrated routes are served by Next.js; remaining nested storefront routes are forwarded to the existing Fastify-served frontend as a compatibility bridge.
+- The Next.js storefront and migrated blog article routes receive server-prefetched data, so business content and SEO metadata are present in the initial HTML response.
+- Blog article details are migrated on both platform vanity URLs (`/{slug}/b/{blogSlug}`) and verified custom-domain/business-subdomain paths (`/b/{blogSlug}`). The blog listing and other storefront detail routes remain legacy until their Next.js equivalents are completed.
