@@ -5,7 +5,7 @@
  * same theme, content, cart, analytics, and order behavior as the shared storefront component.
  * Static routes such as /login and /dashboard remain more specific routes.
  */
-import StorePage from "./store.$slug";
+import StorePage from "./StorefrontPage";
 
 export default function BusinessVanityPage() {
   return <StorePage />;
