@@ -7,7 +7,6 @@ import {
   isPublicCustomDomainPath,
   isPublicStorefrontPath,
   normalizeDomainHost,
-  resolvePlatformSubdomainSlug,
 } from "./storefrontPrerender";
 
 export type NextStorefrontPage = {
@@ -48,7 +47,6 @@ const loadStorefrontPage = cache(async (requestUrl: string): Promise<NextStorefr
   const hostname = url.hostname.toLowerCase();
   const configuredRoot = process.env.PLATFORM_ROOT_DOMAIN || process.env.APP_BASE_URL || null;
   const normalizedRoot = normalizeDomainHost(configuredRoot);
-  const platformSubdomainSlug = resolvePlatformSubdomainSlug(hostname, configuredRoot);
   const platformHost =
     isLocalHost(hostname) ||
     !normalizedRoot ||
@@ -57,20 +55,7 @@ const loadStorefrontPage = cache(async (requestUrl: string): Promise<NextStorefr
   let slug: string | null = null;
   let customDomain = false;
 
-  if (platformSubdomainSlug) {
-    const { db } = await import("../helpers/db");
-    const business = await db
-      .selectFrom("businesses")
-      .select("slug")
-      .where("slug", "=", platformSubdomainSlug)
-      .where("status", "=", "published")
-      .limit(1)
-      .executeTakeFirst();
-
-    slug = business?.slug ?? null;
-    customDomain = true;
-    if (!slug) throw new PublicStorefrontNotFoundError();
-  } else if (platformHost) {
+  if (platformHost) {
     if (!isPublicStorefrontPath(url.pathname)) return null;
     slug = decodeURIComponent(url.pathname.split("/").filter(Boolean)[0] ?? "");
   } else {
