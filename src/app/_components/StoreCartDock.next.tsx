@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { ImageOff, Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
-import { Badge } from "./Badge";
-import { Button } from "./Button";
-import { formatMoney } from "../helpers/formatMoney";
-import type { useStoreCart } from "../helpers/useStoreCart";
-import styles from "./StoreCartDock.module.css";
+import { Badge } from "../../../components/Badge";
+import { Button } from "../../../components/Button";
+import { formatMoney } from "../../../helpers/formatMoney";
+import type { useStoreCart } from "../../../helpers/useStoreCart";
+import styles from "../../../components/StoreCartDock.module.css";
 
 interface Props {
   slug: string;
