@@ -379,7 +379,7 @@ const StorePage = () => {
         { label: "Track order", href: storefrontPath(business.slug, "/track") },
       ]} menuStyle={menuStyle} menuPosition={menuPosition as "left"|"center"|"right"} menuVisibility={menuVisibility} navVisible={navVisible} cartCount={isOnlineStore ? cart.count : undefined} onCartClick={isOnlineStore ? () => { if (cart.count > 0) setCartOpen(true); else toast("Your cart is empty."); } : undefined} />
 
-      {business.showPlatformBranding && <a className={styles.platformCredit} href="https://oni247.com" target="_blank" rel="noopener noreferrer" aria-label="Build using Oni247">Build using <strong>Oni247</strong></a>}
+      {business.showPlatformBranding && <a className={styles.platformCredit} href="https://oni247.org" target="_blank" rel="noopener noreferrer" aria-label="Build using Oni247">Build using <strong>Oni247</strong></a>}
 
       {isOnlineStore && <div className={styles.storeCallStrip}>{(business.phone || whatsappNumber) ? <><span>Call to order</span>{business.phone && <a href={`tel:${business.phone.replace(/\s/g, "")}`}>{business.phone}</a>}{whatsappNumber && <a href={enquiryUrl} target="_blank" rel="noopener noreferrer">WhatsApp order</a>}</> : <span>Welcome to {business.name}</span>}</div>}
       {isOnlineStore && <div className={styles.storeSearchRow}><Search size={18} aria-hidden="true"/><Input value={search} onChange={event=>{setSearch(event.target.value);setVisibleCount(12);}} onKeyDown={event=>{if(event.key==="Enter")document.getElementById("catalogue")?.scrollIntoView({behavior:"smooth"});}} enterKeyHint="search" type="search" placeholder="Search products" aria-label="Search products"/></div>}
