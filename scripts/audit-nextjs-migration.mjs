@@ -32,7 +32,7 @@ async function walk(directory) {
     if (
       relative.startsWith("pages/") &&
       !relative.endsWith(".pageLayout.tsx") &&
-      !/^pages\/store\.\$slug(?:\.|$)/.test(relative)
+      !relative.startsWith("pages/store.$slug")
     ) {
       const base = path.basename(relative).replace(/\.(tsx|jsx)$/, "");
       const route = base === "_index"
