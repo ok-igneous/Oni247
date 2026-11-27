@@ -10,7 +10,6 @@ export type CrawlerSnapshotRequest = {
 
 export type CrawlerRendererDependencies = {
   hasProductionBuild: boolean;
-  resolvePlatformSubdomain(slug: string): Promise<string | null>;
   resolveCustomDomain(hostname: string): Promise<string | null>;
   loadSnapshot(input: CrawlerSnapshotRequest): Promise<CrawlerSnapshot>;
   readIndexHtml(): Promise<string>;
