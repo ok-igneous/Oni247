@@ -13,6 +13,7 @@ import { EngagementSection } from "../../../components/EngagementSection";
 import { EventDateBadge } from "../../../components/EventDateBadge";
 import { StorefrontHeaderNext } from "./StorefrontHeader.next";
 import { storeThemeEngine } from "../../../helpers/storeThemeEngine";
+import { friendlyError } from "../../../helpers/friendlyError";
 import { eventTimeState, formatEventRange, registrationInfo, startsInText } from "../../../helpers/eventStatus";
 import type { OutputType as EventData } from "../../../endpoints/events/public_GET.schema";
 import type { PublicEventItem } from "../../../endpoints/events/publicList_GET.schema";
@@ -103,33 +104,7 @@ export default function PublicEventNext({ data, eventSlug, others, customDomain,
 
   return (
     <main className={styles.page} style={{ ...theme.style, "--brand": "var(--store-primary)" } as React.CSSProperties}>
-      <>
-        <title>{`${event.title} — ${data.business.name}`}</title>
-        <meta name="description" content={event.description.slice(0, 160)} />
-        
-        
-        <meta property="og:type" content="event" />
-        <meta property="og:title" content={`${event.title} — ${data.business.name}`} />
-        <meta property="og:description" content={event.description.slice(0, 200)} />
-        {event.coverImageUrl && <meta property="og:image" content={event.coverImageUrl} />}
-        <meta name="twitter:card" content={event.coverImageUrl ? "summary_large_image" : "summary"} />
-        <meta name="twitter:title" content={`${event.title} — ${data.business.name}`} />
-        <meta name="twitter:description" content={event.description.slice(0, 200)} />
-        {event.coverImageUrl && <meta name="twitter:image" content={event.coverImageUrl} />}
-        <meta name="robots" content="index,follow,max-image-preview:large" />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Event",
-          name: event.title,
-          description: event.description,
-          startDate: event.startsAt,
-          endDate: event.endsAt || undefined,
-          location: event.venue ? { "@type": "Place", name: event.venue } : undefined,
-          image: event.coverImageUrl ? [event.coverImageUrl] : undefined,
-          organizer: { "@type": "Organization", name: data.business.name },
-          url: new URL(path(`/e/${encodeURIComponent(event.slug)}`), origin).toString(),
-        }).replace(/</g, "\\u003c") }} />
-      </>
+
 
       <StorefrontHeaderNext
         businessName={data.business.name}
@@ -326,6 +301,7 @@ export default function PublicEventNext({ data, eventSlug, others, customDomain,
       </div>
 
       {showFooter && <footer className={styles.footer}>© {new Date().getFullYear()} {data.business.name}</footer>}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context": "https://schema.org", "@type": "Event", name: event.title, description: event.description, startDate: event.startsAt, endDate: event.endsAt || undefined, location: event.venue ? { "@type": "Place", name: event.venue } : undefined, image: event.coverImageUrl ? [event.coverImageUrl] : undefined, organizer: { "@type": "Organization", name: data.business.name }, url: new URL(path(`/e/${encodeURIComponent(event.slug)}`), origin).toString() }).replace(/</g, "\\u003c") }} />
       {data.form && event.registrationEnabled && state !== "past" && reg.state === "open" && !message && (
         <button type="button" className={styles.floatingRegister} onClick={() => setRegOpen(true)}>
           <Ticket size={18} aria-hidden="true" /> Register
