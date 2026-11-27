@@ -68,6 +68,23 @@ const directViteDependencies = Object.keys({
   ...packageJson.devDependencies,
 }).filter((name) => name === "vite" || name.startsWith("@vitejs/"));
 
+const requiredFiles = [
+  "src/app/store/[[...path]]/page.next.tsx",
+  "src/app/legacy/[[...path]]/page.next.tsx",
+  "src/app/_api/[...path]/route.next.ts",
+  "server/nextApiProxy.ts",
+  "scripts/generate-legacy-page-registry.mjs",
+];
+const missingRequiredFiles = [];
+for (const file of requiredFiles) {
+  try {
+    await stat(path.join(root, file));
+  } catch (error) {
+    if (error.code === "ENOENT") missingRequiredFiles.push(file);
+    else throw error;
+  }
+}
+
 const obsoleteEntrypoints = [];
 for (const file of ["vite.config.ts", "index.html", "src/main.tsx"]) {
   try {
@@ -84,11 +101,12 @@ const report = {
   routeCollisions: collisions,
   directViteDependencies,
   obsoleteEntrypoints,
+  missingRequiredFiles,
   sourceFindings: findings,
   testRunner: packageJson.devDependencies?.vitest ? "Vitest (Vite is transitive, development-only)" : "No Vitest",
 };
 
 process.stdout.write(JSON.stringify(report, null, 2) + "\n");
-if (collisions.length || directViteDependencies.length || obsoleteEntrypoints.length || findings.length) {
+if (collisions.length || directViteDependencies.length || obsoleteEntrypoints.length || missingRequiredFiles.length || findings.length) {
   process.exitCode = 1;
 }
