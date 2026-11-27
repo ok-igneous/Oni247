@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Helmet } from "react-helmet";
@@ -19,6 +19,7 @@ const VerifyEmailPage = () => {
   const emailVerifiedAt = authState.type === "authenticated" ? authState.user.emailVerifiedAt : null;
   const [message, setMessage] = useState("Check your inbox for a verification link.");
   const [loading, setLoading] = useState(false);
+  const processedToken = useRef<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -28,7 +29,8 @@ const VerifyEmailPage = () => {
       await queryClient.refetchQueries({ queryKey: AUTH_QUERY_KEY });
     };
 
-    if (token) {
+    if (token && processedToken.current !== token) {
+      processedToken.current = token;
       setLoading(true);
       void postVerifyEmail({ token })
         .then(async () => {
