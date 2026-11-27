@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
 import { useNextSearchParams as useSearchParams } from "../../../helpers/useNextSearchParams";
 import { useQueryClient } from "@tanstack/react-query";
