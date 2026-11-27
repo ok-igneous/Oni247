@@ -140,3 +140,10 @@ The new runtime is a first implementation, not a completed migration. Keep previ
 - Added regression tests for removed-route detection and malicious blog markup.
 - The custom-domain resolver already requires a published business, a verified domain and an active paid subscription. The plan resolver explicitly excludes trials and expired subscriptions from the custom-domain entitlement.
 - These tests are committed but remain unexecuted until dependencies can be installed and the project can be built locally or in CI.
+## Storefront SSR hardening follow-up (2026-11-27)
+
+- Styled the server-rendered storefront fallback with responsive, scoped global CSS so the initial HTML is legible before the interactive legacy app hydrates.
+- Restricted public product/blog/event/gallery detail identifiers to generated alphanumeric-hyphen slugs; encoded separators and malformed path-like identifiers are rejected before lookups.
+- Reserved platform-owned root routes (`/pay`, `/s`, `/unsubscribe`, `/verify-email`, `/emmanuel-ponle`, and existing auth/dashboard/API paths) so Next.js does not mistake them for business slugs.
+- Server-rendered product lists now respect the product-link entitlement: shops without that feature receive non-linked product names, and product detail routes remain unavailable.
+- Added regression tests for malformed detail paths, platform route exclusions, and product-link entitlement behavior. These tests are committed but not executed.
