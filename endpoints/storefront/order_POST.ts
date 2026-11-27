@@ -1,4 +1,5 @@
 import superjson from "superjson";
+import { sql } from "kysely";
 import { db } from "../../helpers/db";
 import { generateTrackingCode } from "../../helpers/generateTrackingCode";
 import { schema, type OutputType, type OrderConfirmationLine } from "./order_POST.schema";
@@ -197,10 +198,8 @@ export async function handle(request: Request) {
           })
           .onConflict((oc) =>
             oc.columns(["businessId", "phoneKey"]).doUpdateSet({
-              name: input.customerName,
-              phone: input.customerPhone,
-              ...(input.customerEmail ? { email: input.customerEmail } : {}),
-              ...(address ? { lastAddress: address } : {}),
+              email: sql<string | null>`COALESCE(NULLIF(customers.email, ''), EXCLUDED.email)`,
+              lastAddress: sql<string | null>`COALESCE(NULLIF(customers.last_address, ''), EXCLUDED.last_address)`,
               updatedAt: new Date(),
             }),
           )
@@ -306,9 +305,8 @@ export async function handle(request: Request) {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Could not record the order.";
-    return fail(message);
+    // Never expose SQL, constraint, provider or infrastructure errors to shoppers.
+    return fail("Could not place your order. Please try again.", 500);
   }
 }
 
