@@ -36,6 +36,7 @@ async function getRequestUrl(params: PageProps["params"]): Promise<string> {
 
 async function loadPage(params: PageProps["params"]) {
   const requestUrl = await getRequestUrl(params);
+  if (isRemovedLegacyStorePath(new URL(requestUrl).pathname)) notFound();
   try {
     return await getNextStorefrontPage(requestUrl);
   } catch (error) {
