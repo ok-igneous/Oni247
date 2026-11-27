@@ -22,7 +22,6 @@ import styles from "../../../pages/store.$slug.$page.module.css";
 const pages = ["products", "services", "about", "gallery", "blog", "events", "contact"] as const;
 
 export default function StoreSectionPageNext({ slug, page, initialData }: { slug: string; page: string; initialData: StorefrontOutput }) {
-  const router = useRouter();
   const { data } = useStorefront(slug, initialData);
   const [galleries, setGalleries] = useState<Array<{ id: string; slug: string; name: string; description: string | null; coverImageUrl: string | null; imageCount: number }>>([]);
   const [galleryError, setGalleryError] = useState(false);
