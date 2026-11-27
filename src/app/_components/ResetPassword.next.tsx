@@ -16,12 +16,13 @@ function ResetPasswordContentNext() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    if (!message.startsWith("Password reset successfully")) return;
+    if (!success) return;
     const timeout = window.setTimeout(() => router.replace("/login"), 700);
     return () => window.clearTimeout(timeout);
-  }, [message, router]);
+  }, [success, router]);
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -37,6 +38,7 @@ function ResetPasswordContentNext() {
     setLoading(true);
     try {
       const result = await postResetPassword({ token, password });
+      setSuccess(true);
       setMessage(result.message || "Password reset successfully. Redirecting to login…");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Could not reset password.");
