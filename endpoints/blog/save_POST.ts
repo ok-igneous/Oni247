@@ -2,6 +2,7 @@ import superjson from "superjson";
 import { db } from "../../helpers/db";
 import { requireOwnedBusiness } from "../../helpers/requireOwnedBusiness";
 import { subscriptionPlan } from "../../helpers/subscriptionPlan";
+import { loadPlanConfig } from "../../helpers/planConfig";
 import { sanitizeBlogContent } from "../../helpers/sanitizeBlogContent";
 import type { InputType } from "./save_POST.schema";
 
@@ -40,6 +41,7 @@ export async function handle(request: Request) {
       status: 401,
     });
   }
+  await loadPlanConfig();
   if (!subscriptionPlan.resolve(business).isPremium) {
     return new Response(
       superjson.stringify({ error: "Blog editing is available on Premium plans." }),
