@@ -2,6 +2,8 @@ import { cache } from "react";
 import { sql } from "kysely";
 import superjson from "superjson";
 import { createCrawlerSnapshotLoader } from "./crawlerSnapshotLoader";
+import { loadPlanConfig } from "../helpers/planConfig";
+import { subscriptionPlan } from "../helpers/subscriptionPlan";
 import {
   isPlatformHostname,
   isPublicCustomDomainPath,
@@ -63,6 +65,7 @@ const loadStorefrontPage = cache(async (requestUrl: string): Promise<NextStorefr
     const requestHost = normalizeDomainHost(`https://${hostname}`);
     if (!requestHost) throw new PublicStorefrontNotFoundError();
 
+    await loadPlanConfig();
     const { db } = await import("../helpers/db");
     const normalizedStoredHost = sql<string | null>`case
       when lower("custom_domain") like 'http://%' then null
@@ -70,16 +73,18 @@ const loadStorefrontPage = cache(async (requestUrl: string): Promise<NextStorefr
     end`;
     const business = await db
       .selectFrom("businesses")
-      .select("slug")
+      .select(["slug", "plan", "websitePlan", "trialEndsAt", "planRenewsAt", "premiumTrialUsed"])
       .where("status", "=", "published")
       .where("customDomainStatus", "=", "verified")
       .where(normalizedStoredHost, "=", requestHost)
       .limit(1)
       .executeTakeFirst();
 
-    slug = business?.slug ?? null;
+    if (!business || !subscriptionPlan.resolve(business).canUseCustomDomain) {
+      throw new PublicStorefrontNotFoundError();
+    }
+    slug = business.slug;
     customDomain = true;
-    if (!slug) throw new PublicStorefrontNotFoundError();
 
     if (!isPublicCustomDomainPath(url.pathname)) {
       const firstSegment = url.pathname.split("/").filter(Boolean)[0]?.toLowerCase();
