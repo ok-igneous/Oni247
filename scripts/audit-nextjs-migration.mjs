@@ -4,7 +4,7 @@ import path from "node:path";
 
 const root = process.cwd();
 const pagesRoot = path.join(root, "pages");
-const sourceRoots = ["pages", "components", "helpers", "endpoints"];
+const sourceRoots = ["legacy-pages", "components", "helpers", "endpoints"];
 const findings = [];
 const routeFiles = [];
 
@@ -21,7 +21,7 @@ async function walk(directory) {
     else if (/\.(tsx?|jsx?)$/.test(entry.name)) {
       const relative = path.relative(root, absolute).split(path.sep).join("/");
       const source = await readFile(absolute, "utf8");
-      if (relative.startsWith("pages/") && !relative.endsWith(".pageLayout.tsx")) {
+      if (relative.startsWith("legacy-pages/") && !relative.endsWith(".pageLayout.tsx")) {
         const base = path.basename(relative).replace(/\.(tsx|jsx)$/, "");
         const route = base === "_index"
           ? "/"
