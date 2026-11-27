@@ -33,8 +33,11 @@ The current tree contains native App Router pages for:
 - Service details at `/{slug}/s/{serviceId}` and `/s/{serviceId}` on a verified custom domain.
 - Gallery details at `/{slug}/g/{gallerySlug}` and `/g/{gallerySlug}` on a verified custom domain.
 - Event details at `/{slug}/e/{eventSlug}` and `/e/{eventSlug}` on a verified custom domain.
+- Service booking at `/{slug}/book/{serviceId}` and `/book/{serviceId}` on a verified custom domain.
+- Booking confirmation/status at `/{slug}/booking/{code}` and `/booking/{code}` on a verified custom domain.
+- Order tracking at `/{slug}/track/{code}` and `/track/{code}` on a verified custom domain.
 
-The remaining dashboard/editor pages and storefront listing, checkout, booking and tracking flows still use the compatibility layer where no native route has been completed. Do not remove React Router or legacy components until route parity and acceptance tests pass.
+The remaining dashboard/editor pages and storefront listing and checkout flows still use the compatibility layer where no native route has been completed. Booking and tracking now have native App Router routes. Do not remove React Router or legacy components until route parity and acceptance tests pass.
 
 ## Runtime and deployment
 
