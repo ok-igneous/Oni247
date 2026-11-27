@@ -67,7 +67,7 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
   const { data: access } = useTeamAccess();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  useEffect(() => { setMobileMenuOpen(false); }, [location.pathname]);
+  useEffect(() => { setMobileMenuOpen(false); }, [location.pathname, location.search]);
   const isThemeRoute = location.pathname === "/dashboard/theme";
   const [themeSidebarCollapsed, setThemeSidebarCollapsed] = useState(() => {
     if (typeof window === "undefined") return false;
@@ -87,6 +87,13 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (typeof window !== "undefined") window.localStorage.setItem("oni247-dashboard-nav-groups", JSON.stringify(expandedGroups));
   }, [expandedGroups]);
+  useEffect(() => {
+    const activeGroup = navGroups.find(group => group.items.some(item => {
+      const [path, query] = item.to.split("?");
+      return location.pathname === path && (!query || location.search === `?${query}`);
+    }));
+    if (activeGroup) setExpandedGroups(current => ({ ...current, [activeGroup.id]: true }));
+  }, [location.pathname, location.search]);
 
   const business = data?.business ?? null;
   const siteType = business?.appearanceSettings && typeof business.appearanceSettings === "object" ? (business.appearanceSettings as Record<string, unknown>).siteType : "custom";
@@ -142,8 +149,8 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
         <nav className={styles.nav} aria-label="Dashboard navigation">
           {renderNavItem(overview)}
           {visibleGroups.map(group => {
-            const active = group.items.some(item => location.pathname === item.to.split("?")[0]);
-            const expanded = Boolean(expandedGroups[group.id] || active);
+            const active = group.items.some(item => { const [path, query] = item.to.split("?"); return location.pathname === path && (!query || location.search === `?${query}`); });
+            const expanded = Boolean(expandedGroups[group.id]);
             return <section className={styles.navGroup} key={group.id}>
               <button type="button" className={`${styles.groupToggle} ${active ? styles.groupToggleActive : ""}`}
                 aria-expanded={expanded} onClick={() => setExpandedGroups(current => ({...current, [group.id]: !expanded}))}>
