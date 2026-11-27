@@ -113,3 +113,12 @@ The new runtime is a first implementation, not a completed migration. Keep previ
 - Fastify was converted to an API-only listener; the old Vite `dist/index.html` static fallback and crawler interception are no longer registered on the API service. The legacy crawler rendering modules remain in the repository as source material for the Next.js SEO migration, but are not active.
 - Static GitHub tree validation after the page-directory move found 69 page modules, 70 layout modules, no route-name collisions, no root `pages/` directory, no `index.html` or `vite.config.ts`, and no direct `vite` dependency in `package.json`.
 - Vitest remains temporarily as the test runner for the existing 19 tests. It is not used as the web development server or build system; replacing the test runner is a separate cleanup item if the requirement is to eliminate every transitive Vite package as well.
+
+## Native Next.js storefront SSR milestone (2026-11-27)
+
+- Added a server-side storefront resolver on the `nextjs-migration` branch. It resolves platform vanity URLs, configured business subdomains, and exact verified custom-domain hosts against published business records.
+- The Next.js catch-all route now calls the existing public storefront and gallery endpoint handlers directly on the server, then uses the existing crawler snapshot renderer to produce meaningful HTML before the browser hydrates.
+- Added request-specific title, description, canonical URL, Open Graph/Twitter metadata, and JSON-LD output. Existing business SEO title, description and share-image settings take precedence when present.
+- Public product, blog article, event, multi-page content and gallery URLs use the existing snapshot renderer. Missing public content is mapped to a real Next.js 404; database and upstream failures are not intentionally converted into 404s.
+- Added a hydration bridge: after the server HTML has been hydrated, the legacy interactive storefront takes over. Checkout, tracking, booking and form flows remain on the compatibility layer. This is a first SSR milestone, not completion of the full native App Router storefront.
+- **Verification remains outstanding:** no dependency installation, TypeScript check, Vitest run, Next.js production build, live database/custom-domain resolution test, crawler inspection, or browser hydration test has been completed. Do not deploy or cut over production based on this milestone.
