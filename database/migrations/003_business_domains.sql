@@ -1,5 +1,5 @@
--- Multi-domain registry for Oni247. DNS and TLS remain infrastructure concerns;
--- this table stores ownership verification and the hostname-to-business mapping.
+-- Multi-domain registry for Oni247. It stores ownership verification and hostname-to-business mapping;
+-- Render remains the DNS ingress and managed TLS provider.
 BEGIN;
 
 CREATE TABLE IF NOT EXISTS business_domains (
