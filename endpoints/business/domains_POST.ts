@@ -44,17 +44,17 @@ export async function handle(request: Request) {
     if (!inserted.rows[0]) return new Response(superjson.stringify({ error: "This domain is already registered on Oni247." }), { status: 409 });
 
     const renderTarget = process.env.RENDER_CUSTOM_DOMAIN_TARGET?.trim() || null;
-    const isWww = hostname.startsWith("www.");
-    const routing = isWww
-      ? (renderTarget ? { type: "CNAME", name: "www", value: renderTarget } : null)
-      : { type: "A", name: "@", value: "216.24.57.1" };
+    const routing = [
+      { type: "A", name: "@", value: "216.24.57.1" },
+      ...(renderTarget ? [{ type: "CNAME", name: "www", value: renderTarget }] : []),
+    ];
     return new Response(superjson.stringify({
       domain: { id: inserted.rows[0].id, hostname, status: "pending", sslStatus: "pending" },
       dns: {
         verification: { type: "TXT", name: `_oni247-verification.${hostname}`, value: `oni247-verification=${token}` },
         routing,
       },
-      notice: "First add the TXT ownership record. Then add the routing record. Remove conflicting AAAA records. After DNS propagates, verify the domain here; Oni247 will register it with Render and monitor Render verification plus the HTTPS certificate. Render may charge for custom domains beyond your workspace allowance.",
+      notice: "Add both routing records so Render can serve the apex and www hostname and redirect the secondary hostname to the one you registered. First add the TXT ownership record. Remove conflicting AAAA records. After DNS propagates, verify the domain here; Oni247 will register it with Render and monitor Render verification plus the HTTPS certificate. Render may charge for custom domains beyond your workspace allowance.",
     }), { status: 201, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not add this domain.";
