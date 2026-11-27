@@ -1,3 +1,5 @@
+"use client";
+
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Copy, ExternalLink, Eye, Plus, Trash2, X } from "lucide-react";
