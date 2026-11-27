@@ -29,3 +29,5 @@ jobs:
         run: npm test
       - name: Build production bundle
         run: npm run build
+      - name: Audit standalone source
+        run: npm run audit:standalone
