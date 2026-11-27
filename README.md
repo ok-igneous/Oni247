@@ -43,9 +43,9 @@ The production start command runs Next.js on the hosting platform's public `PORT
 
 ## Deployment safety
 
-The migration branch is not production-ready until dependencies are installed and typecheck, tests, Next.js production build, authentication, payment, custom-domain, SEO and browser acceptance checks pass. Do not change production DNS, webhooks or customer traffic without explicit cutover approval.
+The application is not production-ready until dependencies are installed and typecheck, tests, Next.js production build, authentication, payment, custom-domain, SEO and browser acceptance checks pass. Do not change production DNS, webhooks or customer traffic without explicit cutover approval.
 
-See [STANDALONE_MIGRATION.md](./STANDALONE_MIGRATION.md) and [docs/nextjs-migration.md](./docs/nextjs-migration.md) for the migration and release gates.
+See [docs/nextjs-migration.md](./docs/nextjs-migration.md) for the architecture, migration status and release gates.
 
 ## Product specifications
 
