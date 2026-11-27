@@ -32,7 +32,7 @@ await walk(pagesDir);
 pages.sort();
 layouts.sort();
 
-const importPath = (file) => "../../" + file.replace(/\.tsx$/, ".tsx");
+const importPath = (file) => "../../" + file;
 const pageEntries = pages.map((file) =>
   `  ${JSON.stringify("../" + file)}: () => import(${JSON.stringify(importPath(file))}),`,
 ).join("\n");
