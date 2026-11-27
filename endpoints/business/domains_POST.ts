@@ -31,6 +31,13 @@ export async function handle(request: Request) {
       return new Response(superjson.stringify({ error: "This hostname is reserved for Oni247." }), { status: 400 });
     }
 
+    const renderTarget = process.env.RENDER_CUSTOM_DOMAIN_TARGET?.trim();
+    if (!process.env.RENDER_API_KEY?.trim() || !process.env.RENDER_SERVICE_ID?.trim() || !renderTarget) {
+      return new Response(superjson.stringify({
+        error: "Custom-domain connection is not configured yet. Please contact Oni247 support.",
+      }), { status: 503 });
+    }
+
     const business = await db.selectFrom("businesses").select(["id"])
       .where("ownerId", "=", user.id).limit(1).executeTakeFirst();
     if (!business) return new Response(superjson.stringify({ error: "Create your business profile first." }), { status: 404 });
@@ -43,10 +50,9 @@ export async function handle(request: Request) {
       returning id`.execute(db);
     if (!inserted.rows[0]) return new Response(superjson.stringify({ error: "This domain is already registered on Oni247." }), { status: 409 });
 
-    const renderTarget = process.env.RENDER_CUSTOM_DOMAIN_TARGET?.trim() || null;
     const routing = [
       { type: "A", name: "@", value: "216.24.57.1" },
-      ...(renderTarget ? [{ type: "CNAME", name: "www", value: renderTarget }] : []),
+      { type: "CNAME", name: "www", value: renderTarget },
     ];
     return new Response(superjson.stringify({
       domain: { id: inserted.rows[0].id, hostname, status: "pending", sslStatus: "pending" },
