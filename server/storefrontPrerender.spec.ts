@@ -4,6 +4,7 @@ import {
   injectCrawlerHtml,
   isCrawlerUserAgent,
   isPublicStorefrontPath,
+  isRemovedLegacyStorePath,
   isPublicCustomDomainPath,
   normalizeDomainHost,
 } from "./storefrontPrerender";
@@ -53,6 +54,15 @@ describe("crawler storefront helpers", () => {
       "/nesmage/p/item/extra",
       "/nesmage/unknown-section",
     ]) expect(isPublicStorefrontPath(path), path).toBe(false);
+  });
+
+  it("identifies the removed /store/{slug} URL pattern", () => {
+    for (const path of ["/store", "/store/nesmage", "/store/nesmage/p/item"]) {
+      expect(isRemovedLegacyStorePath(path), path).toBe(true);
+    }
+    for (const path of ["/nesmage", "/dashboard", "/storefront"]) {
+      expect(isRemovedLegacyStorePath(path), path).toBe(false);
+    }
   });
 
   it("allows only public vanity routes on custom-domain roots", () => {
