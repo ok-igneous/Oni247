@@ -21,7 +21,7 @@ async function walk(directory) {
     // /store/{slug} was an old public route and is not part of Oni247's URL
     // contract. pages/store.$slug.tsx remains a shared component imported by
     // pages/$slug.tsx; none of the old store.$slug.* files are routes.
-    if (/^pages\/store\.\$slug(?:\.|$)/.test(relative)) continue;
+    if (relative.startsWith("pages/store.$slug")) continue;
 
     if (relative.endsWith(".pageLayout.tsx")) layouts.push(relative);
     else pages.push(relative);
