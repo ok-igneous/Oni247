@@ -129,6 +129,7 @@ export type OutputType = {
     currency: string;
     canUseProductLinks: boolean;
     canUseMultiPage: boolean;
+    showPlatformBranding: boolean;
     blogSettings?: import("../helpers/parseBlogSettings").BlogSettings;
     checkout?: StorefrontCheckout;
     appearanceSettings?: Record<string, unknown>;
