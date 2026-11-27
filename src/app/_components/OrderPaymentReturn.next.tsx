@@ -3,11 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Check, Clock, XCircle } from "lucide-react";
-import { Button } from "./Button";
-import { Spinner } from "./Spinner";
-import { formatMoney } from "../helpers/formatMoney";
-import { postStorefrontOrderPay, type OutputType } from "../endpoints/storefront/orderPay_POST.schema";
-import styles from "./OrderPaymentReturn.module.css";
+import { Button } from "../../../components/Button";
+import { Spinner } from "../../../components/Spinner";
+import { formatMoney } from "../../../helpers/formatMoney";
+import { postStorefrontOrderPay, type OutputType } from "../../../endpoints/storefront/orderPay_POST.schema";
+import styles from "../../../components/OrderPaymentReturn.module.css";
 
 /** Shown when a customer comes back from the payment page. The gateway is asked directly, so the result can be trusted. */
 export const OrderPaymentReturnNext = ({ slug, orderRef, home }: { slug: string; orderRef: string; home: string }) => {
