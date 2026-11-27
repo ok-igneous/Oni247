@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -287,7 +287,7 @@ export default function StorefrontPageNext({ slug, initialData, customDomain }: 
     if (redirectHomePage) router.replace(storefrontPath(business.slug, "/" + selectedHomePage));
   }, [redirectHomePage, router, business.slug, selectedHomePage]);
   if (redirectHomePage) return null;
-  const pageStyle = themeEngine.style as React.CSSProperties;
+  const pageStyle = themeEngine.style as CSSProperties;
   const shareDescription =
     business.description ?? `Browse products and services from ${business.name}.`;
   const shareUrl = typeof window !== "undefined" ? window.location.href : `/${business.slug}`;
