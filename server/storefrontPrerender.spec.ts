@@ -38,6 +38,11 @@ describe("crawler storefront helpers", () => {
   it("rejects private, static, API and unsupported paths", () => {
     for (const path of [
       "/dashboard",
+      "/pay/ABCD1234",
+      "/s/ABCD1234",
+      "/unsubscribe",
+      "/verify-email",
+      "/emmanuel-ponle",
       "/store/nesmage",
       "/store",
       "/admin/businesses",
