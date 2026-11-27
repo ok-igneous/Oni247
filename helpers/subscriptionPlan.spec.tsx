@@ -86,6 +86,7 @@ describe("subscriptionPlan", () => {
     expect(result.source).toBe("free");
     expect(result.isPremium).toBe(false);
     expect(result.isPremiumPlus).toBe(false);
+    expect(result.canUseCustomDomain).toBe(false);
     expect(result.lapsed).toBe(true);
   });
 
