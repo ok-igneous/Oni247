@@ -75,7 +75,7 @@ The new runtime is a first implementation, not a completed migration. Keep previ
 - Use provider-neutral S3-compatible object storage; do not change media provider, object keys or public URLs without a verified migration plan.
 - Hosting provider remains undecided. Target portable Node.js deployment.
 - Created isolated branch `nextjs-migration` from `main`; production and `main` remain untouched.
-- This is an architecture decision and migration plan only. No Next.js implementation, build, test or deployment is claimed yet.
+- The initial Next.js foundation is now implemented on `nextjs-migration`; typecheck, tests, production build and deployment are still unverified.
 
 
 ## Standalone staging database initialisation (2026-11-27)
@@ -108,3 +108,8 @@ The new runtime is a first implementation, not a completed migration. Keep previ
 - Split the local API port into `API_PORT` and added `API_ORIGIN` for the Next.js proxy. Fastify remains a separate service.
 - Added Next.js rewrites for `/sitemap.xml` and `/robots.txt` to the Fastify service.
 - **Not yet verified:** dependencies have not been installed; the route registry has not been generated in a checked-out workspace; TypeScript, unit tests, Next.js production build, custom-domain host forwarding, cookie forwarding, crawler SEO rendering and browser route parity have not been run. No staging deployment or production cutover has occurred.
+
+
+- Fastify was converted to an API-only listener; the old Vite `dist/index.html` static fallback and crawler interception are no longer registered on the API service. The legacy crawler rendering modules remain in the repository as source material for the Next.js SEO migration, but are not active.
+- Static GitHub tree validation after the page-directory move found 69 page modules, 70 layout modules, no route-name collisions, no root `pages/` directory, no `index.html` or `vite.config.ts`, and no direct `vite` dependency in `package.json`.
+- Vitest remains temporarily as the test runner for the existing 19 tests. It is not used as the web development server or build system; replacing the test runner is a separate cleanup item if the requirement is to eliminate every transitive Vite package as well.
