@@ -39,6 +39,7 @@ import styles from "../../../pages/store.$slug.p.$productSlug.module.css";
 type Props = { data: import("../../../endpoints/storefront_GET.schema").OutputType; productSlug: string; customDomain: boolean; origin: string };
 const ProductDetailNext = ({ data, productSlug, customDomain, origin }: Props) => {
   const slug = data.business.slug;
+  const path = (suffix: string) => customDomain ? (suffix || "/") : `/${encodeURIComponent(slug)}${suffix}`;
   const router = useRouter();
   const isFetching = false;
   const error = null;
@@ -137,7 +138,6 @@ const ProductDetailNext = ({ data, productSlug, customDomain, origin }: Props) =
     );
   }
 
-  const path = (suffix: string) => customDomain ? (suffix || "/") : `/${encodeURIComponent(business.slug)}${suffix}`;
   const home = path("");
   const whatsappNumber = business.whatsappNumber ?? business.phone ?? "";
   // Exact stock counts stay private; the public catalogue exposes availability only.
