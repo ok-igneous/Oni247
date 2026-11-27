@@ -1,8 +1,8 @@
 import { useEffect, useId, useState } from "react";
 import Link from "next/link";
 import { Menu, MessageCircle, Phone, ShoppingBag, X } from "lucide-react";
-import { Button } from "./Button";
-import styles from "./StorefrontHeader.module.css";
+import { Button } from "../../../components/Button";
+import styles from "../../../components/StorefrontHeader.module.css";
 
 type StorefrontNavItem = { label: string; href: string; active?: boolean };
 type StorefrontHeaderProps = {
