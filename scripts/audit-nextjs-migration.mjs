@@ -63,6 +63,27 @@ const collisions = [...grouped.entries()]
   .filter(([, files]) => files.length > 1)
   .map(([route, files]) => ({ route, files }));
 
+for (const file of ["server", "endpoints", "src"]) {
+  // Route and host resolution must not reintroduce the retired business-subdomain resolver.
+  const directory = path.join(root, file);
+  await walk(directory);
+}
+const forbiddenSubdomainResolver = routeFiles.some(({ file }) => file.includes("resolvePlatformSubdomainSlug"));
+if (forbiddenSubdomainResolver) findings.push({ file: "source", issue: "Retired business-subdomain resolver remains", count: 1 });
+
+const subscriptionSource = await readFile(path.join(root, "helpers", "subscriptionPlan.tsx"), "utf8");
+const hostEndpointSource = await readFile(path.join(root, "endpoints", "storefrontHost_GET.ts"), "utf8");
+const sitemapSource = await readFile(path.join(root, "endpoints", "sitemap_GET.ts"), "utf8");
+if (!subscriptionSource.includes("canUseCustomDomain: paid")) {
+  findings.push({ file: "helpers/subscriptionPlan.tsx", issue: "Custom-domain entitlement must be paid-only", count: 1 });
+}
+if (!hostEndpointSource.includes("subscriptionPlan.resolve(business).canUseCustomDomain")) {
+  findings.push({ file: "endpoints/storefrontHost_GET.ts", issue: "Custom-domain host resolution must enforce paid entitlement", count: 1 });
+}
+if (!sitemapSource.includes("plan.canUseCustomDomain")) {
+  findings.push({ file: "endpoints/sitemap_GET.ts", issue: "Sitemap must enforce paid custom-domain entitlement", count: 1 });
+}
+
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
 const directViteDependencies = Object.keys({
   ...packageJson.dependencies,
