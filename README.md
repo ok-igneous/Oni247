@@ -38,3 +38,29 @@ See [STANDALONE_MIGRATION.md](./STANDALONE_MIGRATION.md) for the deployment and 
 ## Product specifications
 
 - [Editable Portfolio / Professional Profile Builder](docs/features/editable-portfolio-builder.md) — requirements for an owner-editable portfolio, including profile content, sections, projects, services, image uploads, theme integration, SEO, drafts, and publishing.
+
+## Next.js migration preview
+
+Next.js App Router is being introduced alongside the existing application. The
+legacy Vite/Fastify runtime remains the active deployment until the Next.js
+routes and backend integration pass the migration checks.
+
+Run the isolated Next.js app locally:
+
+```bash
+npm run dev:next
+```
+
+Verify its production compilation:
+
+```bash
+npm run build:next
+```
+
+The Next.js foundation currently uses `src/app` and the `.next.tsx` route
+suffix so the existing root-level `pages/` files remain owned by the legacy
+Vite router. The main `npm run build` now checks both applications; the
+production start command remains unchanged for now.
+
+See [docs/nextjs-migration.md](./docs/nextjs-migration.md) for the staged
+migration plan and safety gates.
