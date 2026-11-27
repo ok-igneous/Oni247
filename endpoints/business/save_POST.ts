@@ -3,6 +3,7 @@ import { db } from "../../helpers/db";
 import { getServerUserSession } from "../../helpers/getServerUserSession";
 import { schema, type OutputType } from "./save_POST.schema";
 import { subscriptionPlan } from "../../helpers/subscriptionPlan";
+import { loadPlanConfig } from "../../helpers/planConfig";
 
 /** Slugs the app itself needs, so a business can never take one. */
 const RESERVED_SLUGS = new Set([
@@ -31,6 +32,7 @@ export async function handle(request: Request) {
   }
 
   try {
+    await loadPlanConfig();
     const json = superjson.parse(await request.text());
     const input = schema.parse(json);
 
