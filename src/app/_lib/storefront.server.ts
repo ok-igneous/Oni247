@@ -22,7 +22,7 @@ export async function resolveStorefrontHost(hostHeader: string): Promise<Storefr
   if (isPlatformHostname(host, root) || localHost || (renderHost && host === renderHost)) return { slug: null, customDomain: false, platformHost: true };
 
   // Ask Fastify to resolve the host so the Next.js process does not open a second DB pool.
-  // This endpoint returns only the slug of a published business mapped to a verified host.
+  // This endpoint returns a slug only for a published business with a verified custom domain and active paid entitlement.
   const url = new URL("/_api/storefrontHost", apiOrigin());
   url.searchParams.set("host", host);
   const response = await fetch(url, { cache: "no-store", headers: { accept: "application/json" } });
