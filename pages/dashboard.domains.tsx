@@ -18,7 +18,7 @@ type AddResponse = {
   domain: { id: string; hostname: string; status: string; sslStatus: string };
   dns: {
     verification: { type: string; name: string; value: string };
-    routing: { type: string; name: string; value: string } | null;
+    routing: Array<{ type: string; name: string; value: string }>;
   };
   notice: string;
 };
@@ -141,10 +141,10 @@ export default function DashboardDomainsPage() {
         <span>TXT record value</span><code>{instructions.dns.verification.value}</code>
         <Button size="sm" variant="outline" onClick={() => void copy(instructions.dns.verification.value)}><Copy size={14}/> Copy</Button>
       </div>
-      {instructions.dns.routing ? <div className={styles.record}>
-        <span>Routing record (not yet an activation signal)</span><code>{instructions.dns.routing.name} → {instructions.dns.routing.value}</code>
-        <Button size="sm" variant="outline" onClick={() => void copy(instructions.dns.routing!.value)}><Copy size={14}/> Copy target</Button>
-      </div> : <p className={styles.warning}>Routing instructions are not available yet. Oni247's hosting target must be configured before customer domains can be routed.</p>}
+      {instructions.dns.routing.length > 0 ? instructions.dns.routing.map((record) => <div className={styles.record} key={record.type + record.name}>
+        <span>{record.type} record · {record.name}</span><code>{record.value}</code>
+        <Button size="sm" variant="outline" onClick={() => void copy(record.value)}><Copy size={14}/> Copy</Button>
+      </div>) : <p className={styles.warning}>Routing instructions are not available yet. Configure the Render service hostname before customer domains can be routed.</p>}
       <p className={styles.warning}>{instructions.notice}</p>
     </section>}
 
