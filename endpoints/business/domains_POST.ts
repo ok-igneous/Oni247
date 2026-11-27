@@ -4,6 +4,7 @@ import superjson from "superjson";
 import { sql } from "kysely";
 import { db } from "../../helpers/db";
 import { getServerUserSession } from "../../helpers/getServerUserSession";
+import { hasPaidCustomDomainAccess } from "../../helpers/domainEntitlement";
 
 const MULTI_LABEL_PUBLIC_SUFFIXES = new Set([
   "com.ng", "org.ng", "net.ng", "gov.ng", "edu.ng",
@@ -36,6 +37,9 @@ const normalizeHostname = (value: unknown): string | null => {
 export async function handle(request: Request) {
   try {
     const { user } = await getServerUserSession(request);
+    if (!(await hasPaidCustomDomainAccess(user.id))) {
+      return new Response(superjson.stringify({ error: "Custom domains are available on active paid plans only. Your Oni247 /slug address remains available." }), { status: 403 });
+    }
     const body = await request.json() as { hostname?: unknown };
     const hostname = normalizeHostname(body.hostname);
     if (!hostname || isIP(hostname) || !isApexOrWwwHostname(hostname)) {
