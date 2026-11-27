@@ -13,7 +13,7 @@ export async function resolveStorefrontHost(hostHeader: string): Promise<Storefr
   const host = normalizeDomainHost(`https://${hostHeader}`);
   if (!host) return { slug: null, customDomain: false, platformHost: false };
   const root = configuredPlatformRoot();
-  const renderHost = process.env.RENDER_EXTERNAL_HOSTNAME ? normalizeDomainHost(`https://${process.env.RENDER_EXTERNAL_HOSTNAME}`) : null;
+  const renderHost = normalizeDomainHost(`https://${process.env.RENDER_EXTERNAL_HOSTNAME || "oni247-staging.onrender.com"}`);
   if (isPlatformHostname(host, root) || (renderHost && host === renderHost)) return { slug: null, customDomain: false, platformHost: true };
   const subdomainSlug = resolvePlatformSubdomainSlug(host, root);
   if (subdomainSlug) {
