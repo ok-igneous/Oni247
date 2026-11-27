@@ -139,31 +139,195 @@
 }
 
 
-/* Minimal, branded-neutral application loading state */
+/* Modern content-first skeleton loading state */
 .app-loading {
   min-height: 100svh;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  gap: 14px;
-  padding: 24px;
-  background: var(--background, #faf7f0);
-  color: var(--muted-foreground, #5f6d64);
+  align-items: flex-start;
+  padding: clamp(16px, 4vw, 40px) 16px 48px;
+  background: #f0f2f5;
+  color: #1c1e21;
 }
-.app-loading__spinner {
+
+.app-loading__skeleton {
+  width: min(100%, 680px);
+  overflow: hidden;
+}
+
+.app-loading__topbar {
+  height: 58px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 4px 14px;
+  border-bottom: 1px solid #e4e6eb;
+}
+
+.app-loading__brand-mark,
+.app-loading__topbar-action,
+.app-loading__avatar,
+.app-loading__small-avatar,
+.app-loading__line,
+.app-loading__feature,
+.app-loading__feed-image {
+  background: #e4e6eb;
+}
+
+.app-loading__brand-mark {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border-radius: 50%;
+}
+
+.app-loading__topbar-line {
+  width: min(42%, 190px);
+  height: 13px;
+  border-radius: 999px;
+  background: #e4e6eb;
+}
+
+.app-loading__topbar-action {
   width: 34px;
   height: 34px;
-  border: 3px solid var(--border, #ded5c4);
-  border-top-color: var(--primary, #0e5c3f);
+  margin-left: auto;
   border-radius: 50%;
-  animation: app-loading-spin 750ms linear infinite;
 }
-.app-loading__label {
-  font: 500 13px/1.4 var(--font-family-base, system-ui, sans-serif);
-  letter-spacing: .01em;
+
+.app-loading__content {
+  display: grid;
+  gap: 16px;
+  padding-top: 18px;
 }
-@keyframes app-loading-spin { to { transform: rotate(360deg); } }
+
+.app-loading__intro,
+.app-loading__feed-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-loading__avatar {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  border-radius: 50%;
+}
+
+.app-loading__intro-lines {
+  flex: 1;
+  display: grid;
+  gap: 9px;
+  justify-items: start;
+}
+
+.app-loading__line {
+  display: block;
+  height: 10px;
+  border-radius: 999px;
+}
+
+.app-loading__line--long { width: min(58%, 240px); }
+.app-loading__line--medium { width: min(42%, 170px); }
+.app-loading__line--short { width: min(30%, 120px); }
+.app-loading__line--tiny { width: min(20%, 78px); }
+
+.app-loading__feature,
+.app-loading__feed {
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .06);
+}
+
+.app-loading__feature {
+  min-height: 178px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 20px;
+  background: linear-gradient(110deg, #e4e6eb 8%, #f4f5f7 18%, #e4e6eb 33%);
+  background-size: 200% 100%;
+  animation: app-loading-shimmer 1.35s ease-in-out infinite;
+}
+
+.app-loading__feature-line {
+  width: 48%;
+  height: 11px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.8);
+}
+
+.app-loading__feature-line--short { width: 29%; }
+
+.app-loading__feature-block {
+  width: 100%;
+  flex: 1;
+  margin-top: 4px;
+  border-radius: 9px;
+  background: rgba(255,255,255,.72);
+}
+
+.app-loading__feed {
+  padding: 18px;
+}
+
+.app-loading__small-avatar {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  border-radius: 50%;
+}
+
+.app-loading__feed-image {
+  display: block;
+  width: 100%;
+  height: clamp(150px, 32vw, 240px);
+  margin-top: 16px;
+  border-radius: 10px;
+}
+
+.app-loading__feed-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 16px;
+}
+
+.app-loading__shimmer {
+  background: linear-gradient(110deg, #e4e6eb 8%, #f4f5f7 18%, #e4e6eb 33%);
+  background-size: 200% 100%;
+  animation: app-loading-shimmer 1.35s ease-in-out infinite;
+}
+
+.app-loading__sr-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes app-loading-shimmer {
+  to { background-position-x: -200%; }
+}
+
+@media (max-width: 480px) {
+  .app-loading { padding: 10px 12px 32px; }
+  .app-loading__topbar { height: 52px; }
+  .app-loading__feature { min-height: 150px; padding: 16px; }
+  .app-loading__feed { padding: 14px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .app-loading__spinner { animation-duration: 2s; }
+  .app-loading__shimmer,
+  .app-loading__feature {
+    animation: none;
+    background: #e4e6eb;
+  }
 }
