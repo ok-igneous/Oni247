@@ -3,7 +3,7 @@ import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
 const root = process.cwd();
-const pagesRoot = path.join(root, "pages");
+const pagesRoot = path.join(root, "legacy-pages");
 const sourceRoots = ["legacy-pages", "components", "helpers", "endpoints"];
 const findings = [];
 const routeFiles = [];
