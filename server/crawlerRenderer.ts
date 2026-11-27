@@ -1,4 +1,3 @@
-import type { FastifyReply, FastifyRequest } from "fastify";
 import { isCrawlerUserAgent, isPublicCustomDomainPath, isPublicStorefrontPath, normalizeDomainHost, resolvePlatformSubdomainSlug, isPlatformHostname } from "./storefrontPrerender";
 import { renderCrawlerDocument, type CrawlerSnapshot } from "./crawlerDocument";
 
@@ -33,7 +32,7 @@ function notFound(reply: any) {
 
 /** Creates the crawler-only renderer with injectable data and filesystem dependencies. */
 export function createCrawlerStorefrontRenderer(deps: CrawlerRendererDependencies) {
-  return async function renderCrawlerStorefront(request: FastifyRequest, reply: FastifyReply) {
+  return async function renderCrawlerStorefront(request: any, reply: any) {
     if (!isCrawlerUserAgent(String(request.headers["user-agent"] ?? ""))) return;
     if (!deps.hasProductionBuild) return;
 
