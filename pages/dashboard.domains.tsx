@@ -123,7 +123,7 @@ export default function DashboardDomainsPage() {
 
     <section className={styles.panel}>
       <div className={styles.panelTitle}><Globe2 size={19}/><h2>Connect your domain</h2></div>
-      <p className={styles.help}>Enter a domain you already own, such as <strong>example.com</strong> or <strong>www.example.com</strong>. Do not include https:// or a page path.</p>
+      <p className={styles.help}>Enter the root domain you own, such as <strong>example.com</strong> or <strong>example.com.ng</strong>, or its <strong>www</strong> hostname. Oni247 configures the root and www records together so Render can redirect the secondary address. Do not include https:// or a page path.</p>
       <div className={styles.addRow}>
         <Input value={hostname} onChange={event => setHostname(event.target.value)} placeholder="www.example.com" autoComplete="url" />
         <Button onClick={() => void addDomain()} disabled={saving || !hostname.trim()}>{saving ? "Adding…" : <><Plus size={16}/> Add domain</>}</Button>
