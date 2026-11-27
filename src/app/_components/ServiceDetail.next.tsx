@@ -38,7 +38,7 @@ export default function ServiceDetailNext({ data, serviceId, customDomain }: Pro
   const footerPages = Array.isArray(appearance.footerPages) ? appearance.footerPages.filter((value): value is string => typeof value === "string") : [];
   const showFooter = footerMode === "all" || (footerMode === "selected" && footerPages.includes("service-detail"));
   const price = service.priceType === "contact" ? "Contact for price" : service.priceType === "fixed" ? service.price : `From ${service.price}`;
-  const whatsapp = business.whatsappNumber?.replace(/\\D/g, "");
+  const whatsapp = business.whatsappNumber?.replace(/\D/g, "");
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSending(true);
@@ -49,7 +49,7 @@ export default function ServiceDetailNext({ data, serviceId, customDomain }: Pro
         customerName: name,
         customerPhone: phone || null,
         customerEmail: email || null,
-        message: `Service enquiry: ${service.name}\\n${message}`,
+        message: `Service enquiry: ${service.name}\n${message}`,
       });
       setSent(true);
     } catch (error) {
