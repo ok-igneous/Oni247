@@ -34,7 +34,7 @@ Vite has been removed from the web development and production build path. The le
 ## Next.js migration status
 
 - Native App Router routes exist for the platform landing page, authentication pages, dashboard overview, business vanity storefronts, public product/blog/service/gallery/event details, service booking, booking confirmation and order tracking.
-- Unmigrated dashboard/editor, storefront listing and checkout sections use the temporary client-only compatibility route. Booking and tracking have native Next.js routes.
+- Unmigrated dashboard/editor and storefront listing sections use the temporary client-only compatibility route. Booking, tracking and checkout have native Next.js routes.
 - Fastify is API-only. Next.js proxies `/_api/*`, sitemap, robots, health and readiness requests to the private API.
 - The old crawler-only Vite HTML renderer and Fastify static SPA fallback are no longer part of the runtime.
 - The root `pages/` directory remains as source for legacy React Router components. All old `store.$slug.*` route modules have been removed; the shared storefront component is `pages/StorefrontPage.tsx` and is imported by the canonical `pages/$slug.tsx` vanity route.
