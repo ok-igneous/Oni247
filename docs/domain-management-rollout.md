@@ -17,6 +17,7 @@ Oni247 uses Render as the ingress and managed TLS provider. The API key is serve
 Set these environment variables on the Oni247 Render web service:
 
 - `PLATFORM_ROOT_DOMAIN=oni247.org`
+- `PLATFORM_WILDCARD_READY=false` initially. Change to `true` only after Render has verified the wildcard domain and the wildcard HTTPS certificate works.
 - `RENDER_API_KEY`: a Render API key with permission to manage custom domains in the workspace containing Oni247.
 - `RENDER_SERVICE_ID=srv-dc3ej8c0916s738jhr7g`: the currently connected Oni247 web service.
 - `RENDER_CUSTOM_DOMAIN_TARGET=oni247-staging.onrender.com`: the exact service hostname used for customer `www` CNAME instructions.
@@ -51,7 +52,7 @@ Oni247 resolves individual business subdomains from business slugs in the applic
 1. Set the four server environment variables above; keep the Render API key private.
 2. Apply migrations `003_business_domains.sql` and `004_render_domain_provisioning.sql` to the Oni247 Neon database using the existing migration runner.
 3. Add and verify the Render wildcard hostname and DNS records once for `*.oni247.org`.
-4. Test a published business subdomain.
+4. Set `PLATFORM_WILDCARD_READY=true` only after the wildcard DNS and certificate are confirmed; then test a published business subdomain.
 5. Test a customer-owned domain on a non-production hostname: TXT challenge, Render registration, routing DNS, Render verification, TLS handshake, active routing, primary selection and removal.
 6. Run `npm run typecheck`, `npm test`, `npm run build`, and `npm run audit:standalone` before merging.
 
