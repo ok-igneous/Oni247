@@ -10,6 +10,7 @@ afterEach(() => {
 
 describe("Next.js private API proxy", () => {
   it("forwards cookies and rebuilds trusted host/protocol headers", async () => {
+    vi.stubEnv("ONI247_API_INTERNAL_URL", "http://127.0.0.1:3001");
     const headers = new Headers();
     headers.append("set-cookie", "oni247_session=one; Path=/; HttpOnly");
     headers.append("set-cookie", "csrf=two; Path=/; SameSite=Lax");
@@ -40,7 +41,8 @@ describe("Next.js private API proxy", () => {
     expect(forwarded.get("x-forwarded-proto")).toBe("https");
     expect(forwarded.get("x-forwarded-host")).not.toBe("attacker.example");
     expect(response.status).toBe(200);
-    expect(response.headers.getSetCookie()).toHaveLength(2);
+    const responseHeaders = response.headers as Headers & { getSetCookie?: () => string[] };
+    expect(responseHeaders.getSetCookie?.()).toHaveLength(2);
   });
 
   it("returns a controlled 502 when the private API is unavailable", async () => {
