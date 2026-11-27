@@ -1,9 +1,9 @@
 /**
- * Public business vanity URL: /{businessSlug}
+ * Public business storefront vanity route: /{businessSlug}.
  *
- * Reuse the canonical storefront implementation so the vanity URL has the
- * same theme, content, cart, analytics, and order behavior as /store/{slug}.
- * Static routes such as /login and /dashboard remain more specific routes.
+ * Reuse the shared storefront implementation so theme, content, cart,
+ * analytics and order behavior stay consistent at the canonical root URL.
+ * Static platform routes such as /login and /dashboard remain separate.
  */
 import StorePage from "./store.$slug";
 
