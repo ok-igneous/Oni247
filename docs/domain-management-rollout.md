@@ -6,6 +6,7 @@
 - Backfills existing verified legacy `businesses.custom_domain` values without deleting or rewriting the legacy columns.
 - Adds authenticated endpoints to list, register, verify/synchronize, set the primary domain, and remove a customer-owned domain.
 - The dashboard provides DNS instructions, TXT verification, Render/TLS status refresh, primary-domain selection, and removal.
+- Customer-owned domain registration currently supports apex/root domains and their `www` hostname. Other nested customer subdomains are intentionally rejected until their DNS record UX is added.
 - Newly registered customer domains route to a published business only when the Render domain is verified and an actual TLS handshake validates the certificate for that hostname.
 - Existing legacy verified custom domains continue to resolve during migration.
 
