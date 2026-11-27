@@ -61,7 +61,7 @@ export default function BlogArticleNext({ data, blogSlug, customDomain, origin }
     }
   };
   const plainText = post.content.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ");
-  const readingMinutes = Math.max(1, Math.ceil(plainText.trim().split(/\\s+/).filter(Boolean).length / 200));
+  const readingMinutes = Math.max(1, Math.ceil(plainText.trim().split(/\s+/).filter(Boolean).length / 200));
   const description = (post.excerpt || post.title).slice(0, 200);
   const jsonLd = JSON.stringify({
     "@context": "https://schema.org",
