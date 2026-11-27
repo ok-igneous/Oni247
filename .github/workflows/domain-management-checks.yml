@@ -1,6 +1,9 @@
 name: Oni247 domain management checks
 
 on:
+  push:
+    branches:
+      - feat/oni247-domain-management
   pull_request:
     branches:
       - main
