@@ -28,6 +28,16 @@ const DashboardSharePage = () => {
 
   const products = productData?.products ?? [];
   const shopSlug = businessData?.business?.slug ?? "";
+  const primaryDomain = businessData?.primaryDomain ?? null;
+  const platformRootDomain = businessData?.platformRootDomain ?? null;
+  const hasDedicatedHost = Boolean(primaryDomain);
+  const publicUrl = (path: string) => {
+    const base = primaryDomain
+      ? `https://${primaryDomain}`
+      : `${window.location.origin}`;
+    const route = hasDedicatedHost || !shopSlug ? path : `/${shopSlug}${path}`;
+    return `${base}${route}`;
+  };
   const showcases = useMemo(() => list.data?.showcases ?? [], [list.data]);
 
   const reset = () => {
@@ -66,7 +76,7 @@ const DashboardSharePage = () => {
 
   const copyLink = (path: string) => {
     void navigator.clipboard
-      .writeText(`${window.location.origin}${path}`)
+      .writeText(publicUrl(path))
       .then(() => toast.success("Link copied."))
       .catch(() => toast.error("Could not copy the link."));
   };
@@ -278,7 +288,7 @@ const DashboardSharePage = () => {
                 <div className={styles.rowText}>
                   <span className={styles.rowName}>{product.name}</span>
                   <span className={styles.rowMeta}>
-                    /{shopSlug}/p/{product.slug}
+                    {primaryDomain ? "" : `/${shopSlug}`}/p/{product.slug}
                   </span>
                 </div>
                 <div className={styles.rowActions}>
@@ -287,7 +297,7 @@ const DashboardSharePage = () => {
                     size="sm"
                     disabled={!shopSlug}
                     onClick={() =>
-                      copyLink(`/${shopSlug}/p/${product.slug}`)
+                      copyLink(`/p/${product.slug}`)
                     }
                   >
                     <Copy size={14} />
@@ -295,7 +305,7 @@ const DashboardSharePage = () => {
                   </Button>
                   <Button asChild variant="ghost" size="icon-sm">
                     <a
-                      href={`/${shopSlug}/p/${product.slug}`}
+                      href={publicUrl(`/p/${product.slug}`)}
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={`Open ${product.name}`}
