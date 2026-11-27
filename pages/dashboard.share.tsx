@@ -30,7 +30,7 @@ const DashboardSharePage = () => {
   const shopSlug = businessData?.business?.slug ?? "";
   const primaryDomain = businessData?.primaryDomain ?? null;
   const publicUrl = (path: string, includeBusinessSlug = false) => {
-    const base = primaryDomain ? `https://${primaryDomain}` : window.location.origin;
+    const base = primaryDomain ? `https://${primaryDomain}` : `https://${businessData?.platformRootDomain ?? "oni247.org"}`;
     const route = !primaryDomain && includeBusinessSlug && shopSlug ? `/${shopSlug}${path}` : path;
     return `${base}${route}`;
   };
