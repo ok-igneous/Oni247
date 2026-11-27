@@ -92,7 +92,12 @@ const ThemePage=()=>{
   const {data,isFetching}=useMyBusiness(); const {data:subscription}=useSubscriptionStatus(); const saveBusiness=useSaveBusiness(); const business=data?.business??null;
   const [theme,setTheme]=useState<ThemeState|null>(null);
   const [contentSettings,setContentSettings]=useState<Record<string,unknown>>({});
-  const [tab,setTab]=useState<TabKey>("type");\n  const [searchParams]=useSearchParams();\n  useEffect(()=>{const requested=searchParams.get("tab");if(requested&&tabs.some(([key])=>key===requested))setTab(requested as TabKey)},[searchParams]);
+  const [tab,setTab]=useState<TabKey>("type");
+  const [searchParams] = useSearchParams();
+  useEffect(() => {
+    const requested = searchParams.get("tab");
+    if (requested && tabs.some(([key]) => key === requested)) setTab(requested as TabKey);
+  }, [searchParams]);
   const [dragKey,setDragKey]=useState<string|null>(null);
   const [moved,setMoved]=useState<string|null>(null);
   const [themeId,setThemeId]=useState<StoreTheme>("clean");
