@@ -14,7 +14,7 @@ type Domain = {
   render_verification_status: string; last_error: string | null; last_checked_at: string | null;
   is_default?: boolean;
 };
-type DomainResponse = { domains: Domain[] };
+type DomainResponse = { domains: Domain[]; customDomainsAllowed: boolean };
 type AddResponse = {
   domain: { id: string; hostname: string; status: string; sslStatus: string };
   dns: {
@@ -37,6 +37,7 @@ async function api<T>(url: string, init?: RequestInit): Promise<T> {
 
 export default function DashboardDomainsPage() {
   const [domains, setDomains] = useState<Domain[]>([]);
+  const [customDomainsAllowed, setCustomDomainsAllowed] = useState(false);
   const [hostname, setHostname] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -47,6 +48,8 @@ export default function DashboardDomainsPage() {
     try {
       const result = await api<DomainResponse>("/_api/business/domains");
       setDomains(result.domains);
+      setCustomDomainsAllowed(result.customDomainsAllowed);
+      if (!result.customDomainsAllowed) setInstructions(null);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not load domains.");
     } finally {
