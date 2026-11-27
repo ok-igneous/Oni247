@@ -400,9 +400,9 @@ export default function StorefrontPageNext({ slug, initialData, customDomain }: 
 
         {isOnlineStore && (()=>{const c=business.checkout;const trust=[...(c?.deliveryEnabled?[{title:"Delivery available",detail:c.deliveryNote||"Delivery options at checkout"}]:[]),...(c?.freeDeliveryOver!==null&&c?.freeDeliveryOver!==undefined?[{title:"Free delivery offer",detail:`Free delivery on orders above ${formatMoney(c.freeDeliveryOver,business.currency)}`}]:[]),...(c?.pickupEnabled?[{title:"Pickup available",detail:c.pickupNote||"Choose pickup at checkout"}]:[]),...(c?.paymentMethods.cashOnDelivery?[{title:"Cash on delivery",detail:"Available at checkout"}]:[]),...(c?.paymentMethods.bankTransfer?[{title:"Bank transfer",detail:"Available at checkout"}]:[]),...(c?.paymentMethods.payOnPickup?[{title:"Pay on pickup",detail:"Available at checkout"}]:[]),...(c?.returnPolicy?[{title:"Returns",detail:c.returnPolicy}]:[])];return trust.length>0?<section className={styles.storeTrustGrid} style={{order:orderOf("trust")}} aria-label="Store information">{trust.map(item=><article key={item.title}><strong>{item.title}</strong><span>{item.detail}</span></article>)}</section>:null;})()}
 
-        {isOnlineStore && onSaleProducts.length>0 && <section className={styles.section} style={{order:orderOf("onsale")}}><div className={styles.catalogueHead}><h2 className={styles.sectionHeading}>On sale</h2><a className={styles.myOrdersLink} href="#catalogue">See all</a></div><div className={styles.featuredRow}>{onSaleProducts.slice(0,8).map(product=><StoreProductCardNext key={product.id} product={product} to={storefrontPath(business.slug, "/p/" + product.slug)} onAdd={()=>handleAdd(product)} className={styles.featuredCard}/>)}</div></section>}
+        {isOnlineStore && onSaleProducts.length>0 && <section className={styles.section} style={{order:orderOf("onsale")}}><div className={styles.catalogueHead}><h2 className={styles.sectionHeading}>On sale</h2><a className={styles.myOrdersLink} href="#catalogue">See all</a></div><div className={styles.featuredRow}>{onSaleProducts.slice(0,8).map(product=><StoreProductCardNextNext key={product.id} product={product} to={storefrontPath(business.slug, "/p/" + product.slug)} onAdd={()=>handleAdd(product)} className={styles.featuredCard}/>)}</div></section>}
 
-        {isOnlineStore && newArrivals.length>0 && <section className={styles.section} style={{order:orderOf("new")}}><div className={styles.catalogueHead}><h2 className={styles.sectionHeading}>New arrivals</h2><a className={styles.myOrdersLink} href="#catalogue">See all</a></div><div className={styles.featuredRow}>{newArrivals.map(product=><StoreProductCardNext key={product.id} product={product} to={storefrontPath(business.slug, "/p/" + product.slug)} onAdd={()=>handleAdd(product)} className={styles.featuredCard}/>)}</div></section>}
+        {isOnlineStore && newArrivals.length>0 && <section className={styles.section} style={{order:orderOf("new")}}><div className={styles.catalogueHead}><h2 className={styles.sectionHeading}>New arrivals</h2><a className={styles.myOrdersLink} href="#catalogue">See all</a></div><div className={styles.featuredRow}>{newArrivals.map(product=><StoreProductCardNextNext key={product.id} product={product} to={storefrontPath(business.slug, "/p/" + product.slug)} onAdd={()=>handleAdd(product)} className={styles.featuredCard}/>)}</div></section>}
 
         {sections.video !== false && (homepageVideoUrl || homepageVideoFileUrl) && <section className={styles.videoSection} style={{ order: orderOf(videoInHero ? "hero" : "video") }}>
           <h2 className={styles.sectionHeading}>{typeof content.homepageVideoTitle === "string" && content.homepageVideoTitle.trim() ? content.homepageVideoTitle : "Watch our video"}</h2>
@@ -432,7 +432,7 @@ export default function StorefrontPageNext({ slug, initialData, customDomain }: 
           <section className={styles.section} id="services" style={{ order: orderOf("services") }}>
             <h2 className={styles.sectionHeading}>Services</h2>
             <div className={styles.serviceGrid}>
-              {services.map((service) => <StoreServiceCardNext key={service.id} service={service} businessSlug={business.slug} customDomain={customDomain} />)}
+              {services.map((service) => <StoreServiceCardNextNext key={service.id} service={service} businessSlug={business.slug} customDomain={customDomain} />)}
             </div>
           </section>
         )}
@@ -460,7 +460,7 @@ export default function StorefrontPageNext({ slug, initialData, customDomain }: 
             </h2>
             <div className={styles.featuredRow}>
               {featured.map((product) => (
-                <StoreProductCard
+                <StoreProductCardNext
                   key={product.id}
                   product={product}
                   to={storefrontPath(business.slug, "/p/" + product.slug)}
@@ -548,7 +548,7 @@ export default function StorefrontPageNext({ slug, initialData, customDomain }: 
             <>
               <div className={isService ? styles.rows : styles.grid}>
                 {visibleProducts.slice(0, visibleCount).map((product) => (
-                  <StoreProductCard
+                  <StoreProductCardNext
                     key={product.id}
                     product={product}
                     to={business.canUseProductLinks ? storefrontPath(business.slug, "/p/" + product.slug) : undefined}
@@ -665,7 +665,7 @@ export default function StorefrontPageNext({ slug, initialData, customDomain }: 
         </section>}
       </main>
       <footer className={styles.footer}><span>{business.name}</span>{business.phone && <a href={`tel:${business.phone.replace(/\s/g,"")}`}>{business.phone}</a>}<span>Powered by Oni247</span></footer>
-      {isOnlineStore && <StoreCartDockNext slug={business.slug} currency={business.currency} cart={cart} open={cartOpen} onOpenChange={setCartOpen} customDomain={customDomain} />}
+      {isOnlineStore && <StoreCartDockNextNext slug={business.slug} currency={business.currency} cart={cart} open={cartOpen} onOpenChange={setCartOpen} customDomain={customDomain} />}
       {optionsProduct && <StoreOptionsDialog product={optionsProduct} onClose={() => setOptionsProduct(null)} onConfirm={(item) => { cart.add(item); setCartOpen(true); }} />}
     </div>
   );
