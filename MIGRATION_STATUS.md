@@ -60,19 +60,15 @@ The new runtime is a first implementation, not a completed migration. Keep previ
 - The smoke SQL is not a complete integration suite and has not been executed. No RLS build, database test, or production deployment is claimed.
 
 
-## Cloudflare deployment review (2026-11-25)
+## Next.js architecture decision (2026-11-27)
 
-- Selected the least-disruptive target: Node.js 22 + Fastify in Cloudflare Containers, fronted by a Worker/Durable Object proxy; PostgreSQL remains the system of record and R2 stores media. A direct Workers/Pages upload is not compatible with the current Node/filesystem/PostgreSQL runtime.
-- Added `docs/CLOUDFLARE_DEPLOYMENT.md` with topology, domain model, security gates, prerequisites, release sequence and rollback plan.
-- Updated `STANDALONE_MIGRATION.md` to reflect the Containers architecture.
-- The connected Cloudflare account currently has no DNS zones configured. No domain binding or production DNS change was made.
-- The branch has no package lockfile, Dockerfile, Worker/Container adapter or Cloudflare deployment configuration.
-- No production database export/destination credentials or R2 credentials were available during this review.
-- No build, typecheck, test suite, database migration, RLS activation, media migration or deployment has been performed in this review.
-- The staged RLS design still blocks production rollout: checkout/payment requires narrow trusted database operations and concurrency-safe payment claims; bookings, comments/reactions and media upload access paths also need explicit policies/operations and tests.
-- previous production environment and GitHub `main` remain untouched.
-
-- Additional Cloudflare account inspection: no Workers scripts exist; no `workers.dev` subdomain has been initialized; R2 is not enabled on the account (Cloudflare returned the explicit dashboard-enablement requirement). These are account-setup blockers, not repository code defects.
+- Owner approved migration from React/Vite to Next.js App Router with TypeScript.
+- Cloudflare is not an approved provider or deployment target; provider-specific deployment plans are superseded and removed from the active plan.
+- Preserve Node.js 22 + Fastify API handlers as a separate service during initial frontend migration; preserve PostgreSQL/Kysely and the existing HTTP-only session contract.
+- Use provider-neutral S3-compatible object storage; do not change media provider, object keys or public URLs without a verified migration plan.
+- Hosting provider remains undecided. Target portable Node.js deployment.
+- Created isolated branch `nextjs-migration` from `main`; production and `main` remain untouched.
+- This is an architecture decision and migration plan only. No Next.js implementation, build, test or deployment is claimed yet.
 
 
 ## Standalone staging database initialisation (2026-11-27)
