@@ -21,6 +21,13 @@ const config = () => ({
   serviceId: process.env.RENDER_SERVICE_ID?.trim(),
 });
 
+class RenderApiError extends Error {
+  constructor(readonly status: number, message: string) {
+    super(message);
+    this.name = "RenderApiError";
+  }
+}
+
 const requestRender = async <T>(path: string, init: RequestInit = {}): Promise<T> => {
   const { apiKey } = config();
   if (!apiKey) throw new Error("RENDER_API_KEY is not configured.");
@@ -35,7 +42,10 @@ const requestRender = async <T>(path: string, init: RequestInit = {}): Promise<T
   });
   const text = await response.text();
   if (!response.ok) {
-    throw new Error(`Render API request failed (HTTP ${response.status}): ${text.slice(0, 500)}`);
+    throw new RenderApiError(
+      response.status,
+      `Render API request failed (HTTP ${response.status}): ${text.slice(0, 500)}`,
+    );
   }
   return (text ? JSON.parse(text) : null) as T;
 };
@@ -137,10 +147,17 @@ export async function requestRenderDomainVerification(hostnameOrId: string): Pro
 export async function deleteRenderCustomDomain(hostnameOrId: string): Promise<void> {
   const { serviceId } = config();
   if (!serviceId) throw new Error("RENDER_SERVICE_ID is not configured.");
-  await requestRender(
-    `/services/${encodeURIComponent(serviceId)}/custom-domains/${encodeURIComponent(hostnameOrId)}`,
-    { method: "DELETE" },
-  );
+  try {
+    await requestRender(
+      `/services/${encodeURIComponent(serviceId)}/custom-domains/${encodeURIComponent(hostnameOrId)}`,
+      { method: "DELETE" },
+    );
+  } catch (error) {
+    // Deletion is idempotent: a previous attempt may have removed the Render
+    // resource before the local database transaction failed.
+    if (error instanceof RenderApiError && error.status === 404) return;
+    throw error;
+  }
 }
 
 export async function syncRenderCustomDomain(
