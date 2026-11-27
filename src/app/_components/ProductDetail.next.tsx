@@ -264,22 +264,8 @@ const ProductDetailNext = ({ data, productSlug, customDomain, origin }: Props) =
 
   return (
     <div className={styles.page} style={theme.style as React.CSSProperties}>
-      <>
-        <title>{`${product.name} — ${business.name}`}</title>
-        <meta name="description" content={description.slice(0, 160)} />
-        
-        
-        <meta property="og:title" content={`${product.name} — ${business.name}`} />
-        <meta property="og:description" content={description.slice(0, 200)} />
-        <meta property="og:type" content="product" />
-        {mainImage && <meta property="og:image" content={mainImage} />}
-        <meta name="twitter:card" content={mainImage ? "summary_large_image" : "summary"} />
-        <meta name="twitter:title" content={`${product.name} — ${business.name}`} />
-        <meta name="twitter:description" content={description.slice(0, 200)} />
-        {mainImage && <meta name="twitter:image" content={mainImage} />}
-        <meta name="robots" content="index,follow,max-image-preview:large" />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
-      </>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
+
 
       <StorefrontHeaderNext
         businessName={business.name}
