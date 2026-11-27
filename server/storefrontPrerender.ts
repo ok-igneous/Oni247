@@ -6,7 +6,7 @@ export const escapeHtml = (value: unknown): string => String(value ?? "")
   .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
 const RESERVED_ROOTS = new Set([
-  "_api", "assets", "src", "static", "dashboard", "admin", "login", "register",
+  "_api", "assets", "src", "static", "dashboard", "admin", "login", "register", "pay", "s", "unsubscribe", "verify-email", "emmanuel-ponle",
   "logout", "forgot-password", "reset-password", "track", "store", "healthz", "readyz",
   "robots.txt", "sitemap.xml", "favicon.ico", "manifest.webmanifest",
 ]);
