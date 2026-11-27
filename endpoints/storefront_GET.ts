@@ -157,6 +157,7 @@ export async function handle(request: Request) {
         })(),
         canUseProductLinks: resolvedPlan.canUseProductLinks,
         canUseMultiPage: resolvedPlan.canUseMultiPage,
+        showPlatformBranding: resolvedPlan.source === "free",
         blogSettings: parseBlogSettings(blogSettings),
         checkout: {
           deliveryEnabled: checkout.deliveryEnabled,
