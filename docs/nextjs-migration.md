@@ -90,6 +90,20 @@ baseline.
 
 ## Current checkpoint
 
-The isolated Next.js foundation has been added. It is not yet the production
-frontend. The existing Vite/Fastify scripts remain the default, and the Next.js
-build must be verified before migrating real product routes.
+- Next.js 16 is installed alongside React 19.
+- A Next.js App Router root layout and a minimal migration-check page exist under
+  `src/app`.
+- The Next.js provider bridge creates a per-render QueryClient and deliberately
+  does not import the legacy provider tree, because that tree contains React
+  Router hooks.
+- The shared theme provider now initializes with a server-safe value and reads
+  the browser theme after mount.
+- The legacy Vite/Fastify runtime and production start command remain active.
+- `npm run build` now runs the existing typecheck and Vite build, followed by
+  `next build`, so a future staging build must pass both before deployment.
+- The Render service has not yet reported a deployment for the Next.js
+  verification commit. No successful Next.js production build is claimed yet.
+
+The isolated Next.js foundation is not yet the production frontend. Do not
+remove Vite, React Router, or the legacy route tree until the replacement routes
+and backend integration have been built and tested.
