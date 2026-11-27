@@ -12,6 +12,7 @@ import { postCreateBooking } from "../../../endpoints/bookings/create_POST.schem
 import { postBookingStatus, type OutputType as BookingStatus } from "../../../endpoints/bookings/status_POST.schema";
 import { postBookingPay } from "../../../endpoints/bookings/pay_POST.schema";
 import { StorefrontHeaderNext } from "./StorefrontHeader.next";
+import { storeThemeEngine } from "../../../helpers/storeThemeEngine";
 import type { OutputType as StorefrontData } from "../../../endpoints/storefront_GET.schema";
 import styles from "../../../components/StoreServiceShell.module.css";
 
@@ -22,9 +23,9 @@ function Shell({ data, customDomain, children }: { data: StorefrontData; customD
  const b=data.business; const appearance=b.appearanceSettings??{}; const root=customDomain?"":`/${b.slug}`;
  const homePage=typeof appearance.homePage==="string"?appearance.homePage:"home";
  const home=homePage==="home"?(root||"/"):`${root}/${homePage}`;
- const theme=undefined;
- return <div className={styles.site}>
-  <StorefrontHeaderNext businessName={b.name} logoUrl={b.logoUrl} tagline={typeof appearance.headerTagline==="string"?appearance.headerTagline:""} headerBrand={typeof appearance.headerBrand==="string"?appearance.headerBrand:"logo_name"} navItems={[{label:"Home",href:home},{label:"Services",href:`${root}/services`},{label:"Contact",href:`${root}/contact`}]} showActions={false}/>
+ const theme=storeThemeEngine(b.themeId ?? "clean", appearance);
+ return <div className={styles.site} style={theme.style as React.CSSProperties}>
+  <StorefrontHeaderNext businessName={b.name} logoUrl={b.logoUrl} tagline={typeof appearance.headerTagline==="string"?appearance.headerTagline:""} headerBrand={typeof appearance.headerBrand==="string"?appearance.headerBrand:"logo_name"} headerAlignment={theme.headerAlignment} menuStyle={theme.menuStyle as "bar" | "minimal" | "pills"} menuPosition={theme.menuPosition as "left" | "center" | "right"} menuVisibility="always" navItems={[{label:"Home",href:home},{label:"Services",href:`${root}/services`},{label:"Contact",href:`${root}/contact`}]} showActions={false}/>
   <main className={styles.content}>{children}</main>
   {appearance.footerMode!=="none"&&<footer className={styles.footer}><Link href={home}>{b.name}</Link> · <Link href={`${root}/contact`}>Contact</Link></footer>}
  </div>;
