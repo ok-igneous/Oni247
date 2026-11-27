@@ -15,7 +15,7 @@ export default function GalleryDetailNext({ data, gallerySlug, customDomain, ori
   const { business, gallery } = data;
   const appearance = business.appearanceSettings ?? {};
   const theme = storeThemeEngine(business.themeId as import("../../../helpers/schema").StoreTheme, appearance);
-  const path = (suffix: string) => customDomain ? suffix : `/${encodeURIComponent(business.slug)}${suffix}`;
+  const path = (suffix: string) => customDomain ? (suffix || "/") : `/${encodeURIComponent(business.slug)}${suffix}`;
   const homePage = typeof appearance.homePage === "string" ? appearance.homePage : "home";
   const home = homePage === "home" ? path("") : path(`/${homePage}`);
   const current = active === null ? null : gallery.images[active];
