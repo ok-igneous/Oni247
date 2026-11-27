@@ -108,7 +108,7 @@ export const DashboardLayout = ({ children }: { children: ReactNode }) => {
     ...group,
     items: group.items.filter(item => {
       const menuPath = item.to.split("?")[0].replace("/dashboard", "").replace(/^\//, "");
-      if (menuPath && !canSeeMenu(menuPath, access?.isOwner ?? true, access?.permissions ?? [])) return false;
+      if (menuPath && !canSeeMenu(menuPath, access?.isOwner === true, access?.permissions ?? [])) return false;
       const addon = addonByNavLabel(item.label);
       if (addon && !isAddonEnabled(appearance, addon)) return false;
       return !(hiddenBySiteType[String(siteType)] ?? []).includes(item.label);
