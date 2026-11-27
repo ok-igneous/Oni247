@@ -38,6 +38,8 @@ describe("crawler storefront helpers", () => {
   it("rejects private, static, API and unsupported paths", () => {
     for (const path of [
       "/dashboard",
+      "/store/nesmage",
+      "/store",
       "/admin/businesses",
       "/login",
       "/_api/storefront",
