@@ -23,6 +23,11 @@ function unavailable(reply: any) {
   );
 }
 
+function isLocalHost(hostname: string): boolean {
+  const host = hostname.toLowerCase().replace(/^\[|\]$/g, "");
+  return host === "localhost" || host.endsWith(".localhost") || host === "127.0.0.1" || host === "::1";
+}
+
 function notFound(reply: any) {
   return reply.code(404).type("text/html; charset=utf-8").send(
     "<!doctype html><title>Page not found</title><meta name=\"robots\" content=\"noindex\"><h1>Page not found</h1>",
