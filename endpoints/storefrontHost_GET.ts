@@ -7,7 +7,10 @@ export async function handle(request: Request) {
   try {
     const url = new URL(request.url);
     const configuredRoot = process.env.PLATFORM_ROOT_DOMAIN || process.env.APP_BASE_URL || null;
-    const subdomainSlug = resolvePlatformSubdomainSlug(url.hostname, configuredRoot);
+    const requestedHost = url.searchParams.get("host");
+    const requestHost = requestedHost ? normalizeDomainHost(`https://${requestedHost}`) : normalizeDomainHost(`https://${url.hostname}`);
+    if (!requestHost) return new Response(JSON.stringify({ slug: null }), { headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" } });
+    const subdomainSlug = resolvePlatformSubdomainSlug(requestHost, configuredRoot);
     let slug: string | null = null;
 
     if (subdomainSlug) {
@@ -19,7 +22,7 @@ export async function handle(request: Request) {
         .executeTakeFirst();
       slug = business?.slug ?? null;
     } else {
-      const host = normalizeDomainHost(`https://${url.hostname}`);
+      const host = requestHost;
       const platform = normalizeDomainHost(configuredRoot);
       const platformRoot = platform?.replace(/^www\./, "") ?? null;
       if (host && host !== platformRoot && host !== (platformRoot ? `www.${platformRoot}` : null)) {
