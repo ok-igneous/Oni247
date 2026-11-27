@@ -36,6 +36,7 @@ export async function handle(request: Request) {
       hasBusiness: true,
       businessName: business.name,
       slug: business.slug,
+      platformRootDomain: (process.env.PLATFORM_ROOT_DOMAIN || "oni247.org").replace(/^https?:\\/\\//i, "").split("/")[0].toLowerCase(),
       status: business.status,
       productCount: Number(products.count),
       categoryCount: Number(categories.count),
