@@ -1,5 +1,4 @@
 import superjson from "superjson";
-import { sql } from "kysely";
 import { db } from "../helpers/db";
 import { schema, type OutputType } from "./storefront_GET.schema";
 import { subscriptionPlan } from "../helpers/subscriptionPlan";
