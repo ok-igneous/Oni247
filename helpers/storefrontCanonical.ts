@@ -1,6 +1,6 @@
 const ROOT_STOREFRONT_SEGMENTS = new Set([
   "p", "b", "e", "g", "products", "services", "about", "gallery", "blog",
-  "events", "contact", "track", "checkout", "book", "booking", "f",
+  "events", "contact", "track", "checkout", "book", "booking", "f", "store",
 ]);
 
 /**
