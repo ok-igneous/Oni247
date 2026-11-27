@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
+import { sanitizeBlogContent } from "../../../helpers/sanitizeBlogContent";
 import BlogArticleNext from "../../../_components/BlogArticle.next";
 import { getStorefrontData, resolveStorefrontHost, storefrontMetadata } from "../../../_lib/storefront.server";
 
@@ -49,5 +50,5 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function VanityBlogArticlePage({ params }: Props) {
   const { data, blogSlug, origin } = await getPageData(params);
-  return <BlogArticleNext data={data} blogSlug={blogSlug} customDomain={false} origin={origin} />;
+  return <BlogArticleNext data={data} blogSlug={blogSlug} customDomain={false} origin={origin} safeContent={sanitizeBlogContent(data.blogPosts.find((post) => post.slug === blogSlug)?.content ?? "")} />;
 }
