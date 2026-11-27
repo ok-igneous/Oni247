@@ -2,39 +2,21 @@
 
 Oni247 is an independent website and storefront platform.
 
-## Stack
+## Approved architecture
 
-- React 19, Vite and React Router for the web application.
-- Node.js 22 and Fastify for the API server.
+- Next.js App Router, React and TypeScript for the web application (migration in progress).
+- Node.js 22 + Fastify for the existing API/business services during the staged migration.
 - PostgreSQL, Kysely and postgres.js for persistence.
-- JWT-backed HTTP-only sessions.
-- S3-compatible object storage, including Cloudflare R2.
+- JWT-backed HTTP-only sessions using the existing `oni247_session` cookie contract.
+- Provider-neutral S3-compatible object storage.
+- Portable Node.js deployment; no hosting provider is selected yet.
 
-## Run locally
+## Development
 
-```bash
-cp .env.example .env
-npm install
-npm run dev
-```
+The current source still contains the legacy Vite frontend while the Next.js migration is being prepared. Do not assume the Next.js runtime is ready until its implementation and checks are complete.
 
-Configure a PostgreSQL database, a 32+ character `JWT_SECRET`, and S3-compatible storage credentials in `.env`. The Vite frontend runs on port 5173; Fastify runs on port 3001. Vite proxies `/_api` requests to Fastify.
-
-For production:
-
-```bash
-npm run build
-npm start
-```
-
-The Fastify server serves the compiled `dist` directory and dispatches the existing endpoint handlers under `/_api`.
+See [NEXTJS_MIGRATION.md](./NEXTJS_MIGRATION.md) for the approved architecture, migration phases and release gates. See [STANDALONE_MIGRATION.md](./STANDALONE_MIGRATION.md) for existing standalone runtime details and data-safety requirements.
 
 ## Deployment safety
 
-Development now proceeds from `main`. This does not authorize a production deployment: hosting must not be switched until database migration, media handling, authentication, payments, email, security and end-to-end checks are complete.
-
-See [STANDALONE_MIGRATION.md](./STANDALONE_MIGRATION.md) for the deployment and readiness checklist.
-
-## Product specifications
-
-- [Editable Portfolio / Professional Profile Builder](docs/features/editable-portfolio-builder.md) — requirements for an owner-editable portfolio, including profile content, sections, projects, services, image uploads, theme integration, SEO, drafts, and publishing.
+Keep the existing live application unchanged until the replacement passes typecheck, tests, production build, security review and end-to-end acceptance. Production cutover requires explicit owner approval.
