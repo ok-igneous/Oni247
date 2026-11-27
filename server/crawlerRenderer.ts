@@ -1,4 +1,4 @@
-import { isCrawlerUserAgent, isPublicCustomDomainPath, isPublicStorefrontPath, normalizeDomainHost, resolvePlatformSubdomainSlug, isPlatformHostname } from "./storefrontPrerender";
+import { isCrawlerUserAgent, isPublicCustomDomainPath, isPublicStorefrontPath, normalizeDomainHost, isUnsupportedPlatformSubdomain, isPlatformHostname } from "./storefrontPrerender";
 import { renderCrawlerDocument, type CrawlerSnapshot } from "./crawlerDocument";
 
 export type CrawlerSnapshotRequest = {
@@ -10,7 +10,6 @@ export type CrawlerSnapshotRequest = {
 
 export type CrawlerRendererDependencies = {
   hasProductionBuild: boolean;
-  resolvePlatformSubdomain(slug: string): Promise<string | null>;
   resolveCustomDomain(hostname: string): Promise<string | null>;
   loadSnapshot(input: CrawlerSnapshotRequest): Promise<CrawlerSnapshot>;
   readIndexHtml(): Promise<string>;
@@ -43,29 +42,18 @@ export function createCrawlerStorefrontRenderer(deps: CrawlerRendererDependencie
       let customDomain = false;
       let slug = "";
 
-      const platformSubdomainSlug = resolvePlatformSubdomainSlug(url.hostname, configuredPlatformHost);
-      if (platformSubdomainSlug) {
-        const matchedSlug = await deps.resolvePlatformSubdomain(platformSubdomainSlug);
-        if (matchedSlug) {
-          if (!isPublicCustomDomainPath(url.pathname)) return;
-          customDomain = true;
-          slug = matchedSlug;
-        }
-      }
+      if (isUnsupportedPlatformSubdomain(url.hostname, configuredPlatformHost)) return;
+      const platformHost = isLocalHost(url.hostname) ||
+        (configuredPlatformHost !== null && isPlatformHostname(url.hostname, configuredPlatformHost));
 
-      if (!customDomain && !isPlatformHostname(url.hostname, configuredPlatformHost)) {
+      if (!platformHost) {
         const requestHost = normalizeDomainHost(`https://${url.hostname}`);
-        if (requestHost) {
-          const matchedSlug = await deps.resolveCustomDomain(requestHost);
-          if (matchedSlug) {
-            if (!isPublicCustomDomainPath(url.pathname)) return;
-            customDomain = true;
-            slug = matchedSlug;
-          }
-        }
-      }
-
-      if (!customDomain) {
+        if (!requestHost) return;
+        const matchedSlug = await deps.resolveCustomDomain(requestHost);
+        if (!matchedSlug || !isPublicCustomDomainPath(url.pathname)) return;
+        customDomain = true;
+        slug = matchedSlug;
+      } else {
         if (!isPublicStorefrontPath(url.pathname)) return;
         slug = decodeURIComponent(parts[0]);
       }
