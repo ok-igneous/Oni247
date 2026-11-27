@@ -29,28 +29,29 @@ export async function handle(request: Request) {
        where d.business_id = ${business.id}
        order by d.is_primary desc, d.created_at asc`.execute(db);
 
-    const configuredRoot = process.env.PLATFORM_ROOT_DOMAIN || "oni247.org";
-    const rootHost = new URL(configuredRoot.includes("://") ? configuredRoot : `https://${configuredRoot}`).hostname.toLowerCase();
-    const wildcardReady = process.env.PLATFORM_WILDCARD_READY?.trim().toLowerCase() === "true";
+    const appBaseUrl = (process.env.APP_BASE_URL || "https://oni247.org").trim().replace(/\/+$/, "");
     const hasCustomPrimary = rows.rows.some((domain) =>
       domain.is_primary && domain.status === "active" && domain.ssl_status === "active",
     );
-    const platformDomain = {
-      id: "platform",
-      hostname: `${business.slug}.${rootHost}`,
-      domain_type: "platform_subdomain",
-      status: wildcardReady ? "active" : "pending",
-      ssl_status: wildcardReady ? "active" : "pending",
+
+    // The free/default Oni247 address is always the existing /slug URL.
+    // It is represented here for the dashboard only; it is not a Render domain resource.
+    const defaultAddress = {
+      id: "path",
+      hostname: `${appBaseUrl}/${business.slug}`,
+      domain_type: "oni247_path",
+      status: "active",
+      ssl_status: "active",
       is_primary: !hasCustomPrimary,
       verified_at: null,
-      render_verification_status: wildcardReady ? "verified" : "not_registered",
+      render_verification_status: "not_applicable",
       last_error: null,
       last_checked_at: null,
       created_at: new Date(0),
       is_default: true,
     };
 
-    return new Response(superjson.stringify({ domains: [platformDomain, ...rows.rows] }), {
+    return new Response(superjson.stringify({ domains: [defaultAddress, ...rows.rows] }), {
       headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
     });
   } catch (error) {
