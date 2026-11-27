@@ -18,6 +18,9 @@ export default function GalleryDetailNext({ data, gallerySlug, customDomain, ori
   const path = (suffix: string) => customDomain ? (suffix || "/") : `/${encodeURIComponent(business.slug)}${suffix}`;
   const homePage = typeof appearance.homePage === "string" ? appearance.homePage : "home";
   const home = homePage === "home" ? path("") : path(`/${homePage}`);
+  const footerMode = appearance.footerMode === "none" || appearance.footerMode === "selected" ? appearance.footerMode : "all";
+  const footerPages = Array.isArray(appearance.footerPages) ? appearance.footerPages.filter((value): value is string => typeof value === "string") : [];
+  const showFooter = footerMode === "all" || (footerMode === "selected" && footerPages.includes("gallery-detail"));
   const current = active === null ? null : gallery.images[active];
   const canonical = new URL(path(`/g/${encodeURIComponent(gallerySlug)}`), origin).toString();
   const shareUrl = new URL(`/_api/share/page?slug=${encodeURIComponent(business.slug)}&kind=gallery&id=${encodeURIComponent(gallerySlug)}`, origin).toString();
@@ -70,10 +73,10 @@ export default function GalleryDetailNext({ data, gallerySlug, customDomain, ori
           }}>Share</button>
         </div>
       </main>
-      <footer className={styles.footer}>
+      {showFooter && <footer className={styles.footer}>
         <Link href={home}>{business.name}</Link>
         <span>© {new Date().getFullYear()} {business.name}</span>
-      </footer>
+      </footer>}
       {current && (
         <div className={styles.lightbox} role="dialog" aria-modal="true" aria-label={gallery.name} onClick={() => setActive(null)}>
           <button className={styles.close} type="button" aria-label="Close image" onClick={() => setActive(null)}><X /></button>
