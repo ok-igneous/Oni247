@@ -25,7 +25,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function VanityStorefrontPage({ params }: Props) {
-  const { slug, data } = await getPageData(params);
-  const { origin } = await getPageData(params);
+  const { slug, data, origin } = await getPageData(params);
   return <StorefrontPageNext slug={slug} initialData={data} customDomain={false} origin={origin} />;
 }
