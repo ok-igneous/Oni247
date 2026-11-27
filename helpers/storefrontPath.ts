@@ -1,6 +1,6 @@
 import { getStorefrontBaseUrl } from "./storefrontCanonical";
 
-/** Build an internal storefront path that stays at the domain root on custom domains/subdomains. */
+/** Build an internal storefront path that stays at the domain root on verified custom domains. */
 export function storefrontPath(businessSlug: string, path = "/"): string {
   const suffix = path.replace(/^\/+/, "");
   if (typeof window === "undefined") return `/${encodeURIComponent(businessSlug)}/${suffix}`;
