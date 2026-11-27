@@ -3,7 +3,7 @@ import { useSearchParams } from "next/navigation";
 import { ArrowDown, ArrowUp, ImagePlus, RotateCcw, Save, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "../../../components/Button";
-import { StorefrontHeader } from "../../../components/StorefrontHeader";
+import { StorefrontHeaderNext } from "../_components/StorefrontHeader.next";
 import { StorefrontHero } from "../../../components/StorefrontHero";
 import { Input } from "../../../components/Input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/Select";
@@ -215,7 +215,7 @@ const ThemePage=()=>{
         <Choice label="Card corners" value={theme.cardRadius} onChange={v=>update("cardRadius",v)} options={[["6px","Square (6px)"],["10px","Soft (10px)"],["14px","Round (14px)"],["20px","Very round (20px)"]]}/>
       </div></section>}
       {showPreview&&<section className={styles.previewPanel} style={preview as React.CSSProperties}>
-        <StorefrontHeader businessName={business.name} logoUrl={business.logoUrl} tagline={theme.headerTagline} headerBrand={theme.headerBrand} headerAlignment={theme.headerAlignment} menuStyle={theme.menuStyle} menuPosition={theme.menuPosition} menuVisibility="always" showActions={false} navItems={[{label:"Home",href:"#preview"},{label:"Products",href:"#preview"},{label:"About",href:"#preview"},{label:"Contact",href:"#preview"}]} />
+        <StorefrontHeaderNext businessName={business.name} logoUrl={business.logoUrl} tagline={theme.headerTagline} headerBrand={theme.headerBrand} headerAlignment={theme.headerAlignment} menuStyle={theme.menuStyle} menuPosition={theme.menuPosition} menuVisibility="always" showActions={false} navItems={[{label:"Home",href:"#preview"},{label:"Products",href:"#preview"},{label:"About",href:"#preview"},{label:"Contact",href:"#preview"}]} />
         <StorefrontHero headline={business.heroHeadline || "Storefront headline"} description={business.heroSubtext || "Readable body text follows your selected typography and colors."} imageUrl={business.heroImageUrl} layout={theme.heroLayout} actionLabel={business.heroCtaLabel || "Primary action"} />
         {tab==="home"&&slides.length>0&&<section style={{display:"grid",gap:10,margin:"12px 0"}}><strong>Featured slides preview</strong>{slides.map((slide,index)=><article key={typeof slide.id==="string"?slide.id:index} style={{border:"1px solid var(--border)",borderRadius:10,overflow:"hidden",background:"var(--card)"}}>{typeof slide.imageUrl==="string"&&slide.imageUrl&&<img src={slide.imageUrl} alt="" style={{width:"100%",maxHeight:160,objectFit:"cover"}}/>}<div style={{padding:12}}><b>{typeof slide.headline==="string"&&slide.headline||`Slide ${index+1}`}</b>{typeof slide.text==="string"&&slide.text&&<p>{slide.text}</p>}{typeof slide.ctaLabel==="string"&&slide.ctaLabel&&<span>{slide.ctaLabel}</span>}</div></article>)}</section>}
         {tab==="home"&&(typeof contentSettings.homepageVideoUrl==="string"&&contentSettings.homepageVideoUrl||typeof contentSettings.homepageVideoFileUrl==="string"&&contentSettings.homepageVideoFileUrl)&&<section style={{border:"1px solid var(--border)",borderRadius:10,padding:12,margin:"12px 0"}}><strong>{typeof contentSettings.homepageVideoTitle==="string"&&contentSettings.homepageVideoTitle||"Homepage video"}</strong><p>{typeof contentSettings.homepageVideoDescription==="string"?contentSettings.homepageVideoDescription:"Video configured for the published homepage."}</p><small>Video preview is shown on the published storefront.</small></section>}
