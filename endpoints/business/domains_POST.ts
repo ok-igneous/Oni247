@@ -43,14 +43,16 @@ export async function handle(request: Request) {
       returning id`.execute(db);
     if (!inserted.rows[0]) return new Response(superjson.stringify({ error: "This domain is already registered on Oni247." }), { status: 409 });
 
-    const target = process.env.CUSTOM_DOMAIN_CNAME_TARGET?.trim() || "Set CUSTOM_DOMAIN_CNAME_TARGET before showing DNS routing instructions";
+    const target = process.env.CUSTOM_DOMAIN_CNAME_TARGET?.trim() || null;
     return new Response(superjson.stringify({
       domain: { id: inserted.rows[0].id, hostname, status: "pending", sslStatus: "pending" },
       dns: {
         verification: { type: "TXT", name: `_oni247-verification.${hostname}`, value: `oni247-verification=${token}` },
-        routing: { type: "CNAME", name: hostname, value: target },
+        routing: target ? { type: "CNAME", name: hostname, value: target } : null,
       },
-      notice: "DNS ownership can be verified here. HTTPS activation requires a certificate to be provisioned by the hosting or TLS provider.",
+      notice: target
+        ? "DNS ownership can be verified here. HTTPS activation requires a certificate to be provisioned by the hosting or TLS provider. For an apex/root domain, your DNS provider may require ALIAS/ANAME or flattening instead of CNAME."
+        : "DNS ownership can be verified here, but routing instructions are not enabled until CUSTOM_DOMAIN_CNAME_TARGET is configured to a real ingress hostname. HTTPS activation also requires a trusted certificate.",
     }), { status: 201, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not add this domain.";
