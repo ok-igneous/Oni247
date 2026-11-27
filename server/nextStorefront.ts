@@ -40,7 +40,8 @@ const PRIVATE_CUSTOM_DOMAIN_ROOTS = new Set([
 const isLocalHost = (hostname: string) =>
   hostname === "localhost" ||
   hostname === "127.0.0.1" ||
-  hostname === "::1";
+  hostname === "::1" ||
+  hostname === "[::1]";
 
 const loadStorefrontPage = cache(async (requestUrl: string): Promise<NextStorefrontPage | null> => {
   const url = new URL(requestUrl);
