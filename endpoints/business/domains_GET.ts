@@ -32,7 +32,7 @@ export async function handle(request: Request) {
        order by d.is_primary desc, d.created_at asc`.execute(db);
 
     const appBaseUrl = (process.env.APP_BASE_URL || "https://oni247.org").trim().replace(/\/+$/, "");
-    const hasCustomPrimary = rows.rows.some((domain) =>
+    const hasCustomPrimary = paidAccess && rows.rows.some((domain) =>
       domain.is_primary && domain.status === "active" && domain.ssl_status === "active",
     );
 
