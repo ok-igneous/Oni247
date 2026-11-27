@@ -2,6 +2,7 @@ import { sql } from "kysely";
 import { db } from "../helpers/db";
 import { loadPlanConfig } from "../helpers/planConfig";
 import { subscriptionPlan } from "../helpers/subscriptionPlan";
+import { readServices } from "../helpers/serviceModel";
 import {
   isPlatformHostname,
   isUnsupportedPlatformSubdomain,
@@ -49,7 +50,7 @@ export async function handle(request: Request) {
     else lower(split_part(split_part(regexp_replace("custom_domain", '^https?://', '', 'i'), '/', 1), ':', 1))
   end`;
   const baseQuery = db.selectFrom("businesses")
-    .select(["id", "slug", "plan", "websitePlan", "trialEndsAt", "planRenewsAt", "customDomain", "customDomainStatus"])
+    .select(["id", "slug", "plan", "websitePlan", "trialEndsAt", "planRenewsAt", "customDomain", "customDomainStatus", "contentSettings"])
     .where("status", "=", "published");
   const businesses = platformHost
     ? await baseQuery.execute()
@@ -72,7 +73,7 @@ export async function handle(request: Request) {
   const businessIds = businessesWithPlan.map(({ business }) => business.id);
 
   if (businessIds.length > 0) {
-    const [products, galleries, blogs, events, services] = await Promise.all([
+    const [products, galleries, blogs, events] = await Promise.all([
       db.selectFrom("products").select(["businessId", "slug"])
         .where("businessId", "in", businessIds).where("available", "=", true).execute(),
       db.selectFrom("galleries").select(["businessId", "slug"])
@@ -80,8 +81,6 @@ export async function handle(request: Request) {
       db.selectFrom("blogPosts").select(["businessId", "slug"])
         .where("businessId", "in", businessIds).where("published", "=", true).execute(),
       db.selectFrom("events").select(["businessId", "slug"])
-        .where("businessId", "in", businessIds).where("published", "=", true).execute(),
-      db.selectFrom("services").select(["businessId", "id"])
         .where("businessId", "in", businessIds).where("published", "=", true).execute(),
     ]);
 
@@ -94,7 +93,6 @@ export async function handle(request: Request) {
     const galleriesByBusiness = byBusiness(galleries);
     const blogsByBusiness = byBusiness(blogs);
     const eventsByBusiness = byBusiness(events);
-    const servicesByBusiness = byBusiness(services);
 
     for (const { business, plan } of businessesWithPlan) {
       const customOrigin = business.customDomainStatus === "verified" && plan.canUseCustomDomain
@@ -129,7 +127,7 @@ export async function handle(request: Request) {
         }
       }
       if (plan.canUseServices) {
-        for (const service of servicesByBusiness.get(business.id) ?? []) {
+        for (const service of readServices(business.contentSettings).filter((item) => item.published)) {
           add(`${storePath.replace(/\/$/, "")}/s/${encodeURIComponent(service.id)}`);
         }
       }
