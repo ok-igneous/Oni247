@@ -16,7 +16,7 @@ Vite is not used to develop, serve or build the application. Vitest remains the 
 ## Canonical storefront URLs
 
 - Platform storefronts: `https://oni247.org/{slug}` (for example, `https://oni247.org/nesmage`).
-- `/store/{slug}` is not a supported route and returns 404.
+- `/store/{slug}` is not a supported route and returns 404. Unknown root-level slugs return 404 unless they match a known legacy static page.
 - Business subdomains are not used.
 - Verified custom domains serve the storefront at their own domain root and require an active paid subscription. Trials and expired subscriptions do not qualify.
 
