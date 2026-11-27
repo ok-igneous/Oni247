@@ -106,7 +106,7 @@ The new runtime is a first implementation, not a completed migration. Keep previ
 - Removed the Vite `index.html`, `vite.config.ts`, direct Vite dependency, Vite React plugin, and Vite web scripts. Development/build/start scripts now invoke Next.js. Vitest remains for the existing test suite; it is not the web runtime.
 - Added a Node.js Next route handler for same-origin `/_api/*` requests. It preserves the incoming host/protocol and multiple Set-Cookie headers when proxying to Fastify. The API must be private behind one trusted Next.js proxy hop; do not expose the API listener publicly with `TRUST_PROXY=1`.
 - Split the local API port into `API_PORT` and added `API_ORIGIN` for the Next.js proxy. Fastify remains a separate service.
-- Added Next.js rewrites for `/sitemap.xml` and `/robots.txt` to the Fastify service.
+- Added Next.js Node route handlers for `/sitemap.xml` and `/robots.txt`; both use the runtime API proxy helper so `API_ORIGIN` is not baked into build-time rewrite configuration.
 - **Not yet verified:** dependencies have not been installed; the route registry has not been generated in a checked-out workspace; TypeScript, unit tests, Next.js production build, custom-domain host forwarding, cookie forwarding, crawler SEO rendering and browser route parity have not been run. No staging deployment or production cutover has occurred.
 
 
