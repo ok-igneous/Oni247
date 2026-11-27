@@ -1,4 +1,4 @@
-import { isCrawlerUserAgent, isPublicCustomDomainPath, isPublicStorefrontPath, normalizeDomainHost, resolvePlatformSubdomainSlug, isPlatformHostname } from "./storefrontPrerender";
+import { isCrawlerUserAgent, isPublicCustomDomainPath, isPublicStorefrontPath, normalizeDomainHost, isPlatformHostname } from "./storefrontPrerender";
 import { renderCrawlerDocument, type CrawlerSnapshot } from "./crawlerDocument";
 
 export type CrawlerSnapshotRequest = {
@@ -43,17 +43,7 @@ export function createCrawlerStorefrontRenderer(deps: CrawlerRendererDependencie
       let customDomain = false;
       let slug = "";
 
-      const platformSubdomainSlug = resolvePlatformSubdomainSlug(url.hostname, configuredPlatformHost);
-      if (platformSubdomainSlug) {
-        const matchedSlug = await deps.resolvePlatformSubdomain(platformSubdomainSlug);
-        if (matchedSlug) {
-          if (!isPublicCustomDomainPath(url.pathname)) return;
-          customDomain = true;
-          slug = matchedSlug;
-        }
-      }
-
-      if (!customDomain && !isPlatformHostname(url.hostname, configuredPlatformHost)) {
+      if (!isPlatformHostname(url.hostname, configuredPlatformHost)) {
         const requestHost = normalizeDomainHost(`https://${url.hostname}`);
         if (requestHost) {
           const matchedSlug = await deps.resolveCustomDomain(requestHost);
