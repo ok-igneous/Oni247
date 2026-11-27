@@ -211,7 +211,7 @@ const renderCrawlerStorefront = createCrawlerStorefrontRenderer({
     ]);
     await loadPlanConfig();
     // Only active paid subscriptions may resolve a customer-owned hostname.
-    const domainMatch = await sql<{ business_id: number; slug: string }>`
+    const domainMatch = await sql<{ business_id: string; slug: string }>`
       select b.id as business_id, b.slug
         from business_domains d
         join businesses b on b.id = d.business_id
