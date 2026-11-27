@@ -2,11 +2,7 @@ import type { NextConfig } from "next";
 
 const apiOrigin = (process.env.ONI247_API_INTERNAL_URL ?? "http://127.0.0.1:3001").replace(/\/+$/, "");
 const renderHost = (process.env.RENDER_EXTERNAL_HOSTNAME ?? "oni247-staging.onrender.com").replace(/\./g, "\\.");
-const customHostPattern = `^(?!www\\.oni247\\.org$)(?!oni247\\.org$)(?!localhost(?::\\d+)?$)(?!127\\.0\\.0\\.1(?::\\d+)?$)(?!${renderHost}$).+import type { NextConfig } from "next";
-
-const apiOrigin = (process.env.ONI247_API_INTERNAL_URL ?? "http://127.0.0.1:3001").replace(/\/+$/, "");
-const renderHost = (process.env.RENDER_EXTERNAL_HOSTNAME ?? "oni247-staging.onrender.com").replace(/\./g, "\\.");
-;
+const customHostPattern = `^(?!www\\.oni247\\.org$)(?!oni247\\.org$)(?!localhost(?::\\d+)?$)(?!127\\.0\\.0\\.1(?::\\d+)?$)(?!${renderHost}$).+$`;
 const legacyStorefrontSections = "(p|s|b|e|g|products|services|about|gallery|blog|events|contact|track|checkout|book|booking|f)";
 
 const nextConfig: NextConfig = {
