@@ -6,6 +6,7 @@ export type OutputType =
       hasBusiness: true;
       businessName: string;
       slug: string;
+      platformRootDomain: string | null;
       status: string;
       productCount: number;
       categoryCount: number;
