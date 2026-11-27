@@ -73,7 +73,7 @@ const safeContentLink = (value: string): string | null => {
 
 export default function StorefrontPageNext({ slug, initialData, customDomain, origin }: { slug: string; initialData: StorefrontOutput; customDomain: boolean; origin: string }) {
   const router = useRouter();
-  const { data, isFetching, error } = useStorefront(slug, initialData);
+  const { data, isFetching } = useStorefront(slug, initialData);
   const storefrontPath = (businessSlug: string, path = "/") => {
     const suffix = path.replace(/^\/+/, "");
     if (customDomain) return suffix ? `/${suffix}` : "/";
@@ -209,7 +209,7 @@ export default function StorefrontPageNext({ slug, initialData, customDomain, or
     );
   }
 
-  if (error || !data) {
+  if (!data) {
     return (
       <div className={styles.page}>
         <main className={styles.main}>
