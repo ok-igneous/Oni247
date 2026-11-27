@@ -6,15 +6,10 @@ process.on("uncaughtExceptionMonitor", (error, origin) => {
 console.info("[oni247] Startup: initializing API server");
 import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
 import { sql } from "kysely";
-import fastifyStatic from "@fastify/static";
 import { readdir } from "node:fs/promises";
-import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { registerCrawlerStorefrontRoutes } from "./crawlerRoutes";
-import { createCrawlerStorefrontRenderer } from "./crawlerRenderer";
-import { createCrawlerSnapshotLoader } from "./crawlerSnapshotLoader";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(here, "..");
@@ -185,71 +180,12 @@ app.get("/robots.txt", async (request, reply) => {
   );
 });
 
-// Serve database-backed public storefront HTML to crawlers while keeping the SPA
-// for human visitors. Route matching and HTML injection are covered by unit tests.
-
-const distDir = path.join(projectRoot, "dist");
-const hasProductionBuild = existsSync(path.join(distDir, "index.html"));
-
-const renderCrawlerStorefront = createCrawlerStorefrontRenderer({
-  hasProductionBuild,
-  resolvePlatformSubdomain: async (slug) => {
-    const { db } = await import("../helpers/db");
-    const business = await db.selectFrom("businesses")
-      .select("slug")
-      .where("slug", "=", slug)
-      .where("status", "=", "published")
-      .limit(1)
-      .executeTakeFirst();
-    return business?.slug ?? null;
-  },
-  resolveCustomDomain: async (hostname) => {
-    const { db } = await import("../helpers/db");
-    // Normalize the stored domain in PostgreSQL so we return only one matching
-    // published business instead of loading every verified domain into Node.
-    const normalizedStoredHost = sql<string | null>`case
-      when lower("custom_domain") like 'http://%' then null
-      else lower(split_part(split_part(regexp_replace("custom_domain", '^https?://', '', 'i'), '/', 1), ':', 1))
-    end`;
-    const business = await db.selectFrom("businesses")
-      .select("slug")
-      .where("status", "=", "published")
-      .where("customDomainStatus", "=", "verified")
-      .where(normalizedStoredHost, "=", hostname)
-      .limit(1)
-      .executeTakeFirst();
-    return business?.slug ?? null;
-  },
-  loadSnapshot: createCrawlerSnapshotLoader({
-    storefront: async (request) => (await import("../endpoints/storefront_GET")).handle(request),
-    galleryList: async (request) => (await import("../endpoints/galleries/publicList_GET")).handle(request),
-    gallery: async (request) => (await import("../endpoints/galleries/public_GET")).handle(request),
-  }),
-  readIndexHtml: () => import("node:fs/promises").then(({ readFile }) =>
-    readFile(path.join(distDir, "index.html"), "utf8"),
-  ),
-});
-
-
-// Intercept only crawler requests for public storefront paths. Human visitors
-// continue through the unchanged SPA fallback.
-registerCrawlerStorefrontRoutes(app, renderCrawlerStorefront);
-
-
-if (hasProductionBuild) {
-  await app.register(fastifyStatic, {
-    root: distDir,
-    prefix: "/",
-    wildcard: false,
-    index: false,
-    decorateReply: true,
-  });
-}
+// Next.js owns all public web rendering. Fastify is deliberately API-only.
 app.setNotFoundHandler((request, reply) => {
-  if (request.url.startsWith("/_api/")) return reply.code(404).send({ error: "Not found" });
-  if (request.method !== "GET" && request.method !== "HEAD") return reply.code(404).send({ error: "Not found" });
-  if (!hasProductionBuild) return reply.code(404).send({ error: "Frontend build not found. Run npm run build." });
-  return reply.type("text/html; charset=utf-8").sendFile("index.html");
+  if (request.url.startsWith("/_api/")) {
+    return reply.code(404).send({ error: "API endpoint not found" });
+  }
+  return reply.code(404).send({ error: "Not found" });
 });
 
 app.addHook("onClose", async () => {
@@ -259,11 +195,11 @@ app.addHook("onClose", async () => {
   }
 });
 
-const port = Number.parseInt(process.env.API_PORT ?? process.env.PORT ?? "3001", 10);
-const host = process.env.HOST ?? "0.0.0.0";
-console.info("[oni247] Startup: binding HTTP listener", { host, port, hasProductionBuild });
+const port = Number.parseInt(process.env.API_PORT ?? "3001", 10);
+const host = process.env.HOST ?? "127.0.0.1";
+console.info("[oni247] Startup: binding private API listener", { host, port });
 await app.listen({ port, host });
-console.info("[oni247] Startup: HTTP listener ready", { host, port });
+console.info("[oni247] Startup: private API listener ready", { host, port });
 
 let shutdownStarted = false;
 const shutdown = async (signal: NodeJS.Signals) => {
