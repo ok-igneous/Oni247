@@ -74,5 +74,11 @@ Next.js will own page routing, layouts, server rendering and public storefront r
 
 - Migration decision approved on 2026-11-27.
 - Migration branch: `nextjs-migration`.
-- The initial Next.js App Router foundation and legacy route bridge are implemented on `nextjs-migration`; they have not yet passed dependency installation, typecheck, tests or production build. This branch is not production-ready.
+- Next.js owns the web route entry point and dynamic metadata for public storefront URLs.
+- Added request-host resolution for platform vanity slugs, business subdomains, and verified custom domains. Custom-domain ownership is checked against published businesses with `customDomainStatus = verified`.
+- Public storefront, product, blog, event, page and gallery routes now load their public data on the server and return crawlable HTML, canonical URLs, Open Graph/Twitter metadata and JSON-LD where the existing snapshot renderer supports it.
+- Server rendering reuses the existing public Fastify endpoint handlers and crawler snapshot builder; it does not duplicate or weaken the public data access rules.
+- A hydration bridge temporarily hands the page to the existing interactive React Router storefront after initial hydration. This is a deliberate compatibility stage: the first response is server-rendered, but the full storefront interaction layer is not yet a completely native App Router implementation.
+- Private storefront flows such as checkout, order tracking, service booking and forms remain on the compatibility bridge.
+- **Not yet verified:** dependencies have not been installed; TypeScript, unit tests, production build, live database host resolution, custom-domain requests, browser hydration, metadata output and route parity have not been run. No staging deployment or production cutover has occurred.
 - Hosting provider and S3-compatible media provider remain intentionally undecided.
