@@ -1,61 +1,52 @@
-# Oni247 domain management rollout
+# Oni247 customer custom-domain rollout
 
-## Application behavior in this branch
+## Product behavior
 
-- Adds a multi-domain registry with globally unique hostnames, ownership verification state, Render resource IDs, TLS state, and one primary-domain constraint per business.
-- Backfills existing verified legacy `businesses.custom_domain` values without deleting or rewriting the legacy columns.
-- Adds authenticated endpoints to list, register, verify/synchronize, set the primary domain, and remove a customer-owned domain.
-- The dashboard provides DNS instructions, TXT verification, Render/TLS status refresh, primary-domain selection, and removal.
-- Customer-owned domain registration currently supports apex/root domains and their `www` hostname. Other nested customer subdomains are intentionally rejected until their DNS record UX is added.
-- Newly registered customer domains route to a published business only when the Render domain is verified and an actual TLS handshake validates the certificate for that hostname.
-- The dashboard treats the Oni247 business subdomain as the default address, but it does not publish that hostname as the share URL until `PLATFORM_WILDCARD_READY=true`. Before that flag is enabled, existing `/business-slug` vanity links remain the safe fallback.
-- A verified custom domain can become primary; the owner can switch back to the Oni247 subdomain after wildcard readiness is confirmed.
-- Existing legacy verified custom domains continue to resolve during migration.
+- Every published business keeps its default Oni247 URL: `https://oni247.org/{business-slug}`.
+- Customer-owned domains are optional. Connecting one does not remove or disable the Oni247 `/slug` URL.
+- A business owner can choose an active, HTTPS-ready customer domain as the preferred sharing domain, or switch back to the Oni247 `/slug` URL at any time.
+- No wildcard DNS, business subdomains, or per-business Render configuration is required.
+- The domain registry stores ownership verification, Render resource IDs, TLS state, and hostname-to-business mapping.
+- Existing verified legacy custom domains are backfilled without deleting the legacy business columns.
+- Customer-owned domain registration currently supports root/apex domains and their `www` hostname. Other nested subdomains are intentionally not supported yet.
 
-## Render configuration required
+## Render configuration
 
-Oni247 uses Render as the ingress and managed TLS provider. The API key is server-side only and must never be exposed to the browser.
+Oni247 uses Render as the ingress and managed TLS provider for customer-owned domains.
 
 Set these environment variables on the Oni247 Render web service:
 
-- `PLATFORM_ROOT_DOMAIN=oni247.org`
-- `PLATFORM_WILDCARD_READY=false` initially. Change to `true` only after Render has verified the wildcard domain and the wildcard HTTPS certificate works.
-- `RENDER_API_KEY`: a Render API key with permission to manage custom domains in the workspace containing Oni247.
-- `RENDER_SERVICE_ID=srv-dc3ej8c0916s738jhr7g`: the currently connected Oni247 web service.
+- `APP_BASE_URL=https://oni247.org`
+- `RENDER_API_KEY`: a private Render API key with permission to manage custom domains in the workspace containing Oni247.
+- `RENDER_SERVICE_ID=srv-dc3ej8c0916s738jhr7g`: the current Oni247 web service.
 - `RENDER_CUSTOM_DOMAIN_TARGET=oni247-staging.onrender.com`: the exact service hostname used for customer `www` CNAME instructions.
 
-Do not commit real credentials. The example file contains blank values.
+Never expose or commit the Render API key. Render API keys are shown only once when created. Use the narrowest permissions that permit custom-domain management.
 
 ## DNS instructions shown to customers
 
-- Apex/root hostname (e.g. `example.com`): add an A record for `@` pointing to Render's load balancer IP `216.24.57.1`. If the DNS provider supports ANAME/ALIAS or CNAME flattening, it can point the root to the service's `onrender.com` hostname instead.
-- `www` hostname (e.g. `www.example.com`): add a CNAME for `www` pointing to `RENDER_CUSTOM_DOMAIN_TARGET`.
+For a root domain such as `example.com`:
+
+- Apex/root: add an A record for `@` pointing to `216.24.57.1`.
+- `www`: add a CNAME record pointing to `oni247-staging.onrender.com`.
 - Add the TXT ownership challenge exactly as shown in the Oni247 dashboard.
 - Remove conflicting AAAA records while configuring the domain.
-- If the customer has restrictive CAA records, they must allow Let's Encrypt (`letsencrypt.org`) and Google Trust Services (`pki.goog`).
+- If restrictive CAA records exist, they must permit Let's Encrypt (`letsencrypt.org`) and Google Trust Services (`pki.goog`).
 
-Oni247 first verifies its own TXT ownership challenge. It then registers the hostname with Render through the Render API. Render verifies routing DNS and provisions the TLS certificate. Oni247 checks Render's verification status and performs a public-IP TLS handshake with hostname verification before setting the domain active.
+Render automatically adds and redirects the corresponding root or `www` hostname when one side is registered. The dashboard provides the records for the domain entered by the customer; users must make the DNS changes with their domain provider.
 
-Render may bill for custom domains beyond the workspace's included allowance. Confirm the current workspace plan and domain count before enabling customer self-service at scale.
+Oni247 verifies its TXT ownership challenge, registers the hostname with Render, requests DNS verification, and checks that a valid HTTPS certificate is presented before activating the domain.
 
-## Platform business subdomains
+## Cost and safety
 
-For `*.oni247.org`, add the wildcard hostname once to the Oni247 Render service and configure these DNS records at WhoGoHost:
-- `* CNAME oni247-staging.onrender.com`
-- `_acme-challenge CNAME oni247-staging.verify.renderdns.com`
-- `_cf-custom-hostname CNAME oni247-staging.hostname.renderdns.com`
-
-Render's wildcard setup requires all three records. The platform root domain must also point to Render for Render wildcard routing to work. The `_cf-custom-hostname` record is Render's own verification mechanism; it does not mean Oni247 is using a Cloudflare account or Cloudflare DNS. The current apex DNS and email records must be preserved; do not change authoritative nameservers as part of this setup.
-
-Oni247 resolves individual business subdomains from business slugs in the application database. Do not create one Render custom-domain entry per Oni247 business subdomain.
+Render includes a limited number of custom domains per workspace. Additional domains may incur a monthly charge. Confirm the current workspace allowance and domain count before enabling customer self-service at scale. Do not assume the service's Free compute plan determines the workspace's custom-domain allowance.
 
 ## Safe rollout
 
-1. Set the four server environment variables above; keep the Render API key private.
+1. Configure the four server environment variables above; keep the Render API key private.
 2. Apply migrations `003_business_domains.sql` and `004_render_domain_provisioning.sql` to the Oni247 Neon database using the existing migration runner.
-3. Add and verify the Render wildcard hostname and DNS records once for `*.oni247.org`.
-4. Set `PLATFORM_WILDCARD_READY=true` only after the wildcard DNS and certificate are confirmed; then test a published business subdomain.
-5. Test a customer-owned domain on a non-production hostname: TXT challenge, Render registration, routing DNS, Render verification, TLS handshake, active routing, primary selection and removal.
-6. Run `npm run typecheck`, `npm test`, `npm run build`, and `npm run audit:standalone` before merging.
+3. Test a customer-owned domain on a non-critical business: TXT ownership challenge, Render registration, routing DNS, Render verification, TLS readiness, primary selection, switching back to `/slug`, and removal.
+4. Run `npm run typecheck`, `npm test`, `npm run build`, and `npm run audit:standalone` before merging.
+5. Keep the default `/slug` route available regardless of custom-domain state.
 
 No production DNS, Render settings, Neon data, or deployment is changed by this branch.
