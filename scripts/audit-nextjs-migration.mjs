@@ -32,6 +32,7 @@ async function walk(directory) {
     if (
       relative.startsWith("pages/") &&
       !relative.endsWith(".pageLayout.tsx") &&
+      relative !== "pages/StorefrontPage.tsx" &&
       !relative.startsWith("pages/store.$slug")
     ) {
       const base = path.basename(relative).replace(/\.(tsx|jsx)$/, "");
