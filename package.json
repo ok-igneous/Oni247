@@ -17,7 +17,9 @@
     "test": "vitest run",
     "audit:standalone": "node scripts/audit-standalone.mjs",
     "audit:nextjs": "node scripts/audit-nextjs-migration.mjs",
-    "db:migrate": "node scripts/migrate.mjs"
+    "db:migrate": "node scripts/migrate.mjs",
+    "predev": "node scripts/generate-next-page-registry.mjs",
+    "predev:web": "node scripts/generate-next-page-registry.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.850.0",
