@@ -6,6 +6,7 @@ import {
   isPublicStorefrontPath,
   isPublicCustomDomainPath,
   normalizeDomainHost,
+  isUnsupportedPlatformSubdomain,
   resolvePlatformSubdomainSlug,
 } from "./storefrontPrerender";
 
@@ -80,6 +81,14 @@ describe("crawler storefront helpers", () => {
     expect(resolvePlatformSubdomainSlug("a.b.oni247.com", "oni247.com")).toBeNull();
     expect(resolvePlatformSubdomainSlug("admin.oni247.com", "oni247.com")).toBeNull();
     expect(resolvePlatformSubdomainSlug("other.com", "oni247.com")).toBeNull();
+  });
+
+  it("rejects business subdomains under the platform root", () => {
+    expect(isUnsupportedPlatformSubdomain("shop.oni247.org", "https://oni247.org")).toBe(true);
+    expect(isUnsupportedPlatformSubdomain("a.b.oni247.org", "https://www.oni247.org")).toBe(true);
+    expect(isUnsupportedPlatformSubdomain("www.oni247.org", "https://oni247.org")).toBe(false);
+    expect(isUnsupportedPlatformSubdomain("oni247.org", "https://oni247.org")).toBe(false);
+    expect(isUnsupportedPlatformSubdomain("shop.example.com", "https://oni247.org")).toBe(false);
   });
 
   it("injects metadata and crawlable content into the expected SPA shell", () => {
