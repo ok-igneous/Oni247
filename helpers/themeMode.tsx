@@ -104,10 +104,13 @@ interface ThemeModeContextValue {
 const ThemeModeContext = createContext<ThemeModeContextValue | null>(null);
 
 export function ThemeModeProvider({ children }: { children: ReactNode }) {
-  const [mode, setMode] = useState<ThemeMode>(() => getCurrentThemeMode());
+  // Start with a deterministic server-safe value. The actual browser theme is
+  // read after mount because document.body does not exist during SSR.
+  const [mode, setMode] = useState<ThemeMode>("light");
 
   useEffect(() => {
-    // Subscribe to changes triggered by standalone functions
+    setMode(getCurrentThemeMode());
+    // Subscribe to changes triggered by standalone functions.
     const unsubscribe = subscribeToThemeChange((newMode) => {
       setMode(newMode);
     });
