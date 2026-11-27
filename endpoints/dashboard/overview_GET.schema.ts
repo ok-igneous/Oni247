@@ -7,6 +7,8 @@ export type OutputType =
       businessName: string;
       slug: string;
       platformRootDomain: string | null;
+      primaryDomain: string | null;
+      platformWildcardReady: boolean;
       status: string;
       productCount: number;
       categoryCount: number;
