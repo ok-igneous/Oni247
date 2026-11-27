@@ -16,7 +16,7 @@ Oni247 is an independent website and storefront platform.
 
 1. Use Node.js 22 or newer and PostgreSQL.
 2. Copy `.env.example` to `.env`; configure the database, JWT and S3-compatible storage.
-3. Keep the Fastify API bound to the private/local API port (`API_PORT=3001` by default).
+3. Keep the Fastify API bound to the private/local API port (`API_PORT=3001` by default). When deploying the API as a separate hosted service, leave `API_PORT` unset so the host-provided `PORT` is used.
 4. Set `API_ORIGIN` to the private API service origin. The API must not be publicly reachable when `TRUST_PROXY=1`.
 5. Install dependencies with `npm install`.
 6. Apply schema migrations to a disposable development database.
