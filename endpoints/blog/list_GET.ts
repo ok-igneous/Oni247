@@ -2,10 +2,12 @@ import superjson from "superjson";
 import { db } from "../../helpers/db";
 import { requireOwnedBusiness } from "../../helpers/requireOwnedBusiness";
 import { subscriptionPlan } from "../../helpers/subscriptionPlan";
+import { loadPlanConfig } from "../../helpers/planConfig";
 
 export async function handle(request: Request) {
   try {
     const { business } = await requireOwnedBusiness(request);
+    await loadPlanConfig();
     const posts = await db
       .selectFrom("blogPosts")
       .select([

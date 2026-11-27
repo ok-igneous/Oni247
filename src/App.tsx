@@ -40,9 +40,56 @@ const routeEntries = Object.entries(pageModules)
 const landingPage = routeEntries.find((entry) => entry.key === "_index")!.Component;
 const vanityHomePage = routeEntries.find((entry) => entry.key === "$slug")!.Component;
 
+function AppLoading() {
+  return (
+    <main className="app-loading" role="status" aria-label="Loading page">
+      <div className="app-loading__skeleton" aria-hidden="true">
+        <div className="app-loading__topbar">
+          <span className="app-loading__brand-mark app-loading__shimmer" />
+          <span className="app-loading__topbar-line app-loading__shimmer" />
+          <span className="app-loading__topbar-action app-loading__shimmer" />
+        </div>
+
+        <div className="app-loading__content">
+          <section className="app-loading__intro">
+            <span className="app-loading__avatar app-loading__shimmer" />
+            <div className="app-loading__intro-lines">
+              <span className="app-loading__line app-loading__line--long app-loading__shimmer" />
+              <span className="app-loading__line app-loading__line--short app-loading__shimmer" />
+            </div>
+          </section>
+
+          <section className="app-loading__feature app-loading__shimmer">
+            <span className="app-loading__feature-line" />
+            <span className="app-loading__feature-line app-loading__feature-line--short" />
+            <span className="app-loading__feature-block" />
+          </section>
+
+          <section className="app-loading__feed">
+            <div className="app-loading__feed-heading">
+              <span className="app-loading__small-avatar app-loading__shimmer" />
+              <div className="app-loading__intro-lines">
+                <span className="app-loading__line app-loading__line--medium app-loading__shimmer" />
+                <span className="app-loading__line app-loading__line--tiny app-loading__shimmer" />
+              </div>
+            </div>
+            <span className="app-loading__feed-image app-loading__shimmer" />
+            <div className="app-loading__feed-footer">
+              <span className="app-loading__line app-loading__line--short app-loading__shimmer" />
+              <span className="app-loading__line app-loading__line--tiny app-loading__shimmer" />
+            </div>
+          </section>
+        </div>
+      </div>
+      <span className="app-loading__sr-label">Loading</span>
+    </main>
+  );
+}
+
+
 function HostAwareRoot() {
   const host = useStorefrontHost();
-  if (!host.resolved) return <div role="status" style={{ padding: 24 }}>Loading Oni247…</div>;
+  if (!host.resolved) return <AppLoading />;
   const Page = host.slug ? vanityHomePage : landingPage;
   return <Page />;
 }
@@ -51,7 +98,7 @@ export function App() {
   const vanityRoutes = routeEntries.filter((entry) => entry.key.startsWith("$slug."));
   return (
     <StorefrontHostProvider>
-      <Suspense fallback={<div role="status" style={{ padding: 24 }}>Loading Oni247…</div>}>
+      <Suspense fallback={<AppLoading />}>
         <Routes>
           <Route path="/" element={<HostAwareRoot />} />
           {routeEntries.filter((entry) => entry.key !== "_index").map(({ path, Component, key }) => (
