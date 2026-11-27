@@ -102,13 +102,20 @@ export async function isRenderTlsReady(hostname: string): Promise<boolean> {
 export async function registerRenderCustomDomain(hostname: string): Promise<RenderCustomDomain> {
   const { serviceId } = config();
   if (!serviceId) throw new Error("RENDER_SERVICE_ID is not configured.");
-  const result = await requestRender<RenderCustomDomain[]>(
-    `/services/${encodeURIComponent(serviceId)}/custom-domains`,
-    { method: "POST", body: JSON.stringify({ name: hostname }) },
-  );
-  const domain = Array.isArray(result) ? result[0] : undefined;
-  if (!domain?.id || !domain.name) throw new Error("Render did not return a custom-domain resource.");
-  return domain;
+  try {
+    const result = await requestRender<RenderCustomDomain[]>(
+      `/services/${encodeURIComponent(serviceId)}/custom-domains`,
+      { method: "POST", body: JSON.stringify({ name: hostname }) },
+    );
+    const domain = Array.isArray(result) ? result[0] : undefined;
+    if (!domain?.id || !domain.name) throw new Error("Render did not return a custom-domain resource.");
+    return domain;
+  } catch (error) {
+    // Recover safely if Render created the resource but the caller lost the response.
+    const existing = await getRenderCustomDomain(hostname).catch(() => null);
+    if (existing?.id) return existing;
+    throw error;
+  }
 }
 
 export async function getRenderCustomDomain(hostnameOrId: string): Promise<RenderCustomDomain> {
