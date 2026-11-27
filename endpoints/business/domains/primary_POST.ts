@@ -7,6 +7,21 @@ export async function handle(request: Request) {
   try {
     const { user } = await getServerUserSession(request);
     const body = await request.json() as { domainId?: unknown };
+    if (body.domainId === "platform") {
+      if (process.env.PLATFORM_WILDCARD_READY?.trim().toLowerCase() !== "true") {
+        return new Response(superjson.stringify({
+          error: "The Oni247 wildcard subdomain is not ready yet. Complete Render wildcard DNS and certificate setup first.",
+        }), { status: 409 });
+      }
+      const business = await db.selectFrom("businesses").select(["id"])
+        .where("ownerId", "=", user.id).limit(1).executeTakeFirst();
+      if (!business) return new Response(superjson.stringify({ error: "Business not found." }), { status: 404 });
+      await sql`update business_domains set is_primary = false, updated_at = now()
+        where business_id = ${business.id}`.execute(db);
+      return new Response(superjson.stringify({ success: true, primaryDomain: "platform" }), {
+        headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
+      });
+    }
     if (typeof body.domainId !== "string" || !body.domainId) {
       return new Response(superjson.stringify({ error: "A domain ID is required." }), { status: 400 });
     }
