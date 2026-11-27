@@ -8,6 +8,8 @@
 - The dashboard provides DNS instructions, TXT verification, Render/TLS status refresh, primary-domain selection, and removal.
 - Customer-owned domain registration currently supports apex/root domains and their `www` hostname. Other nested customer subdomains are intentionally rejected until their DNS record UX is added.
 - Newly registered customer domains route to a published business only when the Render domain is verified and an actual TLS handshake validates the certificate for that hostname.
+- The dashboard treats the Oni247 business subdomain as the default address, but it does not publish that hostname as the share URL until `PLATFORM_WILDCARD_READY=true`. Before that flag is enabled, existing `/business-slug` vanity links remain the safe fallback.
+- A verified custom domain can become primary; the owner can switch back to the Oni247 subdomain after wildcard readiness is confirmed.
 - Existing legacy verified custom domains continue to resolve during migration.
 
 ## Render configuration required
