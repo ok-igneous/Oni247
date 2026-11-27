@@ -1,4 +1,5 @@
 import superjson from "superjson";
+import { sql } from "kysely";
 import { db } from "../../helpers/db";
 import { generateTrackingCode } from "../../helpers/generateTrackingCode";
 import { requireOwnedBusiness } from "../../helpers/requireOwnedBusiness";
@@ -91,9 +92,7 @@ export async function handle(request: Request) {
           })
           .onConflict((oc) =>
             oc.columns(["businessId", "phoneKey"]).doUpdateSet({
-              name: input.customerName,
-              phone: input.customerPhone as string,
-              ...(input.deliveryAddress ? { lastAddress: input.deliveryAddress } : {}),
+              lastAddress: sql<string | null>`COALESCE(NULLIF(customers.last_address, ''), EXCLUDED.last_address)`,
               updatedAt: new Date(),
             }),
           )
@@ -145,10 +144,9 @@ export async function handle(request: Request) {
       { headers: { "Content-Type": "application/json" } },
     );
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Could not record the sale.";
-    return new Response(superjson.stringify({ error: message }), {
-      status: 400,
+    // Never expose SQL or infrastructure details to the operator-facing client.
+    return new Response(superjson.stringify({ error: "Could not record the sale. Please try again." }), {
+      status: 500,
     });
   }
 }
