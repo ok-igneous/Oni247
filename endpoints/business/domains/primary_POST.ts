@@ -7,21 +7,19 @@ export async function handle(request: Request) {
   try {
     const { user } = await getServerUserSession(request);
     const body = await request.json() as { domainId?: unknown };
-    if (body.domainId === "platform") {
-      if (process.env.PLATFORM_WILDCARD_READY?.trim().toLowerCase() !== "true") {
-        return new Response(superjson.stringify({
-          error: "The Oni247 wildcard subdomain is not ready yet. Complete Render wildcard DNS and certificate setup first.",
-        }), { status: 409 });
-      }
+
+    if (body.domainId === "path") {
       const business = await db.selectFrom("businesses").select(["id"])
         .where("ownerId", "=", user.id).limit(1).executeTakeFirst();
       if (!business) return new Response(superjson.stringify({ error: "Business not found." }), { status: 404 });
+
       await sql`update business_domains set is_primary = false, updated_at = now()
         where business_id = ${business.id}`.execute(db);
-      return new Response(superjson.stringify({ success: true, primaryDomain: "platform" }), {
+      return new Response(superjson.stringify({ success: true, primaryDomain: null }), {
         headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
       });
     }
+
     if (typeof body.domainId !== "string" || !body.domainId) {
       return new Response(superjson.stringify({ error: "A domain ID is required." }), { status: 400 });
     }
@@ -34,7 +32,7 @@ export async function handle(request: Request) {
        limit 1`.execute(db);
     const domain = owned.rows[0];
     if (!domain) {
-      return new Response(superjson.stringify({ error: "Only an active, HTTPS-ready domain can be primary." }), { status: 409 });
+      return new Response(superjson.stringify({ error: "Only an active, HTTPS-ready customer domain can be primary." }), { status: 409 });
     }
     await db.transaction().execute(async (trx) => {
       await sql`update business_domains set is_primary = false, updated_at = now()
