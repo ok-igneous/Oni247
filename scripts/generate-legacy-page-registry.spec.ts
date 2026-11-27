@@ -19,7 +19,7 @@ describe("Next.js legacy route registry", () => {
     const fixture = await mkdtemp(path.join(os.tmpdir(), "oni247-legacy-registry-"));
     temporaryDirectories.push(fixture);
 
-    const pages = path.join(fixture, "pages");
+    const pages = path.join(fixture, "legacy-pages");
     await mkdir(pages, { recursive: true });
     await Promise.all([
       writeFile(path.join(pages, "_index.tsx"), "export default function Home() {}"),
@@ -35,11 +35,11 @@ describe("Next.js legacy route registry", () => {
     await execFileAsync(process.execPath, [generator], { cwd: fixture });
 
     const registry = await readFile(path.join(fixture, "src/generated/legacyPageRegistry.ts"), "utf8");
-    expect(registry).toContain("../pages/$slug.tsx");
-    expect(registry).toContain("../pages/$slug.p.$productSlug.tsx");
-    expect(registry).toContain("../pages/dashboard.tsx");
-    expect(registry).not.toContain("../pages/store.$slug.tsx");
-    expect(registry).not.toContain("../pages/store.$slug.p.$productSlug.tsx");
-    expect(registry).not.toContain("../pages/store.$slug.pageLayout.tsx");
+    expect(registry).toContain("../legacy-pages/$slug.tsx");
+    expect(registry).toContain("../legacy-pages/$slug.p.$productSlug.tsx");
+    expect(registry).toContain("../legacy-pages/dashboard.tsx");
+    expect(registry).not.toContain("../legacy-pages/store.$slug.tsx");
+    expect(registry).not.toContain("../legacy-pages/store.$slug.p.$productSlug.tsx");
+    expect(registry).not.toContain("../legacy-pages/store.$slug.pageLayout.tsx");
   });
 });

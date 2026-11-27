@@ -17,8 +17,8 @@ Make Next.js App Router the only web runtime while retaining Fastify and the exi
 - Fastify is API-only and binds to loopback port 3001 by default.
 - Next.js proxies `/_api/*`, `/sitemap.xml`, `/robots.txt`, `/healthz` and `/readyz` to the private Fastify process.
 - Fastify trusts one proxy hop only because the default deployment runs it behind the local Next.js proxy. Do not expose that API listener publicly with `TRUST_PROXY=1`.
-- The root `pages/` directory contains legacy React Router components. Next.js uses the custom `.next.tsx` route suffix so those source files are not interpreted as Pages Router routes.
-- A generated static import registry replaces Vite's `import.meta.glob()`. The old `store.$slug.*` route files are excluded; `pages/store.$slug.tsx` remains only as a shared component imported by `pages/$slug.tsx`.
+- The root `legacy-pages/` directory contains legacy React Router components. It is deliberately outside Next.js's reserved `app/` and `pages/` routing directories, avoiding the App Router/Pages Router directory conflict while preserving the existing relative imports.
+- A generated static import registry replaces Vite's `import.meta.glob()`. The old `store.$slug.*` route files are excluded; `legacy-pages/store.$slug.tsx` remains only as a shared component imported by `legacy-pages/$slug.tsx`.
 - Routes not yet migrated use a client-only React Router compatibility boundary behind a Next.js internal fallback rewrite.
 - Vite config, Vite web scripts, the Vite HTML entrypoint, Vite client types, and direct Vite / React Vite plugin dependencies have been removed. Vitest remains the test runner and currently brings Vite transitively as a development-only dependency; Vite is not used to serve or build the app.
 

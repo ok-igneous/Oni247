@@ -3,7 +3,7 @@ import { readdir, mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const root = process.cwd();
-const pagesDir = path.join(root, "pages");
+const pagesDir = path.join(root, "legacy-pages");
 const outputDir = path.join(root, "src", "generated");
 const pages = [];
 const layouts = [];
@@ -19,9 +19,9 @@ async function walk(directory) {
     const relative = path.relative(root, absolute).split(path.sep).join("/");
 
     // /store/{slug} was an old public route and is not part of Oni247's URL
-    // contract. pages/store.$slug.tsx remains a shared component imported by
-    // pages/$slug.tsx; none of the old store.$slug.* files are routes.
-    if (relative.startsWith("pages/store.$slug")) continue;
+    // contract. legacy-pages/store.$slug.tsx remains a shared component imported by
+    // legacy-pages/$slug.tsx; none of the old store.$slug.* files are routes.
+    if (relative.startsWith("legacy-pages/store.$slug")) continue;
 
     if (relative.endsWith(".pageLayout.tsx")) layouts.push(relative);
     else pages.push(relative);
