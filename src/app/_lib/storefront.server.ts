@@ -4,6 +4,7 @@ import type { OutputType } from "../../../endpoints/storefront_GET.schema";
 import type { OutputType as PublicGalleryOutput } from "../../../endpoints/galleries/public_GET.schema";
 import type { OutputType as PublicEventOutput } from "../../../endpoints/events/public_GET.schema";
 import type { OutputType as PublicEventsOutput } from "../../../endpoints/events/publicList_GET.schema";
+import type { OutputType as ShowcaseOutput } from "../../../endpoints/showcase_GET.schema";
 import { isPlatformHostname, normalizeDomainHost } from "../../../server/storefrontPrerender";
 
 export type StorefrontHostResolution = { slug: string | null; customDomain: boolean; platformHost: boolean };
@@ -48,6 +49,14 @@ export function storefrontMetadata(data: OutputType, canonicalUrl: string) {
     openGraph: { type: "website" as const, title, description, siteName: data.business.name, url: canonicalUrl, ...(image ? { images: [{ url: image }] } : {}) },
     twitter: { card: image ? "summary_large_image" as const : "summary" as const, title, description, ...(image ? { images: [image] } : {}) },
   };
+}
+
+export async function getShowcaseData(code: string): Promise<ShowcaseOutput | null> {
+  const url = new URL("/_api/showcase", apiOrigin());
+  url.searchParams.set("code", code.toUpperCase());
+  const response = await fetch(url, { cache: "no-store", headers: { accept: "application/json" } });
+  if (!response.ok) return null;
+  return superjson.parse<ShowcaseOutput>(await response.text());
 }
 
 export async function getPublicGalleryData(slug: string, gallerySlug: string): Promise<PublicGalleryOutput | null> {
