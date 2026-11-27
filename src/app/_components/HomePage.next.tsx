@@ -23,7 +23,7 @@ const FALLBACK: LandingData = { landing: DEFAULT_LANDING, plans: [] };
 function HomePageContent() {
   const { authState } = useAuth();
   const router = useRouter();
-  const [params] = useSearchParams();
+  const params = useSearchParams();
   const preview = params.get("preview") === "1";
   const { data = FALLBACK } = useQuery({ queryKey: ["landing"], queryFn: () => getLanding(), retry: false, staleTime: 30_000, placeholderData: FALLBACK });
   const { landing: L, plans } = data;
