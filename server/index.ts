@@ -235,6 +235,7 @@ if (hasProductionBuild) {
     root: distDir,
     prefix: "/",
     wildcard: false,
+    index: false,
     decorateReply: true,
   });
 }
