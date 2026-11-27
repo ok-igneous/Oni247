@@ -1,11 +1,14 @@
 import { sql } from "kysely";
 import { db } from "../helpers/db";
+import { loadPlanConfig } from "../helpers/planConfig";
+import { subscriptionPlan } from "../helpers/subscriptionPlan";
 import { normalizeDomainHost, resolvePlatformSubdomainSlug } from "../server/storefrontPrerender";
 
 /** Resolve the current request host to a published storefront without changing its URL. */
 export async function handle(request: Request) {
   try {
     const url = new URL(request.url);
+    await loadPlanConfig();
     const configuredRoot = process.env.PLATFORM_ROOT_DOMAIN || process.env.APP_BASE_URL || null;
     const subdomainSlug = resolvePlatformSubdomainSlug(url.hostname, configuredRoot);
     let slug: string | null = null;
@@ -23,8 +26,8 @@ export async function handle(request: Request) {
       const platform = normalizeDomainHost(configuredRoot);
       const platformRoot = platform?.replace(/^www\./, "") ?? null;
       if (host && host !== platformRoot && host !== (platformRoot ? `www.${platformRoot}` : null)) {
-        const domainMatch = await sql<{ slug: string }>`
-          select b.slug
+        const domainMatch = await sql<{ business_id: number; slug: string }>`
+          select b.id as business_id, b.slug
             from business_domains d
             join businesses b on b.id = d.business_id
            where d.hostname = ${host}
@@ -33,7 +36,12 @@ export async function handle(request: Request) {
              and d.ssl_status = 'active'
              and b.status = 'published'
            limit 1`.execute(db);
-        slug = domainMatch.rows[0]?.slug ?? null;
+        const matched = domainMatch.rows[0];
+        if (matched) {
+          const business = await db.selectFrom("businesses").selectAll()
+            .where("id", "=", matched.business_id).limit(1).executeTakeFirst();
+          if (business && subscriptionPlan.resolve(business).source === "paid") slug = matched.slug;
+        }
 
         // Keep previously verified single-domain records working during migration.
         if (!slug) {
@@ -42,13 +50,13 @@ export async function handle(request: Request) {
             else lower(split_part(split_part(regexp_replace("custom_domain", '^https?://', '', 'i'), '/', 1), ':', 1))
           end`;
           const business = await db.selectFrom("businesses")
-            .select("slug")
+            .selectAll()
             .where("status", "=", "published")
             .where("customDomainStatus", "=", "verified")
             .where(normalizedStoredHost, "=", host)
             .limit(1)
             .executeTakeFirst();
-          slug = business?.slug ?? null;
+          if (business && subscriptionPlan.resolve(business).source === "paid") slug = business.slug;
         }
       }
     }
