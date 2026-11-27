@@ -1,6 +1,13 @@
 @layer base {
   .textarea {
-    padding: var(--spacing-2);
+    padding: 0.75rem;
+    font: inherit;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--foreground);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     width: 100%;
     min-height: 6rem;
     resize: vertical;
