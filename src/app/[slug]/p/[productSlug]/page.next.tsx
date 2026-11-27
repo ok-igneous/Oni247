@@ -14,7 +14,7 @@ async function getPageData(params: Props["params"]) {
   if (!resolved.platformHost) notFound();
   const data = await getStorefrontData(slug);
   const product = data?.products.find((item) => item.slug === productSlug);
-  if (!data || !product || !data.business.canUseProductLinks) notFound();
+  if (!data || !product) notFound();
   const protocol = requestHeaders.get("x-forwarded-proto")?.split(",")[0]?.trim() || "https";
   const origin = host ? `${protocol}://${host}` : "https://www.oni247.org";
   const canonical = new URL(`/${encodeURIComponent(slug)}/p/${encodeURIComponent(productSlug)}`, origin).toString();
@@ -25,6 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { data, product, canonical } = await getPageData(params);
   const description = (product.description || `${product.name} from ${data.business.name}.`).slice(0, 200);
   const image = product.imageUrl || undefined;
+  if (!data.business.canUseProductLinks) return { title: "Product link unavailable", robots: { index: false, follow: true } };
   return {
     title: `${product.name} — ${data.business.name}`,
     description,
