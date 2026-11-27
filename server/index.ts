@@ -207,6 +207,19 @@ const renderCrawlerStorefront = createCrawlerStorefrontRenderer({
     const { db } = await import("../helpers/db");
     // Normalize the stored domain in PostgreSQL so we return only one matching
     // published business instead of loading every verified domain into Node.
+    const domainMatch = await sql<{ slug: string }>`
+      select b.slug
+        from business_domains d
+        join businesses b on b.id = d.business_id
+       where d.hostname = ${hostname}
+         and d.domain_type = 'customer_domain'
+         and d.status = 'active'
+         and d.ssl_status = 'active'
+         and b.status = 'published'
+       limit 1`.execute(db);
+    if (domainMatch.rows[0]?.slug) return domainMatch.rows[0].slug;
+
+    // Preserve compatibility with domains registered before the domain registry.
     const normalizedStoredHost = sql<string | null>`case
       when lower("custom_domain") like 'http://%' then null
       else lower(split_part(split_part(regexp_replace("custom_domain", '^https?://', '', 'i'), '/', 1), ':', 1))
