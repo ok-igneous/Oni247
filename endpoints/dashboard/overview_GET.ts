@@ -24,10 +24,12 @@ export async function handle(request: Request) {
     const platformRootDomain = new URL(configuredRoot.includes("://") ? configuredRoot : `https://${configuredRoot}`)
       .hostname.toLowerCase();
     const canUseCustomDomains = await hasPaidCustomDomainAccess(business.ownerId);
-    const primary = canUseCustomDomains ? await sql<{ hostname: string }>`select hostname from business_domains
-      where business_id = ${business.id} and is_primary = true
-        and status = 'active' and ssl_status = 'active'
-      limit 1`.execute(db);
+    const primary = canUseCustomDomains
+      ? await sql<{ hostname: string }>`select hostname from business_domains
+          where business_id = ${business.id} and is_primary = true
+            and status = 'active' and ssl_status = 'active'
+          limit 1`.execute(db)
+      : { rows: [] as Array<{ hostname: string }> };
 
     // A customer domain is optional. Without one, the canonical share URL is /{slug}.
     const output: OutputType = {
