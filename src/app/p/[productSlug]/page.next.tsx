@@ -16,7 +16,7 @@ async function getPageData(params: Props["params"]) {
   const product = data?.products.find((item) => item.slug === productSlug);
   if (!data || !product) notFound();
   const protocol = requestHeaders.get("x-forwarded-proto")?.split(",")[0]?.trim() || "https";
-  const origin = host ? `${protocol}://${host}` : "https://www.oni247.org";
+  const origin = host ? `${protocol}://${host}` : "https://oni247.org";
   const canonical = new URL(`/p/${encodeURIComponent(productSlug)}`, origin).toString();
   return { data, product, canonical, origin };
 }

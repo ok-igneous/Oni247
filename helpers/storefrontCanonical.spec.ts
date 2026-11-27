@@ -11,10 +11,15 @@ describe("getStorefrontBaseUrl", () => {
       .toBe("https://shop.example.com/");
   });
 
+  it("recognizes reserved platform roots without treating them as business slugs", () => {
+    expect(getStorefrontBaseUrl("nesmage", "https://shop.example.com", "/store"))
+      .toBe("https://shop.example.com/");
+  });
+
   it("uses the business slug on platform vanity URLs", () => {
-    expect(getStorefrontBaseUrl("nesmage", "https://oni247.com", "/nesmage"))
-      .toBe("https://oni247.com/nesmage/");
-    expect(getStorefrontBaseUrl("nesmage", "https://oni247.com", "/nesmage/products"))
-      .toBe("https://oni247.com/nesmage/");
+    expect(getStorefrontBaseUrl("nesmage", "https://oni247.org", "/nesmage"))
+      .toBe("https://oni247.org/nesmage/");
+    expect(getStorefrontBaseUrl("nesmage", "https://oni247.org", "/nesmage/products"))
+      .toBe("https://oni247.org/nesmage/");
   });
 });

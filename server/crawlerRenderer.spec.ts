@@ -11,7 +11,6 @@ async function makeApp(overrides: Partial<Parameters<typeof createCrawlerStorefr
   apps.push(app);
   const renderer = createCrawlerStorefrontRenderer({
     hasProductionBuild: true,
-    resolvePlatformSubdomain: async () => null,
     resolveCustomDomain: async () => null,
     loadSnapshot: async ({ slug, pathname, customDomain }) => ({
       title: `${slug} storefront`,
@@ -69,26 +68,6 @@ describe("production crawler renderer factory", () => {
     });
   });
 
-  it("resolves a published business subdomain at its root and nested storefront paths", async () => {
-    vi.stubEnv("PLATFORM_ROOT_DOMAIN", "oni247.example.com");
-    const loadSnapshot = vi.fn(async ({ slug, pathname, customDomain }: CrawlerSnapshotRequest) => ({
-      title: slug,
-      description: "Platform subdomain",
-      body: `<main>${slug}:${pathname}:${customDomain ? "root-domain" : "vanity"}</main>`,
-    }));
-    const resolvePlatformSubdomain = vi.fn(async (slug: string) => slug === "nesmage" ? "nesmage" : null);
-    const app = await makeApp({ resolvePlatformSubdomain, loadSnapshot });
-    const response = await app.inject({
-      method: "GET", url: "/products", headers: { host: "nesmage.oni247.example.com", "user-agent": "Googlebot" },
-    });
-    expect(response.statusCode).toBe(200);
-    expect(resolvePlatformSubdomain).toHaveBeenCalledWith("nesmage");
-    expect(response.body).toContain("<main>nesmage:/products:root-domain</main>");
-    expect(loadSnapshot).toHaveBeenCalledWith({
-      slug: "nesmage", pathname: "/products", origin: "http://nesmage.oni247.example.com", customDomain: true,
-    });
-  });
-
   it("does not treat nested or reserved platform hosts as business subdomains", async () => {
     vi.stubEnv("APP_BASE_URL", "https://oni247.example.com");
     const resolveCustomDomain = vi.fn(async () => null);
@@ -99,8 +78,7 @@ describe("production crawler renderer factory", () => {
     await app.inject({
       method: "GET", url: "/", headers: { host: "a.b.oni247.example.com", "user-agent": "Googlebot" },
     });
-    expect(resolveCustomDomain).toHaveBeenCalledTimes(1);
-    expect(resolveCustomDomain).toHaveBeenCalledWith("a.b.oni247.example.com");
+    expect(resolveCustomDomain).not.toHaveBeenCalled();
   });
 
   it("leaves ordinary visitors and reserved paths on the SPA fallback", async () => {

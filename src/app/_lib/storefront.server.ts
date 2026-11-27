@@ -4,23 +4,25 @@ import type { OutputType } from "../../../endpoints/storefront_GET.schema";
 import type { OutputType as PublicGalleryOutput } from "../../../endpoints/galleries/public_GET.schema";
 import type { OutputType as PublicEventOutput } from "../../../endpoints/events/public_GET.schema";
 import type { OutputType as PublicEventsOutput } from "../../../endpoints/events/publicList_GET.schema";
-import type { OutputType as ShowcaseOutput } from "../../../endpoints/showcase_GET.schema";
-import { isPlatformHostname, normalizeDomainHost } from "../../../server/storefrontPrerender";
+import { isPlatformHostname, isUnsupportedPlatformSubdomain, normalizeDomainHost } from "../../../server/storefrontPrerender";
 
 export type StorefrontHostResolution = { slug: string | null; customDomain: boolean; platformHost: boolean };
 const apiOrigin = () => (process.env.ONI247_API_INTERNAL_URL || "http://127.0.0.1:3001").replace(/\/+$/, "");
-const configuredPlatformRoot = () => process.env.PLATFORM_ROOT_DOMAIN || process.env.APP_BASE_URL || "https://www.oni247.org";
+const configuredPlatformRoot = () => process.env.PLATFORM_ROOT_DOMAIN || process.env.APP_BASE_URL || "https://oni247.org";
 
 export async function resolveStorefrontHost(hostHeader: string): Promise<StorefrontHostResolution> {
   const host = normalizeDomainHost(`https://${hostHeader}`);
   if (!host) return { slug: null, customDomain: false, platformHost: false };
   const root = configuredPlatformRoot();
   const renderHost = normalizeDomainHost(`https://${process.env.RENDER_EXTERNAL_HOSTNAME || "oni247-staging.onrender.com"}`);
-  const localHost = host === "localhost" || host === "127.0.0.1";
+  const localHost = host === "localhost" || host === "127.0.0.1" || host === "::1";
+  if (isUnsupportedPlatformSubdomain(host, root)) {
+    return { slug: null, customDomain: false, platformHost: false };
+  }
   if (isPlatformHostname(host, root) || localHost || (renderHost && host === renderHost)) return { slug: null, customDomain: false, platformHost: true };
 
   // Ask Fastify to resolve the host so the Next.js process does not open a second DB pool.
-  // This endpoint returns only the slug of a published business mapped to a verified host.
+  // This endpoint returns a slug only for a published business with a verified custom domain and active paid entitlement.
   const url = new URL("/_api/storefrontHost", apiOrigin());
   url.searchParams.set("host", host);
   const response = await fetch(url, { cache: "no-store", headers: { accept: "application/json" } });
@@ -49,14 +51,6 @@ export function storefrontMetadata(data: OutputType, canonicalUrl: string) {
     openGraph: { type: "website" as const, title, description, siteName: data.business.name, url: canonicalUrl, ...(image ? { images: [{ url: image }] } : {}) },
     twitter: { card: image ? "summary_large_image" as const : "summary" as const, title, description, ...(image ? { images: [image] } : {}) },
   };
-}
-
-export async function getShowcaseData(code: string): Promise<ShowcaseOutput | null> {
-  const url = new URL("/_api/showcase", apiOrigin());
-  url.searchParams.set("code", code.toUpperCase());
-  const response = await fetch(url, { cache: "no-store", headers: { accept: "application/json" } });
-  if (!response.ok) return null;
-  return superjson.parse<ShowcaseOutput>(await response.text());
 }
 
 export async function getPublicGalleryData(slug: string, gallerySlug: string): Promise<PublicGalleryOutput | null> {

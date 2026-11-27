@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { Helmet } from "react-helmet";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -280,6 +281,10 @@ export default function CheckoutNext({ slug, customDomain = false, returnRef }: 
   if (returnRef) {
     return (
       <div className={styles.page} style={theme.style as React.CSSProperties}>
+        <Helmet>
+          <title>{`Payment — ${business.name}`}</title>
+          <meta name="robots" content="noindex" />
+        </Helmet>
         {header}
         <OrderPaymentReturnNext slug={slug} orderRef={returnRef} home={home} />
       </div>
@@ -326,6 +331,9 @@ export default function CheckoutNext({ slug, customDomain = false, returnRef }: 
 
     return (
       <div className={styles.page} style={theme.style as React.CSSProperties}>
+        <Helmet>
+          <title>{`Order placed — ${business.name}`}</title>
+        </Helmet>
         {header}
         <main className={styles.confirm}>
           <div className={styles.confirmIcon}>
@@ -461,6 +469,10 @@ export default function CheckoutNext({ slug, customDomain = false, returnRef }: 
   // ---------- Checkout ----------
   return (
     <div className={styles.page} style={theme.style as React.CSSProperties}>
+      <Helmet>
+        <title>{`Checkout — ${business.name}`}</title>
+        <meta name="robots" content="noindex" />
+      </Helmet>
       {header}
       <main className={styles.main}>
         <Link href={home} className={styles.back}>
