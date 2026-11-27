@@ -47,10 +47,11 @@ const loadStorefrontPage = cache(async (requestUrl: string): Promise<NextStorefr
   const hostname = url.hostname.toLowerCase();
   const configuredRoot = process.env.PLATFORM_ROOT_DOMAIN || process.env.APP_BASE_URL || null;
   const normalizedRoot = normalizeDomainHost(configuredRoot);
+  // Fail closed on unknown hosts: only localhost, the configured platform
+  // apex/www host, or an explicitly verified custom domain may resolve a shop.
   const platformHost =
     isLocalHost(hostname) ||
-    !normalizedRoot ||
-    isPlatformHostname(hostname, configuredRoot);
+    (normalizedRoot !== null && isPlatformHostname(hostname, configuredRoot));
 
   let slug: string | null = null;
   let customDomain = false;
