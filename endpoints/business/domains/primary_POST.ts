@@ -2,6 +2,7 @@ import superjson from "superjson";
 import { sql } from "kysely";
 import { db } from "../../../helpers/db";
 import { getServerUserSession } from "../../../helpers/getServerUserSession";
+import { hasPaidCustomDomainAccess } from "../../../helpers/domainEntitlement";
 
 export async function handle(request: Request) {
   try {
@@ -18,6 +19,10 @@ export async function handle(request: Request) {
       return new Response(superjson.stringify({ success: true, primaryDomain: null }), {
         headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
       });
+    }
+
+    if (!(await hasPaidCustomDomainAccess(user.id))) {
+      return new Response(superjson.stringify({ error: "Custom domains are available on active paid plans only. Your Oni247 /slug address remains available." }), { status: 403 });
     }
 
     if (typeof body.domainId !== "string" || !body.domainId) {
