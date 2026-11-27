@@ -15,7 +15,10 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "audit:standalone": "node scripts/audit-standalone.mjs",
-    "db:migrate": "node scripts/migrate.mjs"
+    "db:migrate": "node scripts/migrate.mjs",
+    "dev:next": "next dev --hostname 0.0.0.0 --port 3000",
+    "build:next": "next build",
+    "start:next": "next start --hostname 0.0.0.0 --port 3000"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.850.0",
@@ -67,7 +70,8 @@
     "superjson": "^2.2.2",
     "zod": "^3.25.76",
     "dotenv": "^16.6.1",
-    "tsx": "^4.20.3"
+    "tsx": "^4.20.3",
+    "next": "^16.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.15.30",
