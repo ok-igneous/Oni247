@@ -83,6 +83,32 @@ export default function DashboardDomainsPage() {
     } finally { setCheckingId(null); }
   };
 
+  const setPrimary = async (domainId: string) => {
+    try {
+      await api<{ success: boolean }>("/_api/business/domains/primary", {
+        method: "POST", body: JSON.stringify({ domainId }),
+      });
+      toast.success("Primary domain updated.");
+      await load();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not set primary domain.");
+    }
+  };
+
+  const removeDomain = async (domain: Domain) => {
+    if (!window.confirm(`Remove ${domain.hostname} from your business page? This also removes its Render custom-domain configuration.`)) return;
+    try {
+      await api<{ success: boolean }>("/_api/business/domains", {
+        method: "DELETE", body: JSON.stringify({ domainId: domain.id }),
+      });
+      toast.success("Domain removed.");
+      if (instructions?.domain.hostname === domain.hostname) setInstructions(null);
+      await load();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not remove domain.");
+    }
+  };
+
   const copy = async (value: string) => {
     try { await navigator.clipboard.writeText(value); toast.success("Copied."); }
     catch { toast.error("Could not copy. Select and copy the value manually."); }
@@ -131,6 +157,8 @@ export default function DashboardDomainsPage() {
           {domain.status === "verified" && <p className={styles.warning}>Ownership verified. Render DNS verification or HTTPS certificate provisioning may still be in progress. Check again after a few minutes.</p>}
           {domain.status === "active" && <p className={styles.warning}>Your domain is connected and HTTPS is verified.</p>}
           {domain.status === "failed" && <p className={styles.warning}>Domain setup failed. Contact support with this hostname.</p>}
+          {domain.status === "active" && !domain.is_primary && <Button size="sm" variant="outline" onClick={() => void setPrimary(domain.id)}>Set as primary</Button>}
+          <Button size="sm" variant="ghost" onClick={() => void removeDomain(domain)}>Remove</Button>
         </article>)}
       </div>}
     </section>
