@@ -15,6 +15,10 @@ export type CrawlerRendererDependencies = {
   readIndexHtml(): Promise<string>;
 };
 
+function isLocalHost(hostname: string) {
+  return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1" || hostname === "[::1]";
+}
+
 function unavailable(reply: any) {
   reply.header("Cache-Control", "no-store");
   reply.header("Retry-After", "30");
@@ -42,19 +46,17 @@ export function createCrawlerStorefrontRenderer(deps: CrawlerRendererDependencie
       let customDomain = false;
       let slug = "";
 
-      if (!isPlatformHostname(url.hostname, configuredPlatformHost)) {
-        const requestHost = normalizeDomainHost(`https://${url.hostname}`);
-        if (requestHost) {
-          const matchedSlug = await deps.resolveCustomDomain(requestHost);
-          if (matchedSlug) {
-            if (!isPublicCustomDomainPath(url.pathname)) return;
-            customDomain = true;
-            slug = matchedSlug;
-          }
-        }
-      }
+      const platformHost = isLocalHost(url.hostname) ||
+        (configuredPlatformHost !== null && isPlatformHostname(url.hostname, configuredPlatformHost));
 
-      if (!customDomain) {
+      if (!platformHost) {
+        const requestHost = normalizeDomainHost(`https://${url.hostname}`);
+        if (!requestHost) return;
+        const matchedSlug = await deps.resolveCustomDomain(requestHost);
+        if (!matchedSlug || !isPublicCustomDomainPath(url.pathname)) return;
+        customDomain = true;
+        slug = matchedSlug;
+      } else {
         if (!isPublicStorefrontPath(url.pathname)) return;
         slug = decodeURIComponent(parts[0]);
       }
