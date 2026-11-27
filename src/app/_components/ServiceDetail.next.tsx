@@ -24,7 +24,7 @@ export default function ServiceDetailNext({ data, serviceId, customDomain }: Pro
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [sendError, setSendError] = useState("");
-  const path = (suffix: string) => customDomain ? suffix : `/${encodeURIComponent(business.slug)}${suffix}`;
+  const path = (suffix: string) => customDomain ? (suffix || "/") : `/${encodeURIComponent(business.slug)}${suffix}`;
   const appearance = business.appearanceSettings ?? {};
   const homePage = typeof appearance.homePage === "string" ? appearance.homePage : "home";
   const home = homePage === "home" ? path("") : path(`/${homePage}`);
