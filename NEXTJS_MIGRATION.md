@@ -28,9 +28,10 @@ Next.js will own page routing, layouts, server rendering and public storefront r
    - Inventory crawler rendering, metadata, sitemap, robots, custom domains and slug routing.
    - Inventory authentication, email, payment callbacks, uploads and all environment variables.
 2. **Next.js foundation**
+   - Pin a current supported Next.js 16 stable patch (not canary); use the existing Node.js 22 runtime only after verifying compatibility.
    - Add the Next.js App Router in the migration branch.
    - Configure strict TypeScript, linting, tests, environment validation and production build scripts.
-   - Keep the current Vite application runnable during the transition; do not delete it until route parity is proven.
+   - Next.js must be the only web development server, build system and production web runtime in the completed migration. Vite is not an approved transitional or target runtime. Replace its entry point and route discovery with Next.js before declaring the foundation complete.
 3. **Route and component migration**
    - Migrate shared layouts and public routes in small, testable groups.
    - Migrate dashboard/admin routes without changing business behavior.
@@ -61,6 +62,7 @@ Next.js will own page routing, layouts, server rendering and public storefront r
 ## Non-negotiable constraints
 
 - No Cloudflare services, configuration, deployment targets or provider-specific dependencies.
+- No Vite runtime, Vite scripts, Vite plugins or Vite build dependency in the completed Next.js branch.
 - No blind rewrite and no deletion of existing features to make the migration easier.
 - No production data migration without verified backups, schema comparison, row counts and rollback.
 - No production cutover before end-to-end acceptance and explicit approval.
