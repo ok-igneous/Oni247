@@ -130,5 +130,5 @@ The new runtime is a first implementation, not a completed migration. Keep previ
 - Removed `legacy-pages/store.$slug.tsx` from the generated React Router route registry. The file remains only as the shared storefront implementation imported by `legacy-pages/$slug.tsx`; it is no longer registered as a route.
 - Removed platform business-subdomain resolution from the Next.js storefront resolver and host-resolution endpoint. Verified paid custom domains remain supported at their own domain root.
 - Set the example canonical host to `https://oni247.org` and `PLATFORM_ROOT_DOMAIN=oni247.org`.
-- Added regression assertions that reject `/store` and `/store/{slug}`; changed platform vanity URL tests to `.org`.
+- Added regression assertions that reject `/store` and `/store/{slug}`, verify `oni247.org/{slug}`, reject unverified hosts and exclude the old route from the generated registry. Tests are committed but have not been executed.
 - Dependency installation, typecheck, Vitest, Next.js build and HTTP/browser tests remain outstanding.
