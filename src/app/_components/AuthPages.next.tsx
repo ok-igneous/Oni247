@@ -43,7 +43,7 @@ function LoginFormNext() {
     try {
       const result = await postLogin(data);
       onLogin(result.user);
-      router.replace("/");
+      router.replace("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed. Please try again.");
     } finally {
