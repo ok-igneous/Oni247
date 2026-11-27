@@ -32,7 +32,9 @@ export async function handle(request: Request) {
     const configuredRoot = process.env.PLATFORM_ROOT_DOMAIN || "oni247.org";
     const rootHost = new URL(configuredRoot.includes("://") ? configuredRoot : `https://${configuredRoot}`).hostname.toLowerCase();
     const wildcardReady = process.env.PLATFORM_WILDCARD_READY?.trim().toLowerCase() === "true";
-    const hasCustomPrimary = rows.rows.some((domain) => domain.is_primary);
+    const hasCustomPrimary = rows.rows.some((domain) =>
+      domain.is_primary && domain.status === "active" && domain.ssl_status === "active",
+    );
     const platformDomain = {
       id: "platform",
       hostname: `${business.slug}.${rootHost}`,
