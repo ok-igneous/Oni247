@@ -2,17 +2,19 @@
 
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
-import { GlobalContextProviders } from "../components/_globalContextProviders";
+import { ScrollToHashElement } from "../components/ScrollToHashElement";
+import { PageViewTracker } from "../components/PageViewTracker";
 import { App } from "./App";
 
+/** React Router is isolated to this compatibility boundary; Next owns shared providers. */
 export default function LegacyAppRuntime() {
   return (
     <div id="root">
       <React.StrictMode>
         <BrowserRouter>
-          <GlobalContextProviders>
-            <App />
-          </GlobalContextProviders>
+          <ScrollToHashElement />
+          <PageViewTracker />
+          <App />
         </BrowserRouter>
       </React.StrictMode>
     </div>
