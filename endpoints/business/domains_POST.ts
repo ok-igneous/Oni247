@@ -5,6 +5,23 @@ import { sql } from "kysely";
 import { db } from "../../helpers/db";
 import { getServerUserSession } from "../../helpers/getServerUserSession";
 
+const MULTI_LABEL_PUBLIC_SUFFIXES = new Set([
+  "com.ng", "org.ng", "net.ng", "gov.ng", "edu.ng",
+  "co.uk", "org.uk", "ac.uk", "gov.uk",
+  "com.au", "net.au", "org.au", "edu.au",
+  "co.nz", "org.nz", "co.za", "org.za",
+  "com.br", "com.mx", "co.in", "firm.in", "net.in", "org.in",
+  "com.sg", "com.my", "com.ph", "com.hk", "com.tw", "com.cn",
+]);
+
+const isApexOrWwwHostname = (hostname: string): boolean => {
+  const domain = hostname.startsWith("www.") ? hostname.slice(4) : hostname;
+  const labels = domain.split(".");
+  const suffix = labels.slice(-2).join(".");
+  const expectedLabels = MULTI_LABEL_PUBLIC_SUFFIXES.has(suffix) ? 3 : 2;
+  return labels.length === expectedLabels;
+};
+
 const normalizeHostname = (value: unknown): string | null => {
   if (typeof value !== "string") return null;
   const input = value.trim().toLowerCase();
@@ -21,7 +38,11 @@ export async function handle(request: Request) {
     const { user } = await getServerUserSession(request);
     const body = await request.json() as { hostname?: unknown };
     const hostname = normalizeHostname(body.hostname);
-    if (!hostname || isIP(hostname)) return new Response(superjson.stringify({ error: "Enter a valid domain name without http:// or https://. IP addresses are not supported." }), { status: 400 });
+    if (!hostname || isIP(hostname) || !isApexOrWwwHostname(hostname)) {
+      return new Response(superjson.stringify({
+        error: "Enter a root domain (example.com or example.com.ng) or its www hostname. Other nested subdomains are not supported yet.",
+      }), { status: 400 });
+    }
 
     const platformRoot = (process.env.PLATFORM_ROOT_DOMAIN || process.env.APP_BASE_URL || "oni247.org")
       .replace(/^https?:\/\//i, "").split("/")[0].toLowerCase();
