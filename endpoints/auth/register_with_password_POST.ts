@@ -63,6 +63,7 @@ export async function handle(request: Request) {
       return user;
     });
 
+    const publicAppUrl = process.env.PUBLIC_APP_URL || new URL(request.url).origin;
     const rawVerificationToken = randomBytes(32).toString("base64url");
     await db.insertInto("authTokens").values({
       id: randomBytes(16).toString("hex"),
@@ -78,7 +79,7 @@ export async function handle(request: Request) {
         title: "Verify your email",
         body: "Hi " + displayName + ", confirm your email address to finish setting up your Oni247 account.",
         actionLabel: "Verify email",
-        actionUrl: "https://oni247.floot.app/verify-email?token=" + encodeURIComponent(rawVerificationToken),
+        actionUrl: publicAppUrl + "/verify-email?token=" + encodeURIComponent(rawVerificationToken),
       });
     } catch (emailError) {
       console.error("Initial verification email failed:", emailError);
