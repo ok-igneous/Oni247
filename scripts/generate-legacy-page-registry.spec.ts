@@ -39,6 +39,11 @@ describe("Next.js legacy route registry", () => {
     expect(registry).toContain("../pages/$slug.tsx");
     expect(registry).toContain("../pages/$slug.p.$productSlug.tsx");
     expect(registry).not.toContain("../pages/StorefrontPage.tsx");
+    const rootSlugs = await readFile(path.join(fixture, "src/generated/legacyRootPageSlugs.ts"), "utf8");
+    expect(rootSlugs).toContain('"dashboard"');
+    expect(rootSlugs).not.toContain('"$slug"');
+    expect(rootSlugs).not.toContain('"StorefrontPage"');
+    expect(rootSlugs).not.toContain('"store.$slug"');
     expect(registry).toContain("../pages/dashboard.tsx");
     expect(registry).not.toContain("../pages/store.$slug.tsx");
     expect(registry).not.toContain("../pages/store.$slug.p.$productSlug.tsx");
