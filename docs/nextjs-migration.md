@@ -7,7 +7,7 @@ Make Next.js App Router the only web runtime while retaining Fastify and the exi
 ## Non-negotiable routing contract
 
 - Platform storefronts use `https://oni247.org/{slug}`, e.g. `https://oni247.org/nesmage`.
-- `/store/{slug}` is not a route and returns a real 404.
+- `/store/{slug}` is not a route and returns a real 404. Unknown root-level slugs also return 404 unless they match a known legacy static page.
 - Business subdomains under `oni247.org` are not supported.
 - A custom domain serves a storefront at its own root only when its ownership is verified and the business has an active paid subscription. A trial or expired subscription does not qualify.
 
