@@ -1,12 +1,10 @@
 import "server-only";
 import superjson from "superjson";
-import { sql } from "kysely";
-import { db } from "../../../helpers/db";
-import { handle as storefrontEndpoint } from "../../../endpoints/storefront_GET";
 import type { OutputType } from "../../../endpoints/storefront_GET.schema";
 import { isPlatformHostname, normalizeDomainHost, resolvePlatformSubdomainSlug } from "../../../server/storefrontPrerender";
 
 export type StorefrontHostResolution = { slug: string | null; customDomain: boolean; platformHost: boolean };
+const apiOrigin = () => (process.env.ONI247_API_INTERNAL_URL || "http://127.0.0.1:3001").replace(/\/+$/, "");
 const configuredPlatformRoot = () => process.env.PLATFORM_ROOT_DOMAIN || process.env.APP_BASE_URL || "https://www.oni247.org";
 
 export async function resolveStorefrontHost(hostHeader: string): Promise<StorefrontHostResolution> {
@@ -14,23 +12,25 @@ export async function resolveStorefrontHost(hostHeader: string): Promise<Storefr
   if (!host) return { slug: null, customDomain: false, platformHost: false };
   const root = configuredPlatformRoot();
   const renderHost = normalizeDomainHost(`https://${process.env.RENDER_EXTERNAL_HOSTNAME || "oni247-staging.onrender.com"}`);
-  if (isPlatformHostname(host, root) || host === "localhost" || host === "127.0.0.1" || (renderHost && host === renderHost)) return { slug: null, customDomain: false, platformHost: true };
-  const subdomainSlug = resolvePlatformSubdomainSlug(host, root);
-  if (subdomainSlug) {
-    const business = await db.selectFrom("businesses").select("slug").where("slug", "=", subdomainSlug).where("status", "=", "published").limit(1).executeTakeFirst();
-    return { slug: business?.slug ?? null, customDomain: true, platformHost: false };
-  }
-  const normalizedStoredHost = sql<string | null>`case
-    when lower("custom_domain") like 'http://%' then null
-    else lower(split_part(split_part(regexp_replace("custom_domain", '^https?://', '', 'i'), '/', 1), ':', 1))
-  end`;
-  const business = await db.selectFrom("businesses").select("slug").where("status", "=", "published").where("customDomainStatus", "=", "verified").where(normalizedStoredHost, "=", host).limit(1).executeTakeFirst();
-  return { slug: business?.slug ?? null, customDomain: Boolean(business), platformHost: false };
+  const localHost = host === "localhost" || host === "127.0.0.1";
+  if (isPlatformHostname(host, root) || localHost || (renderHost && host === renderHost)) return { slug: null, customDomain: false, platformHost: true };
+
+  // Ask Fastify to resolve the host so the Next.js process does not open a second DB pool.
+  // This endpoint returns only the slug of a published business mapped to a verified host.
+  const url = new URL("/_api/storefrontHost", apiOrigin());
+  url.searchParams.set("host", host);
+  const response = await fetch(url, { cache: "no-store", headers: { accept: "application/json" } });
+  if (!response.ok) return { slug: null, customDomain: false, platformHost: false };
+  const result = await response.json() as { slug?: unknown };
+  const slug = typeof result.slug === "string" && result.slug.length > 0 ? result.slug : null;
+  const platformSubdomain = Boolean(resolvePlatformSubdomainSlug(host, root));
+  return { slug, customDomain: Boolean(slug) && !isPlatformHostname(host, root), platformHost: false || platformSubdomain && false };
 }
 
 export async function getStorefrontData(slug: string): Promise<OutputType | null> {
-  const request = new Request(`http://oni247.internal/_api/storefront?slug=${encodeURIComponent(slug)}`);
-  const response = await storefrontEndpoint(request);
+  const url = new URL("/_api/storefront", apiOrigin());
+  url.searchParams.set("slug", slug);
+  const response = await fetch(url, { cache: "no-store", headers: { accept: "application/json" } });
   if (!response.ok) return null;
   return superjson.parse<OutputType>(await response.text());
 }
