@@ -71,7 +71,7 @@ const safeContentLink = (value: string): string | null => {
   }
 };
 
-export default function StorefrontPageNext({ slug, initialData, customDomain }: { slug: string; initialData: StorefrontOutput; customDomain: boolean }) {
+export default function StorefrontPageNext({ slug, initialData, customDomain, origin }: { slug: string; initialData: StorefrontOutput; customDomain: boolean; origin: string }) {
   const router = useRouter();
   const { data, isFetching, error } = useStorefront(slug, initialData);
   const storefrontPath = (businessSlug: string, path = "/") => {
@@ -337,7 +337,7 @@ export default function StorefrontPageNext({ slug, initialData, customDomain }: 
         "@context": "https://schema.org",
         "@type": "LocalBusiness",
         name: business.name,
-        url: typeof window !== "undefined" ? window.location.origin + storefrontPath(business.slug) : storefrontPath(business.slug),
+        url: `${origin}${storefrontPath(business.slug)}`,
         description: (typeof appearance.seoDescription === "string" && appearance.seoDescription) || shareDescription,
         ...(business.phone ? { telephone: business.phone } : {}),
         ...(business.email ? { email: business.email } : {}),
