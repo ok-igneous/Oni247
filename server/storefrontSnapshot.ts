@@ -7,7 +7,12 @@ export function storefrontSnapshot(data: any, pathname: string, origin: string, 
   const pathSegments = pathname.split("/").filter(Boolean);
   const segments = customDomain ? pathSegments : pathSegments.slice(1);
   const [kind, contentSlug] = segments;
-  const links = (data.products ?? []).filter((item: any) => item.available).map((item: any) =>
+  const links = (data.products ?? []).filter((item: any) => item.available).map((item: any) => {
+    const name = business.canUseProductLinks
+      ? `<a href="${base}/p/${encodeURIComponent(item.slug)}">${escapeHtml(item.name)}</a>`
+      : `<strong>${escapeHtml(item.name)}</strong>`;
+    return `<li>${name}${item.description ? `<p>${escapeHtml(item.description)}</p>` : ""}</li>`;
+  }).join("");
     `<li><a href="${base}/p/${encodeURIComponent(item.slug)}">${escapeHtml(item.name)}</a>${item.description ? `<p>${escapeHtml(item.description)}</p>` : ""}</li>`).join("");
   const intro = business.description ? `<p>${escapeHtml(business.description)}</p>` : "";
   const image = business.heroImageUrl || business.logoUrl;
