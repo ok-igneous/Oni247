@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "../../../components/Button";
 import { Input } from "../../../components/Input";
@@ -17,12 +16,10 @@ import { useStorefront } from "../../../helpers/useStorefront";
 import { storeThemeEngine } from "../../../helpers/storeThemeEngine";
 import { getPublicGalleries } from "../../../endpoints/galleries/publicList_GET.schema";
 import { postStorefrontEnquiry } from "../../../endpoints/storefront/enquiry_POST.schema";
-import { parseBlogSettings } from "../../../helpers/parseBlogSettings";
 import type { OutputType as StorefrontOutput, StorefrontProduct } from "../../../endpoints/storefront_GET.schema";
 import styles from "../../../pages/store.$slug.$page.module.css";
 
 const pages = ["products", "services", "about", "gallery", "blog", "events", "contact"] as const;
-type Section = typeof pages[number];
 
 export default function StoreSectionPageNext({ slug, page, initialData }: { slug: string; page: string; initialData: StorefrontOutput }) {
   const router = useRouter();
