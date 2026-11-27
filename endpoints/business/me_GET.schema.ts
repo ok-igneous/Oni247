@@ -4,6 +4,7 @@ import type { Businesses } from "../../helpers/schema";
 
 export type OutputType = {
   business: Selectable<Businesses> | null;
+  platformRootDomain: string;
 };
 
 export const getMyBusiness = async (init?: RequestInit): Promise<OutputType> => {
