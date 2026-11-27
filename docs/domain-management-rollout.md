@@ -4,7 +4,10 @@
 
 - Every published business keeps its default Oni247 URL: `https://oni247.org/{business-slug}`.
 - Customer-owned domains are optional. Connecting one does not remove or disable the Oni247 `/slug` URL.
-- A business owner can choose an active, HTTPS-ready customer domain as the preferred sharing domain, or switch back to the Oni247 `/slug` URL at any time.
+- Only an active paid subscription may register, verify, select, or serve a customer-owned domain. Free accounts, trial-only accounts, and expired subscriptions use the Oni247 `/slug` URL.
+- The paid-plan entitlement is checked server-side on domain registration, verification, and primary-domain selection; hiding dashboard controls is not the security boundary.
+- When paid access expires, dashboard sharing and both human and crawler storefront host resolution stop using the customer domain. The Oni247 `/slug` URL remains available. Domain removal remains available for cleanup.
+- A paid business owner can choose an active, HTTPS-ready customer domain as the preferred sharing domain, or switch back to the Oni247 `/slug` URL at any time.
 - No wildcard DNS, business subdomains, or per-business Render configuration is required.
 - The domain registry stores ownership verification, Render resource IDs, TLS state, and hostname-to-business mapping.
 - Existing verified legacy custom domains are backfilled without deleting the legacy business columns.
@@ -45,8 +48,9 @@ Render includes a limited number of custom domains per workspace. Additional dom
 
 1. Configure the four server environment variables above; keep the Render API key private.
 2. Apply migrations `003_business_domains.sql` and `004_render_domain_provisioning.sql` to the Oni247 Neon database using the existing migration runner.
-3. Test a customer-owned domain on a non-critical business: TXT ownership challenge, Render registration, routing DNS, Render verification, TLS readiness, primary selection, switching back to `/slug`, and removal.
-4. Run `npm run typecheck`, `npm test`, `npm run build`, and `npm run audit:standalone` before merging.
-5. Keep the default `/slug` route available regardless of custom-domain state.
+3. Test a customer-owned domain on a non-critical business: confirm Free and trial-only accounts are denied; confirm an active paid One-Page or Premium Plus account can register; exercise the TXT ownership challenge, Render registration, routing DNS, Render verification, TLS readiness, primary selection, switching back to `/slug`, and removal.
+4. Test paid-subscription expiry: confirm the custom domain stops resolving for both browser and crawler requests, sharing URLs fall back to `/slug`, and the `/slug` storefront remains available. Confirm renewal restores eligibility without deleting the saved domain record.
+5. Run `npm run typecheck`, `npm test`, `npm run build`, and `npm run audit:standalone` before merging.
+6. Keep the default `/slug` route available regardless of custom-domain state.
 
 No production DNS, Render settings, Neon data, or deployment is changed by this branch.
