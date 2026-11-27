@@ -31,6 +31,7 @@ const getLegacyKey = async () => {
   if (secret.length < 16) throw new Error("Email settings storage is not set up yet.");
   const hash = await crypto.subtle.digest("SHA-256", encoder.encode(secret));
   return crypto.subtle.importKey("raw", hash, "AES-GCM", false, ["decrypt"]);
+};
 
 export const encryptSecret = async (plain: string): Promise<string> => {
   const iv = crypto.getRandomValues(new Uint8Array(12));
