@@ -23,11 +23,13 @@ const loopbackHost = apiHost === "127.0.0.1" || apiHost === "localhost" || apiHo
 const trustProxySetting = process.env.TRUST_PROXY?.trim().toLowerCase();
 const trustProxy = trustProxySetting === "true"
   ? true
-  : trustProxySetting && /^\d+$/.test(trustProxySetting)
-    ? (_address: string, hop: number) => hop < Number(trustProxySetting)
-    : loopbackHost
-      ? (_address: string, hop: number) => hop < 1
-      : false;
+  : trustProxySetting === "false"
+    ? false
+    : trustProxySetting && /^\d+$/.test(trustProxySetting)
+      ? (_address: string, hop: number) => hop < Number(trustProxySetting)
+      : loopbackHost
+        ? (_address: string, hop: number) => hop < 1
+        : false;
 
 const app = Fastify({ logger: true, bodyLimit: 60 * 1024 * 1024, trustProxy });
 
