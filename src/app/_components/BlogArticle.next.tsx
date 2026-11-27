@@ -5,7 +5,6 @@ import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { EngagementSection } from "../../../components/EngagementSection";
 import { storeThemeEngine } from "../../../helpers/storeThemeEngine";
-import { sanitizeBlogContent } from "../../../helpers/sanitizeBlogContent";
 import type { OutputType } from "../../../endpoints/storefront_GET.schema";
 import { StorefrontHeaderNext } from "./StorefrontHeader.next";
 import styles from "../../../pages/store.$slug.b.$blogSlug.module.css";
@@ -15,9 +14,10 @@ type Props = {
   blogSlug: string;
   customDomain: boolean;
   origin: string;
+  safeContent: string;
 };
 
-export default function BlogArticleNext({ data, blogSlug, customDomain, origin }: Props) {
+export default function BlogArticleNext({ data, blogSlug, customDomain, origin, safeContent }: Props) {
   const business = data.business;
   const post = data.blogPosts.find((item) => item.slug === blogSlug);
   const path = customDomain
@@ -61,7 +61,6 @@ export default function BlogArticleNext({ data, blogSlug, customDomain, origin }
       );
     }
   };
-  const safeContent = sanitizeBlogContent(post.content);
   const plainText = safeContent.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ");
   const readingMinutes = Math.max(1, Math.ceil(plainText.trim().split(/\s+/).filter(Boolean).length / 200));
   const description = (post.excerpt || post.title).slice(0, 200);
