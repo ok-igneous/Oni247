@@ -116,7 +116,7 @@ The new runtime is a first implementation, not a completed migration. Keep previ
 
 ## Native Next.js storefront SSR milestone (2026-11-27)
 
-- Added a server-side storefront resolver on the `nextjs-migration` branch. It resolves platform vanity URLs, configured business subdomains, and exact verified custom-domain hosts against published business records.
+- Added a server-side storefront resolver on the `nextjs-migration` branch. It resolves platform vanity URLs at /{slug} on oni247.org and exact verified custom-domain hosts against published business records.
 - The Next.js catch-all route now calls the existing public storefront and gallery endpoint handlers directly on the server, then uses the existing crawler snapshot renderer to produce meaningful HTML before the browser hydrates.
 - Added request-specific title, description, canonical URL, Open Graph/Twitter metadata, and JSON-LD output. Existing business SEO title, description and share-image settings take precedence when present.
 - Public product, blog article, event, multi-page content and gallery URLs use the existing snapshot renderer. Missing public content is mapped to a real Next.js 404; database and upstream failures are not intentionally converted into 404s.
