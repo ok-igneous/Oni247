@@ -26,7 +26,7 @@ export async function handle(request: Request) {
       const platform = normalizeDomainHost(configuredRoot);
       const platformRoot = platform?.replace(/^www\./, "") ?? null;
       if (host && host !== platformRoot && host !== (platformRoot ? `www.${platformRoot}` : null)) {
-        const domainMatch = await sql<{ business_id: number; slug: string }>`
+        const domainMatch = await sql<{ business_id: string; slug: string }>`
           select b.id as business_id, b.slug
             from business_domains d
             join businesses b on b.id = d.business_id
