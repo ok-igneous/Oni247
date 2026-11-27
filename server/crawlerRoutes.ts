@@ -1,8 +1,8 @@
-import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import type { FastifyInstance } from "fastify";
 
 export type CrawlerStorefrontRenderer = (
-  request: FastifyRequest,
-  reply: FastifyReply,
+  request: any,
+  reply: any,
 ) => Promise<unknown> | unknown;
 
 /**
@@ -11,10 +11,10 @@ export type CrawlerStorefrontRenderer = (
  * returning undefined leaves normal SPA handling to Fastify's not-found hook.
  */
 export function registerCrawlerStorefrontRoutes(
-  app: FastifyInstance,
+  app: FastifyInstance<any, any, any, any, any>,
   render: CrawlerStorefrontRenderer,
 ): void {
-  const handler = async (request: FastifyRequest, reply: FastifyReply) => {
+  const handler = async (request: any, reply: any) => {
     // The same URL intentionally serves crawler HTML or the normal SPA shell.
     // Shared caches must not reuse one representation for the other user agent.
     reply.header("Vary", "User-Agent");
