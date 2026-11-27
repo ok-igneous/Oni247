@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS business_domains (
   id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
   business_id TEXT NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
   hostname TEXT NOT NULL,
-  domain_type TEXT NOT NULL CHECK (domain_type IN ('platform_subdomain','customer_domain')),
+  domain_type TEXT NOT NULL CHECK (domain_type = 'customer_domain'),
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','verified','active','failed','disabled')),
   verification_token TEXT,
   verified_at TIMESTAMPTZ,
