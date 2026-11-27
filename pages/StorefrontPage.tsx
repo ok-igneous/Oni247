@@ -57,7 +57,7 @@ import { StorefrontHeader } from "../components/StorefrontHeader";
 import { StorefrontHero } from "../components/StorefrontHero";
 import { StoreServiceCard } from "../components/StoreServiceCard";
 import type { StorefrontProduct } from "../endpoints/storefront_GET.schema";
-import styles from "./store.$slug.module.css";
+import styles from "./StorefrontPage.module.css";
 import { shareLink } from "../endpoints/share/page_GET.schema";
 import { getStorefrontBaseUrl } from "../helpers/storefrontCanonical";
 

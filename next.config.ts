@@ -1,27 +1,31 @@
 import type { NextConfig } from "next";
 
-const apiOrigin = (process.env.ONI247_API_INTERNAL_URL ?? "http://127.0.0.1:3001").replace(/\/+$/, "");
-const renderHost = (process.env.RENDER_EXTERNAL_HOSTNAME ?? "oni247-staging.onrender.com").replace(/\./g, "\\.");
-const customHostPattern = `^(?!www\\.oni247\\.org$)(?!oni247\\.org$)(?!localhost(?::\\d+)?$)(?!127\\.0\\.0\\.1(?::\\d+)?$)(?!${renderHost}$).+$`;
-const legacyStorefrontSections = "(products|services|about|gallery|blog|events|contact|checkout|f)";
-
 const nextConfig: NextConfig = {
+  // The existing root pages/ directory is legacy React Router code, not the
+  // Next.js Pages Router. Native Next routes use the explicit .next.tsx suffix.
   pageExtensions: ["next.tsx", "next.ts", "next.jsx", "next.js"],
   poweredByHeader: false,
   reactStrictMode: true,
+  async headers() {
+    const securityHeaders = [
+      { key: "X-Content-Type-Options", value: "nosniff" },
+      { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+      { key: "X-Frame-Options", value: "SAMEORIGIN" },
+    ];
+    if (process.env.NODE_ENV === "production") {
+      securityHeaders.push({
+        key: "Strict-Transport-Security",
+        value: "max-age=31536000; includeSubDomains",
+      });
+    }
+    return [{ source: "/:path*", headers: securityHeaders }];
+  },
   async rewrites() {
     return {
-      // Keep only unmigrated storefront sections on the legacy Fastify/React app.
-      beforeFiles: [
-        { source: `/:section${legacyStorefrontSections}`, has: [{ type: "host", value: customHostPattern }], destination: `${apiOrigin}/:section` },
-        { source: `/:section${legacyStorefrontSections}/:path*`, has: [{ type: "host", value: customHostPattern }], destination: `${apiOrigin}/:section/:path*` },
-      ],
-      afterFiles: [
-        { source: "/_api/:path*", destination: `${apiOrigin}/_api/:path*` },
-        { source: "/sitemap.xml", destination: `${apiOrigin}/sitemap.xml` },
-        { source: "/robots.txt", destination: `${apiOrigin}/robots.txt` },
-      ],
-      fallback: [{ source: "/:path*", destination: `${apiOrigin}/:path*` }],
+      // Next.js owns public pages and API proxy handlers. Only unmatched
+      // legacy dashboard/editor routes are internally rewritten to the
+      // compatibility boundary; they are never sent to a Vite/Fastify SPA.
+      fallback: [{ source: "/:path*", destination: "/legacy/:path*" }],
     };
   },
 };

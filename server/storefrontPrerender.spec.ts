@@ -6,7 +6,7 @@ import {
   isPublicStorefrontPath,
   isPublicCustomDomainPath,
   normalizeDomainHost,
-  resolvePlatformSubdomainSlug,
+  isUnsupportedPlatformSubdomain,
 } from "./storefrontPrerender";
 
 describe("crawler storefront helpers", () => {
@@ -38,6 +38,8 @@ describe("crawler storefront helpers", () => {
   it("rejects private, static, API and unsupported paths", () => {
     for (const path of [
       "/dashboard",
+      "/store",
+      "/store/nesmage",
       "/admin/businesses",
       "/login",
       "/_api/storefront",
@@ -71,15 +73,12 @@ describe("crawler storefront helpers", () => {
     expect(normalizeDomainHost("not a domain")).toBeNull();
   });
 
-  it("resolves only a single business subdomain under the configured platform root", () => {
-    expect(resolvePlatformSubdomainSlug("nesmage.oni247.com", "https://oni247.com")).toBe("nesmage");
-    expect(resolvePlatformSubdomainSlug("nesmage.oni247.com", "https://www.oni247.com")).toBe("nesmage");
-    expect(resolvePlatformSubdomainSlug("NESMAGE.ONI247.COM", "oni247.com")).toBe("nesmage");
-    expect(resolvePlatformSubdomainSlug("oni247.com", "oni247.com")).toBeNull();
-    expect(resolvePlatformSubdomainSlug("www.oni247.com", "oni247.com")).toBeNull();
-    expect(resolvePlatformSubdomainSlug("a.b.oni247.com", "oni247.com")).toBeNull();
-    expect(resolvePlatformSubdomainSlug("admin.oni247.com", "oni247.com")).toBeNull();
-    expect(resolvePlatformSubdomainSlug("other.com", "oni247.com")).toBeNull();
+  it("rejects business subdomains under the platform root", () => {
+    expect(isUnsupportedPlatformSubdomain("shop.oni247.org", "https://oni247.org")).toBe(true);
+    expect(isUnsupportedPlatformSubdomain("a.b.oni247.org", "https://www.oni247.org")).toBe(true);
+    expect(isUnsupportedPlatformSubdomain("www.oni247.org", "https://oni247.org")).toBe(false);
+    expect(isUnsupportedPlatformSubdomain("oni247.org", "https://oni247.org")).toBe(false);
+    expect(isUnsupportedPlatformSubdomain("shop.example.com", "https://oni247.org")).toBe(false);
   });
 
   it("injects metadata and crawlable content into the expected SPA shell", () => {

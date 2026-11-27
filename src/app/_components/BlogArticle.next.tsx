@@ -14,9 +14,10 @@ type Props = {
   blogSlug: string;
   customDomain: boolean;
   origin: string;
+  safeContent: string;
 };
 
-export default function BlogArticleNext({ data, blogSlug, customDomain, origin }: Props) {
+export default function BlogArticleNext({ data, blogSlug, customDomain, origin, safeContent }: Props) {
   const business = data.business;
   const post = data.blogPosts.find((item) => item.slug === blogSlug);
   const path = customDomain
@@ -60,7 +61,7 @@ export default function BlogArticleNext({ data, blogSlug, customDomain, origin }
       );
     }
   };
-  const plainText = post.content.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ");
+  const plainText = safeContent.replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ");
   const readingMinutes = Math.max(1, Math.ceil(plainText.trim().split(/\s+/).filter(Boolean).length / 200));
   const description = (post.excerpt || post.title).slice(0, 200);
   const jsonLd = JSON.stringify({
@@ -117,7 +118,7 @@ export default function BlogArticleNext({ data, blogSlug, customDomain, origin }
           <span>{readingMinutes} min read</span>
         </p>
         {post.excerpt && !post.autoExcerpt && <p className={styles.excerpt}>{post.excerpt}</p>}
-        <article className={styles.article} dangerouslySetInnerHTML={{ __html: post.content }} />
+        <article className={styles.article} dangerouslySetInnerHTML={{ __html: safeContent }} />
         <EngagementSection slug={business.slug} targetType="blog" targetId={post.id} contextTitle={post.title} />
         <button className={styles.share} onClick={share} type="button">Share article</button>
       </main>

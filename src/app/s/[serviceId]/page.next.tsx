@@ -16,7 +16,7 @@ async function getPageData(params: Props["params"]) {
   const service = data?.services.find((item) => item.id === serviceId);
   if (!data || !service) notFound();
   const protocol = requestHeaders.get("x-forwarded-proto")?.split(",")[0]?.trim() || "https";
-  const origin = host ? `${protocol}://${host}` : "https://www.oni247.org";
+  const origin = host ? `${protocol}://${host}` : "https://oni247.org";
   const canonical = new URL(`/s/${encodeURIComponent(serviceId)}`, origin).toString();
   return { data, service, canonical };
 }
