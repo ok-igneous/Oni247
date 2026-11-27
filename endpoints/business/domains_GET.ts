@@ -2,6 +2,7 @@ import superjson from "superjson";
 import { sql } from "kysely";
 import { db } from "../../helpers/db";
 import { getServerUserSession } from "../../helpers/getServerUserSession";
+import { hasPaidCustomDomainAccess } from "../../helpers/domainEntitlement";
 
 export async function handle(request: Request) {
   try {
@@ -17,6 +18,7 @@ export async function handle(request: Request) {
       });
     }
 
+    const paidAccess = await hasPaidCustomDomainAccess(user.id);
     const rows = await sql<{
       id: string; hostname: string; domain_type: string; status: string;
       ssl_status: string; is_primary: boolean; verified_at: Date | null;
@@ -51,7 +53,8 @@ export async function handle(request: Request) {
       is_default: true,
     };
 
-    return new Response(superjson.stringify({ domains: [defaultAddress, ...rows.rows] }), {
+    return new Response(superjson.stringify({ domains: paidAccess ? [defaultAddress, ...rows.rows] : [defaultAddress],
+      customDomainsAllowed: paidAccess }), {
       headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
     });
   } catch (error) {
