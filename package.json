@@ -14,7 +14,8 @@
     "start": "node --import tsx server/index.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "audit:standalone": "node scripts/audit-standalone.mjs"
+    "audit:standalone": "node scripts/audit-standalone.mjs",
+    "db:migrate": "node scripts/migrate.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.850.0",
