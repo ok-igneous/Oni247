@@ -7,13 +7,13 @@ import {
   ArrowRight, BarChart3, Calendar, Check, CreditCard, Globe2, Image, Mail, MessageCircle, Package, Search, Share2,
   ShieldCheck, ShoppingBag, Smartphone, Sparkles, Store, Truck, Users, Zap, type LucideIcon,
 } from "lucide-react";
-import { Button } from "../components/Button";
-import { useAuth } from "../helpers/useAuth";
-import { DEFAULT_LANDING, type IconName } from "../helpers/landingConfig";
-import { storeThemeEngine } from "../helpers/storeThemeEngine";
-import { formatMoney } from "../helpers/formatMoney";
-import { getLanding, type OutputType as LandingData } from "../endpoints/landing_GET.schema";
-import styles from "./_index.module.css";
+import { Button } from "../../../components/Button";
+import { useAuth } from "../../../helpers/useAuth";
+import { DEFAULT_LANDING, type IconName } from "../../../helpers/landingConfig";
+import { storeThemeEngine } from "../../../helpers/storeThemeEngine";
+import { formatMoney } from "../../../helpers/formatMoney";
+import { getLanding, type OutputType as LandingData } from "../../../endpoints/landing_GET.schema";
+import styles from "../../../pages/_index.module.css";
 
 const ICONS: Record<IconName, LucideIcon> = { Globe2, Package, MessageCircle, Share2, BarChart3, Search, ShoppingBag, Store, Sparkles, Truck, Smartphone, CreditCard, Users, Mail, Calendar, Image, ShieldCheck, Zap };
 const trustIcons = [Store, MessageCircle, Smartphone, Globe2, Zap, ShieldCheck];
