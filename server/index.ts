@@ -204,11 +204,15 @@ const renderCrawlerStorefront = createCrawlerStorefrontRenderer({
     return business?.slug ?? null;
   },
   resolveCustomDomain: async (hostname) => {
-    const { db } = await import("../helpers/db");
-    // Normalize the stored domain in PostgreSQL so we return only one matching
-    // published business instead of loading every verified domain into Node.
-    const domainMatch = await sql<{ slug: string }>`
-      select b.slug
+    const [{ db }, { loadPlanConfig }, { subscriptionPlan }] = await Promise.all([
+      import("../helpers/db"),
+      import("../helpers/planConfig"),
+      import("../helpers/subscriptionPlan"),
+    ]);
+    await loadPlanConfig();
+    // Only active paid subscriptions may resolve a customer-owned hostname.
+    const domainMatch = await sql<{ business_id: number; slug: string }>`
+      select b.id as business_id, b.slug
         from business_domains d
         join businesses b on b.id = d.business_id
        where d.hostname = ${hostname}
@@ -217,21 +221,26 @@ const renderCrawlerStorefront = createCrawlerStorefrontRenderer({
          and d.ssl_status = 'active'
          and b.status = 'published'
        limit 1`.execute(db);
-    if (domainMatch.rows[0]?.slug) return domainMatch.rows[0].slug;
+    const matched = domainMatch.rows[0];
+    if (matched) {
+      const business = await db.selectFrom("businesses").selectAll()
+        .where("id", "=", matched.business_id).limit(1).executeTakeFirst();
+      if (business && subscriptionPlan.resolve(business).source === "paid") return matched.slug;
+    }
 
-    // Preserve compatibility with domains registered before the domain registry.
+    // Preserve legacy records only while their subscription is paid.
     const normalizedStoredHost = sql<string | null>`case
       when lower("custom_domain") like 'http://%' then null
       else lower(split_part(split_part(regexp_replace("custom_domain", '^https?://', '', 'i'), '/', 1), ':', 1))
     end`;
     const business = await db.selectFrom("businesses")
-      .select("slug")
+      .selectAll()
       .where("status", "=", "published")
       .where("customDomainStatus", "=", "verified")
       .where(normalizedStoredHost, "=", hostname)
       .limit(1)
       .executeTakeFirst();
-    return business?.slug ?? null;
+    return business && subscriptionPlan.resolve(business).source === "paid" ? business.slug : null;
   },
   loadSnapshot: createCrawlerSnapshotLoader({
     storefront: async (request) => (await import("../endpoints/storefront_GET")).handle(request),
