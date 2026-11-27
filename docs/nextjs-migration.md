@@ -91,8 +91,9 @@ baseline.
 ## Current checkpoint
 
 - Next.js 16 is declared as a dependency alongside the existing React 19 stack.
-- The Next.js App Router now includes the configurable landing page, login,
-  registration, forgot-password, email-verification, and dashboard overview routes.
+- The Next.js App Router now includes the configurable landing page, authentication
+  routes, the full shop dashboard feature route set, and the full platform-admin
+  route set. The feature pages retain the existing Fastify endpoint contracts.
 - The Next.js provider bridge creates a per-render QueryClient and deliberately
   does not import the legacy provider tree, because that tree contains React
   Router hooks.
@@ -142,3 +143,6 @@ and backend integration have been built and tested.
 
 
 - The platform admin route set now has Next.js App Router pages for `/admin`, `/admin/businesses`, `/admin/plans`, `/admin/addons`, `/admin/landing`, `/admin/portfolio`, and `/admin/settings`, protected by a separate verified-admin-only shell. Existing Fastify admin endpoint authorization remains authoritative. These pages still require production build and functional verification.
+
+
+- Dashboard and admin feature components are explicitly marked as client components where they use React hooks and browser interactions. Search-parameter-dependent dashboard routes and the dashboard shell are wrapped in Suspense boundaries for App Router static-render compatibility. Build confirmation is still pending.
