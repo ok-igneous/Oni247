@@ -1,3 +1,5 @@
+"use client";
+
 import {useEffect,useRef,useState} from "react"; import {Plus,Trash2} from "lucide-react"; import {toast} from "sonner";
 import {Button} from "../../../components/Button"; import {Input} from "../../../components/Input"; import {Textarea} from "../../../components/Textarea"; import {Select,SelectContent,SelectItem,SelectTrigger,SelectValue} from "../../../components/Select"; import {uploadImage} from "../../../helpers/uploadImage"; import {useMyBusiness} from "../../../helpers/useMyBusiness"; import {useSaveBusiness} from "../../../helpers/useSaveBusiness"; import styles from "../../../pages/dashboard.services.module.css";
 type Service={id:string;name:string;description:string;imageUrl:string|null;price:string;priceType:"fixed"|"starting"|"contact";duration:string;category:string;featured:boolean;published:boolean;cta:"request"|"whatsapp"|"call"|"enquire"};
