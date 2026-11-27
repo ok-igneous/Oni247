@@ -1,4 +1,9 @@
 import "dotenv/config";
+
+process.on("uncaughtExceptionMonitor", (error, origin) => {
+  console.error("[oni247] Uncaught process exception", { origin, error });
+});
+console.info("[oni247] Startup: initializing API server");
 import Fastify, { type FastifyReply, type FastifyRequest } from "fastify";
 import { sql } from "kysely";
 import fastifyStatic from "@fastify/static";
@@ -42,7 +47,9 @@ async function discoverEndpoints(directory: string): Promise<void> {
   }
 }
 
+console.info("[oni247] Startup: discovering endpoint handlers", { endpointsRoot });
 await discoverEndpoints(endpointsRoot);
+console.info("[oni247] Startup: endpoint discovery complete", { endpointCount: endpointFiles.size });
 
 app.addHook("onSend", async (request, reply, payload) => {
   reply.header("X-Content-Type-Options", "nosniff");
@@ -247,7 +254,9 @@ app.addHook("onClose", async () => {
 
 const port = Number.parseInt(process.env.PORT ?? "3001", 10);
 const host = process.env.HOST ?? "0.0.0.0";
+console.info("[oni247] Startup: binding HTTP listener", { host, port, hasProductionBuild });
 await app.listen({ port, host });
+console.info("[oni247] Startup: HTTP listener ready", { host, port });
 
 let shutdownStarted = false;
 const shutdown = async (signal: NodeJS.Signals) => {
