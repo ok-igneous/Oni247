@@ -1,9 +1,9 @@
 import type { NextConfig } from "next";
 
-const apiOrigin = (process.env.ONI247_API_INTERNAL_URL ?? "http://127.0.0.1:3001").replace(/\/+$/, "");
-const renderHost = (process.env.RENDER_EXTERNAL_HOSTNAME ?? "oni247-staging.onrender.com").replace(/\./g, "\\.");
-const customHostPattern = `^(?!www\\.oni247\\.org$)(?!oni247\\.org$)(?!localhost(?::\\d+)?$)(?!127\\.0\\.0\\.1(?::\\d+)?$)(?!${renderHost}$).+$`;
-const legacyStorefrontSections = "(products|services|about|gallery|blog|events|contact|track|checkout|book|booking|f)";
+const apiOrigin = (process.env.ONI247_API_INTERNAL_URL ?? "http://127.0.0.1:3001").replace(/\\/+$/, "");
+const renderHost = (process.env.RENDER_EXTERNAL_HOSTNAME ?? "oni247-staging.onrender.com").replace(/\\./g, "\\\\.");
+const customHostPattern = `^(?!www\\\\.oni247\\\\.org$)(?!oni247\\\\.org$)(?!localhost(?::\\\\d+)?$)(?!127\\\\.0\\\\.1(?::\\\\d+)?$)(?!${renderHost}$).+$`;
+const legacyStorefrontSections = "(products|services|about|gallery|blog|events|contact|checkout|f)";
 
 const nextConfig: NextConfig = {
   pageExtensions: ["next.tsx", "next.ts", "next.jsx", "next.js"],
@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   async rewrites() {
     return {
-      // Do not rewrite /_next assets: only known legacy storefront paths on custom hosts.
+      // Keep only unmigrated storefront sections on the legacy Fastify/React app.
       beforeFiles: [
         { source: `/:section${legacyStorefrontSections}`, has: [{ type: "host", value: customHostPattern }], destination: `${apiOrigin}/:section` },
         { source: `/:section${legacyStorefrontSections}/:path*`, has: [{ type: "host", value: customHostPattern }], destination: `${apiOrigin}/:section/:path*` },
