@@ -159,6 +159,9 @@ export async function syncRenderCustomDomain(
     const domain = existingRenderId
       ? await getRenderCustomDomain(existingRenderId)
       : await registerRenderCustomDomain(hostname);
+    if (domain.verificationStatus === "unverified") {
+      await requestRenderDomainVerification(domain.id);
+    }
     const tlsReady = domain.verificationStatus === "verified"
       ? await isRenderTlsReady(hostname)
       : false;
