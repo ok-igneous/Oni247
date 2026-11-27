@@ -24,7 +24,7 @@ baseline.
 ## Migration decisions
 
 1. Next.js App Router is the target frontend. Do not introduce Vite into the new
-   frontend or use Cloudflare.
+   frontend.
 2. Keep Fastify and the existing endpoint handlers as the API backend during the
    initial frontend migration. Do not rewrite authentication or database access
    as part of a UI framework migration.
@@ -91,8 +91,8 @@ baseline.
 ## Current checkpoint
 
 - Next.js 16 is declared as a dependency alongside the existing React 19 stack.
-- A Next.js App Router root layout and a minimal migration-check page exist under
-  `src/app`.
+- The Next.js App Router now includes the configurable landing page, login,
+  registration, forgot-password, email-verification, and dashboard overview routes.
 - The Next.js provider bridge creates a per-render QueryClient and deliberately
   does not import the legacy provider tree, because that tree contains React
   Router hooks.
