@@ -86,7 +86,7 @@ const tlsHandshake = (hostname: string, address: string): Promise<boolean> =>
 
 /** Probe a public address directly to avoid following a customer-controlled DNS target into private networks. */
 export async function isRenderTlsReady(hostname: string): Promise<boolean> {
-  let addresses: Awaited<ReturnType<typeof lookup>>[] = [];
+  let addresses: Array<{ address: string; family: number }> = [];
   try {
     addresses = await lookup(hostname, { all: true, verbatim: true });
   } catch {
