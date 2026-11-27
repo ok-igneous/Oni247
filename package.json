@@ -7,14 +7,16 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "concurrently -k \"vite --host 0.0.0.0\" \"tsx watch server/index.ts\"",
-    "dev:web": "vite --host 0.0.0.0",
-    "dev:server": "tsx watch server/index.ts",
-    "build": "tsc --noEmit && vite build",
-    "start": "node --import tsx server/index.ts",
-    "typecheck": "tsc --noEmit",
+    "dev": "concurrently -k \"next dev --hostname 0.0.0.0\" \"tsx watch server/index.ts\"",
+    "dev:web": "next dev --hostname 0.0.0.0",
+    "dev:api": "tsx watch server/index.ts",
+    "build": "node scripts/generate-next-page-registry.mjs && tsc --noEmit && next build",
+    "start": "next start --hostname 0.0.0.0",
+    "start:api": "node --import tsx server/index.ts",
+    "typecheck": "node scripts/generate-next-page-registry.mjs && tsc --noEmit",
     "test": "vitest run",
     "audit:standalone": "node scripts/audit-standalone.mjs",
+    "audit:nextjs": "node scripts/audit-nextjs-migration.mjs",
     "db:migrate": "node scripts/migrate.mjs"
   },
   "dependencies": {
@@ -67,7 +69,8 @@
     "superjson": "^2.2.2",
     "zod": "^3.25.76",
     "dotenv": "^16.6.1",
-    "tsx": "^4.20.3"
+    "tsx": "^4.20.3",
+    "next": "16.4.6"
   },
   "devDependencies": {
     "@types/node": "^22.15.30",
@@ -75,10 +78,8 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.7",
     "@types/sanitize-html": "^2.16.2",
-    "@vitejs/plugin-react": "^4.7.0",
     "concurrently": "^9.2.0",
     "typescript": "^5.8.3",
-    "vite": "^6.3.5",
     "vitest": "^3.2.4",
     "@types/react-helmet": "^6.1.11",
     "@testing-library/react": "^16.2.0",
