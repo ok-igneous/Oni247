@@ -12,6 +12,7 @@ type Domain = {
   id: string; hostname: string; domain_type: string; status: string;
   ssl_status: string; is_primary: boolean; verified_at: string | null;
   render_verification_status: string; last_error: string | null; last_checked_at: string | null;
+  is_default?: boolean;
 };
 type DomainResponse = { domains: Domain[] };
 type AddResponse = {
@@ -154,13 +155,14 @@ export default function DashboardDomainsPage() {
         {domains.map(domain => <article className={styles.domain} key={domain.id}>
           <div className={styles.domainInfo}><strong>{domain.hostname}</strong><span>{domain.domain_type === "platform_subdomain" ? "Oni247 subdomain" : "Customer-owned domain"}</span></div>
           <div className={styles.statuses}><span className={styles.status}>{domain.status}</span><span className={styles.status}>SSL: {domain.ssl_status}</span>{domain.is_primary && <span className={styles.primary}>Primary</span>}</div>
-          {(domain.status === "pending" || domain.status === "verified") && <Button size="sm" variant="outline" disabled={checkingId === domain.id} onClick={() => void verify(domain.id)}>{checkingId === domain.id ? "Checking…" : domain.status === "pending" ? "Verify domain" : "Check DNS & SSL"}</Button>}
+          {domain.domain_type === "customer_domain" && (domain.status === "pending" || domain.status === "verified") && <Button size="sm" variant="outline" disabled={checkingId === domain.id} onClick={() => void verify(domain.id)}>{checkingId === domain.id ? "Checking…" : domain.status === "pending" ? "Verify domain" : "Check DNS & SSL"}</Button>}
+          {domain.is_default && domain.status === "pending" && <p className={styles.warning}>The platform wildcard hostname and certificate still need to be configured on Render.</p>}
           {domain.status === "verified" && <p className={styles.warning}>Ownership verified. Render DNS verification or HTTPS certificate provisioning may still be in progress. Check again after a few minutes.</p>}
-          {domain.status === "active" && <p className={styles.warning}>Your domain is connected and HTTPS is verified.</p>}
+          {domain.status === "active" && <p className={styles.warning}>{domain.is_default ? "Your free Oni247 subdomain is ready." : "Your domain is connected and HTTPS is verified."}</p>}
           {domain.render_verification_status === "error" && domain.last_error && <p className={styles.warning}>{domain.last_error}</p>}
           {domain.status === "failed" && <p className={styles.warning}>Domain setup failed. Contact support with this hostname.</p>}
           {domain.status === "active" && !domain.is_primary && <Button size="sm" variant="outline" onClick={() => void setPrimary(domain.id)}>Set as primary</Button>}
-          <Button size="sm" variant="ghost" onClick={() => void removeDomain(domain)}>Remove</Button>
+          {!domain.is_default && <Button size="sm" variant="ghost" onClick={() => void removeDomain(domain)}>Remove</Button>}
         </article>)}
       </div>}
     </section>
