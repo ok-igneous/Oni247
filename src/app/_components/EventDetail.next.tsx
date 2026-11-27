@@ -191,12 +191,16 @@ export default function PublicEventNext({ data, eventSlug, others, customDomain,
                 {data.form && event.registrationEnabled && reg.state === "open" && !message && (
                   <Button size="sm" onClick={() => setRegOpen(true)}><Ticket size={15} /> Register</Button>
                 )}
-                <Button asChild variant="outline" size="sm">
-                  <a href={calendar.google} target="_blank" rel="noopener noreferrer"><CalendarPlus size={15} /> Google Calendar</a>
-                </Button>
-                <Button asChild variant="outline" size="sm">
-                  <a href={calendar.icsHref} download={`${event.slug}.ics`}><Download size={15} /> Apple / Outlook</a>
-                </Button>
+                {calendar && (
+                  <>
+                    <Button asChild variant="outline" size="sm">
+                      <a href={calendar.google} target="_blank" rel="noopener noreferrer"><CalendarPlus size={15} /> Google Calendar</a>
+                    </Button>
+                    <Button asChild variant="outline" size="sm">
+                      <a href={calendar.icsHref} download={`${event.slug}.ics`}><Download size={15} /> Apple / Outlook</a>
+                    </Button>
+                  </>
+                )}
               </div>
             )}
             {state !== "past" && event.registrationEnabled && reg.state !== "open" && (
