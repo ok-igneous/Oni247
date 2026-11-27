@@ -21,7 +21,11 @@ async function walk(directory) {
     else if (/\.(tsx?|jsx?)$/.test(entry.name)) {
       const relative = path.relative(root, absolute).split(path.sep).join("/");
       const source = await readFile(absolute, "utf8");
-      if (relative.startsWith("legacy-pages/") && !relative.endsWith(".pageLayout.tsx")) {
+      if (
+        relative.startsWith("legacy-pages/") &&
+        !relative.endsWith(".pageLayout.tsx") &&
+        relative !== "legacy-pages/store.$slug.tsx"
+      ) {
         const base = path.basename(relative).replace(/\.(tsx|jsx)$/, "");
         const route = base === "_index"
           ? "/"
