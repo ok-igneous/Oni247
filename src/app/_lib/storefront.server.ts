@@ -14,7 +14,7 @@ export async function resolveStorefrontHost(hostHeader: string): Promise<Storefr
   if (!host) return { slug: null, customDomain: false, platformHost: false };
   const root = configuredPlatformRoot();
   const renderHost = normalizeDomainHost(`https://${process.env.RENDER_EXTERNAL_HOSTNAME || "oni247-staging.onrender.com"}`);
-  if (isPlatformHostname(host, root) || (renderHost && host === renderHost)) return { slug: null, customDomain: false, platformHost: true };
+  if (isPlatformHostname(host, root) || host === "localhost" || host === "127.0.0.1" || (renderHost && host === renderHost)) return { slug: null, customDomain: false, platformHost: true };
   const subdomainSlug = resolvePlatformSubdomainSlug(host, root);
   if (subdomainSlug) {
     const business = await db.selectFrom("businesses").select("slug").where("slug", "=", subdomainSlug).where("status", "=", "published").limit(1).executeTakeFirst();
