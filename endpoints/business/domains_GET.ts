@@ -9,9 +9,11 @@ export async function handle(request: Request) {
     const rows = await sql<{
       id: string; hostname: string; domain_type: string; status: string;
       ssl_status: string; is_primary: boolean; verified_at: Date | null;
+      render_verification_status: string; last_error: string | null; last_checked_at: Date | null;
       created_at: Date;
     }>`select d.id, d.hostname, d.domain_type, d.status, d.ssl_status,
-             d.is_primary, d.verified_at, d.created_at
+             d.is_primary, d.verified_at, d.render_verification_status,
+             d.last_error, d.last_checked_at, d.created_at
         from business_domains d
         join businesses b on b.id = d.business_id
        where b.owner_id = ${user.id}
