@@ -4,7 +4,7 @@ import path from "node:path";
 
 const root = process.cwd();
 const pagesRoot = path.join(root, "legacy-pages");
-const sourceRoots = ["legacy-pages", "components", "helpers", "endpoints"];
+const sourceRoots = ["legacy-pages", "components", "helpers", "endpoints", "src", "app", "server"];
 const findings = [];
 const routeFiles = [];
 
@@ -56,13 +56,22 @@ const collisions = [...grouped.entries()]
   .filter(([, files]) => files.length > 1)
   .map(([route, files]) => ({ route, files }));
 
+const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
+const directViteDependencies = Object.keys({
+  ...packageJson.dependencies,
+  ...packageJson.devDependencies,
+}).filter((name) => name === "vite" || name.startsWith("@vitejs/"));
+const viteFindings = findings.filter((finding) => finding.issue.startsWith("Vite"));
+
 const report = {
   generatedAt: new Date().toISOString(),
   pagesDirectory: path.relative(root, pagesRoot),
   routeCount: routeFiles.length,
   routes: routeFiles,
   routeCollisions: collisions,
+  directViteDependencies,
+  viteFindings,
   compatibilityFindings: findings,
 };
 process.stdout.write(JSON.stringify(report, null, 2) + "\n");
-if (collisions.length) process.exitCode = 1;
+if (collisions.length || directViteDependencies.length || viteFindings.length) process.exitCode = 1;
