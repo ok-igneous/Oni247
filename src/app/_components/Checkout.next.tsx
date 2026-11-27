@@ -51,9 +51,10 @@ import styles from "../../../pages/store.$slug.checkout.module.css";
 
 type Method = "delivery" | "pickup";
 
-function checkoutPath(businessSlug: string, path = "/"): string {
+function checkoutPath(businessSlug: string, path = "/", customDomain = false): string {
   const suffix = path.startsWith("/") ? path : `/${path}`;
-  return `/${encodeURIComponent(businessSlug)}${suffix === "/" ? "" : suffix}`;
+  const root = customDomain ? "" : `/${encodeURIComponent(businessSlug)}`;
+  return `${root}${suffix === "/" ? "/" : suffix}`;
 }
 
 const PAYMENT_COPY: Record<
@@ -189,7 +190,7 @@ export default function CheckoutNext({ slug, customDomain = false, returnRef }: 
   const appearance = business.appearanceSettings ?? {};
   const theme = storeThemeEngine(business.themeId, appearance);
   const whatsappNumber = business.whatsappNumber ?? business.phone ?? "";
-  const home = customDomain ? "/" : checkoutPath(business.slug);
+  const home = customDomain ? "/" : checkoutPath(business.slug, "/", customDomain);
   const hasProblem = lines.some((row) => row.problem !== null);
 
   const phoneDigits = phone.replace(/\D/g, "");
@@ -221,7 +222,7 @@ export default function CheckoutNext({ slug, customDomain = false, returnRef }: 
       showActions={false}
       navItems={[
         { label: "Home", href: home },
-        { label: "Track order", href: checkoutPath(business.slug, "/track") },
+        { label: "Track order", href: checkoutPath(business.slug, "/track", customDomain) },
       ]}
     />
   );
@@ -262,7 +263,7 @@ export default function CheckoutNext({ slug, customDomain = false, returnRef }: 
           return;
         }
         toast.error(order.paymentError ?? "Could not open the payment page.");
-        window.location.assign(`${checkoutPath(slug, "/checkout")}?ref=${encodeURIComponent(order.trackingCode ?? order.orderRef)}`);
+        window.location.assign(`${checkoutPath(slug, "/checkout", customDomain)}?ref=${encodeURIComponent(order.trackingCode ?? order.orderRef)}`);
         return;
       }
       setPlaced({ order, name, phone, method });
@@ -310,7 +311,7 @@ export default function CheckoutNext({ slug, customDomain = false, returnRef }: 
     details.push(`Total: ${formatMoney(order.total, order.currency)}`);
     if (order.paymentMethod) details.push(`Payment: ${PAYMENT_COPY[order.paymentMethod].label}`);
     if (order.trackingCode) {
-      details.push(`Track it: ${window.location.origin}${checkoutPath(business.slug, "/track/" + order.trackingCode)}`);
+      details.push(`Track it: ${window.location.origin}${checkoutPath(business.slug, "/track/" + order.trackingCode, customDomain)}`);
     }
     const whatsappUrl = whatsappNumber
       ? buildWhatsAppOrderUrl({
