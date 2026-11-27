@@ -17,8 +17,11 @@ export async function handle(request: Request) {
     const platformRoot = platform?.replace(/^www\./, "") ?? null;
     const isPlatformHost = host === platformRoot
       || host === (platformRoot ? `www.${platformRoot}` : null);
+    const isUnsupportedPlatformSubdomain = Boolean(
+      host && platformRoot && host.endsWith(`.${platformRoot}`) && host !== `www.${platformRoot}`,
+    );
 
-    if (!host || isPlatformHost) {
+    if (!host || isPlatformHost || isUnsupportedPlatformSubdomain) {
       return new Response(JSON.stringify({ slug: null }), {
         headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" },
       });
