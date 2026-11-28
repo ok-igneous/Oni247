@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [security/nextjs-hardening]
+    branches: [main, nextjs-app-router-migration, security/nextjs-hardening]
   workflow_dispatch:
 
 permissions:
