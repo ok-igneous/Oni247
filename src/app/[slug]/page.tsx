@@ -7,15 +7,23 @@ import { getStorefrontData, resolveStorefrontHost, storefrontMetadata } from "..
 export const dynamic = "force-dynamic";
 type Props = { params: Promise<{ slug: string }> };
 
+const multiPageSlugs = new Set(["about", "products", "services", "gallery", "blog", "events", "contact"] as const);
+type MultiPageSlug = "about" | "products" | "services" | "gallery" | "blog" | "events" | "contact";
+
 async function getPageData(params: Props["params"]) {
-  const [{ slug }, requestHeaders] = await Promise.all([params, headers()]);
+  const [{ slug: requestedSlug }, requestHeaders] = await Promise.all([params, headers()]);
   const host = requestHeaders.get("host") ?? "";
   const resolved = await resolveStorefrontHost(host);
-  if (!resolved.platformHost) notFound();
+  const customDomainPage = resolved.customDomain && !!resolved.slug && multiPageSlugs.has(requestedSlug as MultiPageSlug);
+  if (!resolved.platformHost && !customDomainPage) notFound();
+
+  const slug = customDomainPage ? resolved.slug! : requestedSlug;
+  const pageSlug = customDomainPage ? requestedSlug as MultiPageSlug : undefined;
   const data = await getStorefrontData(slug);
+  if (!data) notFound();
   const protocol = requestHeaders.get("x-forwarded-proto")?.split(",")[0]?.trim() || "https";
   const origin = host ? `${protocol}://${host}` : "https://oni247.org";
-  return { slug, data, origin };
+  return { slug, data, origin, pageSlug, customDomain: customDomainPage };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
