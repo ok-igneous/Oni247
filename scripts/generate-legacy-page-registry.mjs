@@ -3,7 +3,7 @@ import { readdir, mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const root = process.cwd();
-const pagesDir = path.join(root, "pages");
+const pagesDir = path.join(root, "legacy-pages");
 const outputDir = path.join(root, "src", "generated");
 const pages = [];
 const layouts = [];
@@ -24,9 +24,9 @@ async function walk(directory) {
     const relative = path.relative(root, absolute).split(path.sep).join("/");
 
     // /store/{slug} was an old public route and is not part of Oni247's URL
-    // contract. All old pages/store.$slug.* route files are retired; the
-    // shared storefront component is now pages/StorefrontPage.tsx.
-    if (relative.startsWith("pages/store.$slug") || relative === "pages/StorefrontPage.tsx") continue;
+    // contract. All old legacy-pages/store.$slug.* route files are retired; the
+    // shared storefront component is now legacy-pages/StorefrontPage.tsx.
+    if (relative.startsWith("legacy-pages/store.$slug") || relative === "legacy-pages/StorefrontPage.tsx") continue;
 
     if (relative.endsWith(".pageLayout.tsx")) layouts.push(relative);
     else pages.push(relative);
@@ -40,7 +40,7 @@ layouts.sort();
 const importPath = (file) => "../../" + file.replace(/\.tsx$/, "");
 const legacyRootPageSlugs = pages
   .filter((file) => {
-    if (!file.startsWith("pages/") || file.slice("pages/".length).includes("/")) return false;
+    if (!file.startsWith("legacy-pages/") || file.slice("legacy-pages/".length).includes("/")) return false;
     const basename = path.basename(file, ".tsx");
     return basename !== "_index" && !basename.includes(".") && !basename.includes("$");
   })
