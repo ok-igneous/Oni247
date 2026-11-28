@@ -1,0 +1,229 @@
+.site {
+  min-height: 100vh;
+  background: var(--background, #faf7f0);
+  color: var(--foreground, #17231c);
+  font-family: var(--store-font-family, inherit);
+}
+
+.content {
+  width: min(820px, 100% - 36px);
+  margin: 0 auto;
+  padding: 28px 0 64px;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--store-link, #176b45);
+  text-decoration: none;
+  margin-bottom: 24px;
+}
+
+.cover {
+  display: block;
+  width: 100%;
+  max-height: 480px;
+  object-fit: cover;
+  border-radius: var(--store-card-radius, 8px);
+  margin: 0 0 26px;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--store-link, #176b45);
+}
+
+.content h1 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1.08;
+  margin: 8px 0 14px;
+  font-family: var(--store-display-font, var(--store-font-family, inherit));
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 16px;
+  color: var(--muted-foreground, #667168);
+  font-size: 0.92rem;
+}
+
+.excerpt {
+  font-size: 1.2rem;
+  line-height: 1.7;
+  font-weight: 500;
+  border-left: 3px solid var(--store-accent, #c08a2d);
+  padding-left: 18px;
+  margin: 28px 0;
+}
+
+.article {
+  font-size: 1.08rem;
+  line-height: 1.85;
+  overflow-wrap: anywhere;
+}
+
+.article p {
+  margin: 0 0 1.1em;
+}
+
+.article img {
+  max-width: 100%;
+  height: auto;
+}
+
+.article h2,
+.article h3 {
+  line-height: 1.25;
+  margin: 1.8em 0 0.5em;
+}
+
+.article h2 {
+  font-size: 1.7rem;
+}
+
+.article h3 {
+  font-size: 1.3rem;
+}
+
+.article a {
+  color: var(--store-link, #176b45);
+  text-decoration: underline;
+}
+
+.article ul,
+.article ol {
+  padding-left: 1.6em;
+  margin: 0 0 1.1em;
+}
+
+.article hr {
+  border: none;
+  border-top: 1px solid var(--border, #ddd);
+  margin: 2em 0;
+}
+
+.article blockquote {
+  margin: 1.8em 0;
+  padding: 18px 24px;
+  border-left: 4px solid var(--store-accent, #c08a2d);
+  background: var(--surface, rgba(0, 0, 0, 0.04));
+  border-radius: 0 var(--store-card-radius, 8px) var(--store-card-radius, 8px) 0;
+  font-size: 1.22rem;
+  font-style: italic;
+  line-height: 1.7;
+}
+
+.article figure {
+  margin: 1.8em 0;
+}
+
+.article figure img {
+  display: block;
+  width: 100%;
+  border-radius: var(--store-card-radius, 8px);
+}
+
+.article figcaption {
+  margin-top: 8px;
+  font-size: 0.88rem;
+  text-align: center;
+  color: var(--muted-foreground, #667168);
+}
+
+.article figcaption:empty {
+  display: none;
+}
+
+.article :global(.video-embed) {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  margin: 1.8em 0;
+  border-radius: var(--store-card-radius, 8px);
+  overflow: hidden;
+  background: #000;
+}
+
+.article :global(.video-embed) iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.article figure a {
+  display: block;
+}
+
+.article figure:global(.align-left),
+.article :global(.video-embed.align-left) {
+  float: left;
+  width: min(46%, 340px);
+  margin: 0.3em 1.3em 1em 0;
+}
+
+.article figure:global(.align-right),
+.article :global(.video-embed.align-right) {
+  float: right;
+  width: min(46%, 340px);
+  margin: 0.3em 0 1em 1.3em;
+}
+
+.article figure:global(.align-center),
+.article :global(.video-embed.align-center) {
+  width: min(72%, 520px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.article::after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
+@media (max-width: 520px) {
+  .article figure:global(.align-left),
+  .article figure:global(.align-right),
+  .article :global(.video-embed.align-left),
+  .article :global(.video-embed.align-right) {
+    float: none;
+    width: 100%;
+    margin: 1.4em 0;
+  }
+}
+
+.share {
+  margin-top: 32px;
+  padding: 11px 16px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--store-button, #176b45);
+  color: var(--store-button-text, #fff);
+  font: inherit;
+  cursor: pointer;
+}
+
+.footer {
+  border-top: 1px solid var(--border, #ddd);
+  padding: 22px;
+  text-align: center;
+}
+
+.footer a {
+  color: var(--store-link, #176b45);
+  text-decoration: none;
+}
+
+@media (max-width: 620px) {
+  .content {
+    width: calc(100% - 28px);
+  }
+}
+
