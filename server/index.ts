@@ -103,7 +103,18 @@ async function invokeEndpoint(
           request.headers["x-forwarded-host"],
           request.headers["x-forwarded-proto"],
         )) {
-          return reply.code(403).send({ error: "Cross-origin request blocked" });
+          request.log.warn({
+            route,
+            origin: originHeader,
+            host: request.headers.host,
+            forwardedHost: request.headers["x-forwarded-host"],
+            protocol: request.protocol,
+            forwardedProto: request.headers["x-forwarded-proto"],
+          }, "Rejected mutation with mismatched browser origin");
+          return reply.code(403).send({
+            error: "We couldn't verify this request. Please refresh the page and try again. If the problem continues, open Oni247 in a new tab.",
+            code: "ORIGIN_CHECK_FAILED",
+          });
         }
       } catch {
         return reply.code(403).send({ error: "Invalid request origin" });
