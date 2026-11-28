@@ -1,0 +1,207 @@
+.page {
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--foreground);
+  overflow-x: hidden;
+}
+
+.topBar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem clamp(1rem, 4vw, 4rem);
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--background) 92%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+.brand {
+  font-family: var(--font-family-display);
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: -0.01em;
+  color: var(--primary);
+  text-decoration: none;
+  font-size: 1.25rem;
+}
+
+.topNav {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  font-size: 0.92rem;
+}
+
+.topNav a {
+  color: var(--muted-foreground);
+  text-decoration: none;
+}
+
+.topNav a:hover { color: var(--foreground); }
+
+.hero {
+  display: flex;
+  align-items: center;
+  gap: clamp(2.5rem, 6vw, 6rem);
+  padding: clamp(4rem, 9vw, 7.5rem) clamp(1rem, 5vw, 5rem);
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.heroCopy { flex: 1; max-width: 650px; }
+
+.eyebrow, .kicker {
+  color: var(--primary);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 1.1rem;
+}
+
+.headline {
+  font-family: var(--font-family-display);
+  font-size: clamp(2.8rem, 6vw, 5.2rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  margin: 0 0 1.4rem;
+}
+
+.sub {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--muted-foreground);
+  max-width: 58ch;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-3);
+}
+
+.trialNote { color: var(--muted-foreground); font-size: 0.85rem; margin-top: 1rem; }
+
+.heroVisual {
+  width: min(100%, 510px);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  transform: rotate(1deg);
+  background: var(--card);
+}
+
+.browserBar { display: flex; align-items: center; gap: 5px; padding: 0.75rem; background: var(--surface); }
+.browserBar > span { width: 7px; height: 7px; border-radius: 50%; background: var(--border); }
+.address { flex: 1; margin-left: 0.5rem; padding: 0.38rem 0.7rem; border-radius: 999px; background: var(--card); color: var(--muted-foreground); font: 0.68rem var(--font-family-monospace); }
+.storePreview { padding: 1.25rem; }
+.previewIdentity { display: flex; gap: 0.75rem; align-items: center; }
+.previewLogo { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 11px; background: var(--primary); color: var(--primary-foreground); font-weight: 800; }
+.previewIdentity strong, .previewIdentity small { display: block; }
+.previewIdentity small { color: var(--muted-foreground); margin-top: 2px; }
+.previewHero { margin: 1.3rem 0; padding: 1.1rem; border-radius: 12px; background: var(--secondary); font-family: var(--font-family-display); font-weight: 700; font-size: 1.15rem; }
+.previewGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.previewGrid > div { border: 1px solid var(--border); border-radius: 11px; padding: 0.65rem; }
+.previewImage { height: 90px; display: grid; place-items: center; border-radius: 8px; background: var(--surface); color: var(--primary); margin-bottom: 0.55rem; }
+.previewGrid strong, .previewGrid small { display: block; }
+.previewGrid small { color: var(--muted-foreground); margin-top: 3px; }
+.previewCta { display: flex; justify-content: center; align-items: center; gap: 0.4rem; margin-top: 0.85rem; padding: 0.7rem; border-radius: 9px; background: var(--primary); color: var(--primary-foreground); font-size: 0.85rem; font-weight: 700; }
+
+.trustStrip { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.3rem 2rem; padding: 1.2rem; border-block: 1px solid var(--border); color: var(--muted-foreground); font-size: 0.88rem; }
+.trustStrip div { display: flex; align-items: center; gap: 0.35rem; color: var(--foreground); }
+
+.section, .splitSection, .audienceSection, .pricingSection { max-width: 1180px; margin: 0 auto; padding: clamp(4rem, 8vw, 7rem) 1rem; }
+.sectionIntro { max-width: 680px; margin-bottom: 2.5rem; }
+.sectionIntro h2, .splitSection h2, .pricingCard h2, .finalCta h2 { font-family: var(--font-family-display); font-size: clamp(2rem, 4vw, 3.3rem); line-height: 1.08; letter-spacing: -0.03em; margin: 0.55rem 0 0.9rem; }
+.sectionIntro p, .splitSection > div > p, .pricingCard p, .finalCta p { color: var(--muted-foreground); line-height: 1.65; max-width: 62ch; }
+
+.featureGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+.featureCard { padding: 1.4rem; border: 1px solid var(--border); border-radius: 14px; background: var(--card); }
+.featureCard h3 { margin: 1rem 0 0.45rem; font-family: var(--font-family-display); }
+.featureCard p { margin: 0; color: var(--muted-foreground); line-height: 1.55; font-size: 0.94rem; }
+.icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; background: var(--secondary); color: var(--primary); }
+.icon svg { width: 19px; }
+
+.splitSection { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 5rem; align-items: start; background: var(--surface); max-width: none; padding-inline: max(1rem, calc((100vw - 1180px) / 2)); }
+.steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 1rem; }
+.steps li { display: flex; gap: 1rem; padding: 1.1rem; border-bottom: 1px solid var(--border); }
+.steps li > span { font: 0.75rem var(--font-family-monospace); color: var(--primary); padding-top: 0.15rem; }
+.steps p { margin: 0.25rem 0 0; color: var(--muted-foreground); }
+
+.audienceGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+.audienceGrid > div { padding: 1.2rem; border: 1px solid var(--border); border-radius: 12px; }
+.audienceGrid svg { color: var(--primary); margin-bottom: 1rem; }
+.audienceGrid strong, .audienceGrid span { display: block; }
+.audienceGrid span { color: var(--muted-foreground); margin-top: 0.35rem; font-size: 0.9rem; line-height: 1.45; }
+
+.pricingSection { padding-top: 3rem; }
+.pricingIntro { max-width: 640px; margin: 0 auto 2rem; text-align: center; }
+.pricingIntro h2 { margin: 0.3rem 0 0.6rem; }
+.pricingIntro p { margin: 0; color: var(--muted-foreground); line-height: 1.6; }
+.planGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; align-items: stretch; }
+.planCard { display: grid; gap: 12px; align-content: start; padding: 1.5rem; border: 1px solid var(--border); border-radius: 18px; background: var(--card); }
+.planCardOn { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary) inset; }
+.planCard h3 { margin: 0; font: 800 1.25rem var(--font-family-display); }
+.planCard p { margin: 0; color: var(--muted-foreground); font-size: 0.92rem; line-height: 1.5; }
+.planPrice { display: flex; align-items: baseline; gap: 8px; }
+.planPrice strong { font: 800 2rem var(--font-family-display); }
+.planPrice span { color: var(--muted-foreground); font-size: 0.85rem; }
+.planCard ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; font-size: 0.9rem; }
+.planCard li { display: flex; gap: 8px; align-items: center; }
+.pricingCard { display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: center; padding: clamp(1.5rem, 4vw, 3rem); border: 1px solid var(--border); border-radius: 18px; background: var(--card); }
+.priceBox { min-width: 210px; padding: 1.4rem; border-radius: 13px; background: var(--secondary); text-align: center; }
+.priceBox strong, .priceBox span { display: block; }
+.priceBox strong { font: 800 2.3rem var(--font-family-display); }
+.priceBox span { color: var(--muted-foreground); font-size: 0.85rem; margin: 0.2rem 0 1rem; }
+.priceBox a { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--primary); font-weight: 700; text-decoration: none; }
+
+.finalCta { text-align: center; padding: clamp(5rem, 10vw, 9rem) 1rem; background: var(--primary); color: var(--primary-foreground); }
+.finalCta .kicker { color: inherit; opacity: 0.8; }
+.finalCta h2 { font-size: clamp(3rem, 7vw, 5.5rem); }
+.finalCta p { margin: 0 auto 1.6rem; color: color-mix(in srgb, var(--primary-foreground) 75%, transparent); }
+.finalCta :global(a) { }
+.checks { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem 1.5rem; margin-top: 1.4rem; font-size: 0.85rem; }
+.checks span { display: flex; align-items: center; gap: 0.3rem; }
+
+.footer { display: grid; grid-template-columns: 1fr auto auto; gap: 2rem; align-items: center; padding: 2rem max(1rem, calc((100vw - 1180px) / 2)); border-top: 1px solid var(--border); }
+.footer div:first-child span { display: block; color: var(--muted-foreground); font-size: 0.85rem; margin-top: 0.25rem; }
+.footer div:nth-child(2) { display: flex; gap: 1rem; }
+.footer a { color: var(--foreground); text-decoration: none; }
+.footer small { color: var(--muted-foreground); }
+
+@media (max-width: 850px) {
+  .topNav a { display: none; }
+  .hero { flex-direction: column; align-items: stretch; }
+  .heroVisual { width: 100%; transform: none; }
+  .featureGrid { grid-template-columns: 1fr 1fr; }
+  .splitSection { grid-template-columns: 1fr; gap: 2rem; }
+  .audienceGrid { grid-template-columns: 1fr 1fr; }
+  .pricingCard { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 560px) {
+  .hero { padding-top: 3.5rem; }
+  .headline { font-size: 2.75rem; }
+  .featureGrid, .audienceGrid { grid-template-columns: 1fr; }
+  .trustStrip > span { width: 100%; text-align: center; }
+  .footer { grid-template-columns: 1fr; gap: 1rem; }
+}
+
+@media (min-width: 720px) {
+  .hero {
+    min-height: 680px;
+  }
+}
