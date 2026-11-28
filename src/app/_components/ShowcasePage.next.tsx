@@ -3,13 +3,13 @@
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { ImageOff, MessageCircle, Store } from "lucide-react";
-import { Badge } from "../components/Badge";
-import { Button } from "../components/Button";
-import { Skeleton } from "../components/Skeleton";
-import { formatMoney } from "../helpers/formatMoney";
-import { buildWhatsAppOrderUrl } from "../helpers/buildWhatsAppOrderUrl";
-import { getShowcase } from "../endpoints/showcase_GET.schema";
-import styles from "./s.$code.module.css";
+import { Badge } from "../../../components/Badge";
+import { Button } from "../../../components/Button";
+import { Skeleton } from "../../../components/Skeleton";
+import { formatMoney } from "../../../helpers/formatMoney";
+import { buildWhatsAppOrderUrl } from "../../../helpers/buildWhatsAppOrderUrl";
+import { getShowcase } from "../../../endpoints/showcase_GET.schema";
+import styles from "./showcase.module.css";
 
 const ShowcasePage = ({ code }: { code: string }) => {
   const { data, isFetching, error } = useQuery({
