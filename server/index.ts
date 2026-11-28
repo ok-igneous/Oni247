@@ -143,8 +143,17 @@ async function invokeEndpoint(
       const { checkIpRateLimit } = await import("../helpers/ipRateLimit");
       const result = await checkIpRateLimit(request.ip, route, policy.limit, policy.windowSeconds);
       if (!result.allowed) {
+        const retryAt = Date.now() + result.retryAfterSeconds * 1000;
         reply.header("Retry-After", String(result.retryAfterSeconds));
-        return reply.code(429).send({ error: "Too many requests. Please wait and try again." });
+        return reply.code(429).send({
+          error: "Too many login requests. Please wait before trying again.",
+          code: "IP_RATE_LIMITED",
+          requestCount: result.requestCount,
+          requestLimit: result.requestLimit,
+          requestsRemaining: result.requestsRemaining,
+          retryAfterSeconds: result.retryAfterSeconds,
+          retryAt,
+        });
       }
     } catch (error) {
       request.log.error({ err: error, route }, "Request rate limiter unavailable");
