@@ -57,10 +57,21 @@ for (const relative of obsoletePaths) {
 }
 
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
-for (const name of ["react-router-dom", "react-helmet", "@types/react-helmet"]) {
+if (!packageJson.dependencies?.next) {
+  failures.push({ file: "package.json", issue: "Next.js must be a direct runtime dependency" });
+}
+for (const name of ["react-router-dom", "react-helmet", "@types/react-helmet", "vite", "@vitejs/plugin-react"]) {
   if (packageJson.dependencies?.[name] || packageJson.devDependencies?.[name]) {
-    failures.push({ file: "package.json", issue: "Obsolete dependency remains: " + name });
+    failures.push({ file: "package.json", issue: "Obsolete or competing frontend dependency remains: " + name });
   }
+}
+for (const [name, command] of Object.entries(packageJson.scripts ?? {})) {
+  if (/\\bvite\\b/i.test(command)) {
+    failures.push({ file: "package.json", issue: "Non-Next.js frontend command remains in script " + name });
+  }
+}
+if (packageJson.scripts?.prestart) {
+  failures.push({ file: "package.json", issue: "Application startup must not execute automatic prestart hooks" });
 }
 
 const nextConfig = await readFile(path.join(root, "next.config.ts"), "utf8");
