@@ -1,6 +1,9 @@
 import { isCrawlerUserAgent, isPublicCustomDomainPath, isPublicStorefrontPath, normalizeDomainHost, isUnsupportedPlatformSubdomain, isPlatformHostname } from "./storefrontPrerender";
 import { renderCrawlerDocument, type CrawlerSnapshot } from "./crawlerDocument";
 
+const isLocalHost = (hostname: string) =>
+  hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
+
 export type CrawlerSnapshotRequest = {
   slug: string;
   pathname: string;
