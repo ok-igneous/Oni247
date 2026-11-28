@@ -103,6 +103,8 @@ export async function handle(request: Request) {
             type: "rate_limited" as const,
             remainingMinutes,
             retryAt: lockoutEnd.getTime(),
+            failedAttempts: Number(failedCount),
+            attemptsRemaining: 0,
           };
         }
       }
@@ -150,10 +152,13 @@ export async function handle(request: Request) {
             type: "rate_limited" as const,
             remainingMinutes: lockoutMinutes,
             retryAt: now.getTime() + lockoutMinutes * 60 * 1000,
+            failedAttempts: totalFailedAttempts,
+            attemptsRemaining: 0,
           };
         }
         return {
           type: "auth_failed" as const,
+          failedAttempts: totalFailedAttempts,
           attemptsRemaining: RATE_LIMIT_CONFIG.maxFailedAttempts - totalFailedAttempts,
         };
       }
@@ -262,6 +267,9 @@ export async function handle(request: Request) {
           message: `Too many failed login attempts. Account locked for ${result.remainingMinutes} more minutes.`,
           retryAt: result.retryAt,
           remainingMinutes: result.remainingMinutes,
+          failedAttempts: result.failedAttempts,
+          failedAttempts: result.failedAttempts,
+          attemptsRemaining: result.attemptsRemaining,
         }),
         {
           status: 429,
