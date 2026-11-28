@@ -150,7 +150,7 @@ async function invokeEndpoint(
           ? `${retryMinutes}m ${retrySeconds}s`
           : `${retrySeconds}s`;
         const errorMessage =
-          `Too many login requests: ${result.requestCount}/${result.requestLimit} used. ` +
+          `Too many requests: ${result.requestCount}/${result.requestLimit} used. ` +
           `${result.requestsRemaining} requests remaining in this window. Try again in ${retryLabel}.`;
         return reply.code(429).send({
           error: errorMessage,
