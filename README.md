@@ -2,25 +2,25 @@
 
 Oni247 is an independent website and storefront platform.
 
-## Stack
+## Runtime architecture
 
-- Next.js App Router and React 19 own the web runtime, routing and production build.
-- Fastify is an API-only service; it no longer serves the frontend or a Vite build.
-- React Router remains only inside a temporary compatibility layer for pages not yet migrated to App Router.
-- PostgreSQL, Kysely and postgres.js for persistence.
-- JWT-backed HTTP-only sessions.
-- S3-compatible object storage.
+- **Web:** Next.js App Router and React 19 own all frontend rendering, routing, metadata and production builds.
+- **API:** Fastify 5 is a private API-only service. It does not serve frontend pages or static SPA fallbacks.
+- **Database:** PostgreSQL through Kysely and postgres.js.
+- **Sessions:** signed JWT in an HTTP-only `oni247_session` cookie.
+- **Storage:** S3-compatible object storage.
+- **Runtime:** Node.js 22 or newer.
 
-Vite is not used to develop, serve or build the application. Vitest remains the current test runner and brings Vite as a transitive development dependency only; it is not part of the production runtime.
+React Router, the legacy page runtime, the generated legacy route registry, and the old `legacy-pages/` source tree have been removed from the Next.js migration branch. Vitest is the test runner; any transitive Vite package is test-tooling only, not an application runtime.
 
 ## Canonical storefront URLs
 
 - Platform storefronts: `https://oni247.org/{slug}` (for example, `https://oni247.org/nesmage`).
-- `/store/{slug}` is not a supported route and returns 404. Unknown root-level slugs return 404 unless they match a known legacy static page.
-- Business subdomains are not used.
-- Verified custom domains serve the storefront at their own domain root and require an active paid subscription. Trials and expired subscriptions do not qualify.
+- `/store/{slug}` is not a supported route and returns 404.
+- Unknown root-level slugs return 404.
+- Verified custom domains serve the storefront on their own domain and require an active paid subscription.
 
-## Run locally
+## Local development
 
 ```bash
 cp .env.example .env
@@ -28,25 +28,27 @@ npm install
 npm run dev
 ```
 
-Next.js runs on port 3000. Fastify listens privately on 127.0.0.1:3001 and is reached through Next.js API proxy routes. Set a PostgreSQL `DATABASE_URL`, a 32+ character `JWT_SECRET`, and S3-compatible storage credentials in `.env`.
+Next.js runs on port 3000. Fastify listens privately on 127.0.0.1:3001 and is reached through Next.js API proxy routes. Configure PostgreSQL `DATABASE_URL`, a 32+ character `JWT_SECRET`, and S3-compatible storage credentials in `.env`.
 
-## Build and run
+## Build and verification
 
 ```bash
+npm run audit:nextjs
+npm run audit:project
 npm run typecheck
 npm test
 npm run build
 npm start
 ```
 
-The production start command runs Next.js on the hosting platform's public `PORT` and Fastify on the private `API_PORT` (default 3001). Fastify does not expose a public listener by default.
+The production start command runs Next.js on the hosting platform's public `PORT` and Fastify on the private `API_PORT` (default 3001).
 
 ## Deployment safety
 
-The migration branch is not production-ready until dependencies are installed and typecheck, tests, Next.js production build, authentication, payment, custom-domain, SEO and browser acceptance checks pass. Do not change production DNS, webhooks or customer traffic without explicit cutover approval.
+The migration branch is not production-ready until dependency installation, architecture audits, typecheck, tests, the Next.js production build, and browser acceptance tests pass. Authentication, payment, custom-domain, SEO, storefront, dashboard and admin flows must be exercised on staging. Do not change production DNS, webhooks or customer traffic without explicit cutover approval.
 
-See [STANDALONE_MIGRATION.md](./STANDALONE_MIGRATION.md) and [docs/nextjs-migration.md](./docs/nextjs-migration.md) for the migration and release gates.
+See [STANDALONE_MIGRATION.md](STANDALONE_MIGRATION.md), [MIGRATION_STATUS.md](MIGRATION_STATUS.md) and [docs/nextjs-migration.md](docs/nextjs-migration.md) for migration and release gates.
 
 ## Product specifications
 
-- [Editable Portfolio / Professional Profile Builder](docs/features/editable-portfolio-builder.md) — requirements for an owner-editable portfolio, including profile content, sections, projects, services, image uploads, theme integration, SEO, drafts, and publishing.
+- [Editable Portfolio / Professional Profile Builder](docs/features/editable-portfolio-builder.md) — requirements for owner-editable portfolio content, sections, projects, services, uploads, themes, SEO, drafts and publishing.
