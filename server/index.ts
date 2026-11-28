@@ -232,11 +232,11 @@ app.all("/_api/*", async (request, reply) => {
   const pathname = new URL(request.url, "http://localhost").pathname;
   let route: string;
   try {
-    route = decodeURIComponent(pathname.replace(/^\\/_api\\/?/, "")).replace(/\\/$/, "");
+    route = decodeURIComponent(pathname.replace(/^\/_api\/?/, "").replace(/\/$/, ""));
   } catch {
     return reply.code(400).send({ error: "Malformed API path" });
   }
-  if (route.includes("\\\\") || route.includes("\\0") || route.split("/").some((part) => part === "." || part === "..")) {
+  if (route.includes("\\") || route.includes("\0") || route.split("/").some((part) => part === "." || part === "..")) {
     return reply.code(400).send({ error: "Invalid API path" });
   }
   return invokeEndpoint(request.method.toUpperCase(), route, request, reply);
