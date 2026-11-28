@@ -1,4 +1,4 @@
-import LegacyAppClient from "../../../../LegacyAppClient";
+import LegacyAppClient from "../../../LegacyAppClient";
 
 /**
  * Compatibility entry point for routes still owned by the legacy React Router app.
