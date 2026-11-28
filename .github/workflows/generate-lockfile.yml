@@ -1,19 +1,10 @@
 name: Generate npm lockfile
 
 on:
-  push:
-    branches: [security/nextjs-hardening]
-    paths:
-      - package.json
-      - package-lock.json
-      - .github/workflows/generate-lockfile.yml
+  workflow_dispatch:
 
 permissions:
   contents: write
-
-concurrency:
-  group: oni247-lockfile
-  cancel-in-progress: false
 
 jobs:
   lockfile:

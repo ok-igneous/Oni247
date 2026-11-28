@@ -93,3 +93,41 @@ The new runtime is a first implementation, not a completed migration. Keep previ
 - Render deploy `dep-dc4o9tui0phs73b0r8kg` was triggered for the auth URL correction. Its latest observed state was `build_in_progress`; completion and live endpoint checks must be confirmed before calling the staging release verified.
 
 - Added `scripts/migrate.mjs` and the `npm run db:migrate` command. The runner applies numbered SQL files in order, records applied versions, and wraps each migration in a transaction. The runner itself has been reviewed but has not yet been executed from the Render runtime.
+
+
+## Next.js App Router migration update (2026-11-28)
+
+The active migration work is on `nextjs-app-router-migration` and tracked by draft PR #12. This update supersedes the earlier Vite/React Router compatibility-layer status described in the historical notes above.
+
+- The branch tree contains 72 standard Next.js App Router route/layout/handler files.
+- All 25 required route paths in `scripts/audit-nextjs-migration.mjs` are present.
+- The `legacy-pages/` directory, `src/App.tsx`, `LegacyAppClient`, `LegacyAppRuntime`, legacy route registry generator, and legacy catch-all routes are absent from the branch tree.
+- `react-router-dom`, `react-helmet`, and their legacy type package are absent from the package manifest.
+- Custom `.next.tsx` route conventions and the custom Next.js page-extension override have been removed; route files use standard `page.tsx`, `layout.tsx`, and `route.ts` names.
+- Native route components have replaced the legacy routing layer for dashboard, admin, authentication, storefront and public transaction/content flows.
+- CI has not passed. The latest recorded GitHub Actions job terminated before recording any job steps; a retry also failed without step output. Treat verification as blocked, not passed. No production deploy, PR merge, or production cutover is authorized by this status update.
+
+
+## Database startup safety (2026-11-28)
+
+Removed the package `prestart` hook that executed SQL migrations automatically on every application start. The baseline schema migration uses non-idempotent `CREATE TYPE` and `CREATE TABLE` statements, so replaying it against an existing production database without a validated migration ledger could break deployment. Database migration is now an explicit operator action; do not run the baseline against the existing customer database.
+
+
+## Source import audit update (2026-11-28)
+
+A static relative-import audit was performed across the 72 App Router route/layout/handler files, the migrated dashboard and admin components, and the shared Next.js page components. It found and corrected:
+
+- A missing theme-editor tabs stylesheet, restored into the Next.js dashboard component directory.
+- An incorrect relative import for the business order-tracking page's Input component.
+- Earlier tracking and password-reset component import-depth errors were also corrected.
+
+The audited route and component files now resolve their relative imports against the branch tree. This is a static path check only; it does not replace TypeScript, Next.js build, or browser/runtime verification. The API proxy route uses the escaped `%5Fapi` folder name intentionally: Next.js treats a literal underscore-prefixed folder as private, while the escaped name exposes the public `/_api/*` route.
+
+
+## Verification and runtime hardening update (2026-11-28)
+
+- The production build command now runs `audit:nextjs` and `audit:project` before TypeScript and `next build`, so Render cannot build a branch that fails either architecture audit.
+- The Next.js architecture audit now rejects direct Vite runtime dependencies/scripts, requires Next.js as a direct runtime dependency, rejects automatic `prestart` hooks, and checks custom-domain product/service/blog/gallery/event/booking routes.
+- The repository tree contains no root Pages Router `pages/` directory, no Vite application entrypoint/config, no React Router/Helmet packages, no legacy page tree/runtime, and 72 standard App Router route/layout/handler files.
+- The latest GitHub Actions job is marked failed but has no recorded steps or log URL. It failed before executing checkout, install, audit, tests, or build. The reason is not exposed by the available job record, so this cannot be treated as a source-code build failure or a passing verification. Do not merge until a runner executes the workflow successfully.
+- Removed automatic SQL migration execution from `npm start`. The baseline migration is non-idempotent and must not be replayed against the existing customer database.

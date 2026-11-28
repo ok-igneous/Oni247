@@ -1,138 +1,122 @@
 #!/usr/bin/env node
-import { readdir, readFile, stat } from "node:fs/promises";
+import { access, readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
 const root = process.cwd();
 const ignored = new Set([".git", "node_modules", ".next", "dist", "coverage"]);
-const roots = ["legacy-pages", "components", "helpers", "endpoints", "src", "server", "app"];
-const findings = [];
-const routeFiles = [];
+const roots = ["src", "components", "helpers", "endpoints", "server", "scripts"];
+const failures = [];
+const sourceExtensions = /\.(?:ts|tsx|js|jsx|mjs|cjs)$/;
+
+async function exists(relative) {
+  try { await access(path.join(root, relative)); return true; }
+  catch (error) { if (error.code === "ENOENT") return false; throw error; }
+}
 
 async function walk(directory) {
   let entries;
-  try {
-    entries = await readdir(directory, { withFileTypes: true });
-  } catch (error) {
-    if (error.code === "ENOENT") return;
-    throw error;
-  }
-
+  try { entries = await readdir(directory, { withFileTypes: true }); }
+  catch (error) { if (error.code === "ENOENT") return; throw error; }
   for (const entry of entries) {
     if (entry.isDirectory() && ignored.has(entry.name)) continue;
     const absolute = path.join(directory, entry.name);
-    if (entry.isDirectory()) {
-      await walk(absolute);
-      continue;
-    }
-    if (!/\.(tsx?|jsx?)$/.test(entry.name)) continue;
-
+    if (entry.isDirectory()) { await walk(absolute); continue; }
+    if (!sourceExtensions.test(entry.name)) continue;
     const relative = path.relative(root, absolute).split(path.sep).join("/");
+    if (relative === "scripts/audit-nextjs-migration.mjs") continue;
     const source = await readFile(absolute, "utf8");
-
-    if (
-      relative.startsWith("legacy-pages/") &&
-      !relative.endsWith(".pageLayout.tsx") &&
-      relative !== "legacy-pages/StorefrontPage.tsx" &&
-      !relative.startsWith("legacy-pages/store.$slug") &&
-      !relative.startsWith("legacy-pages/$slug.")
-    ) {
-      const base = path.basename(relative).replace(/\.(tsx|jsx)$/, "");
-      const route = base === "_index"
-        ? "/"
-        : "/" + base.replace(/\./g, "/").replace(/\$([A-Za-z0-9_]+)/g, "[$1]").replace(/^_/, "");
-      routeFiles.push({ file: relative, route });
-    }
-
-    for (const [label, pattern] of [
-      ["Vite import.meta.glob usage", /import\.meta\.glob/g],
-      ["Vite import.meta.env usage", /import\.meta\.env/g],
-    ]) {
-      const count = [...source.matchAll(pattern)].length;
-      if (count) findings.push({ file: relative, issue: label, count });
+    const checks = [
+      ["React Router import", /from\s*["']react-router(?:-dom)?["']/],
+      ["React Helmet import", /from\s*["']react-helmet["']/],
+      ["Legacy page import", /from\s*["'][^"']*legacy-pages\//],
+      ["Legacy runtime reference", /\b(?:LegacyAppClient|LegacyAppRuntime|legacyRootPageSlugs|legacyPageRegistry)\b/],
+      ["BrowserRouter runtime", /\bBrowserRouter\b/],
+    ];
+    for (const [label, pattern] of checks) {
+      if (pattern.test(source)) failures.push({ file: relative, issue: label });
     }
   }
 }
 
 for (const folder of roots) await walk(path.join(root, folder));
 
-routeFiles.sort((a, b) => a.route.localeCompare(b.route) || a.file.localeCompare(b.file));
-const grouped = new Map();
-for (const entry of routeFiles) {
-  grouped.set(entry.route, [...(grouped.get(entry.route) ?? []), entry.file]);
-}
-const collisions = [...grouped.entries()]
-  .filter(([, files]) => files.length > 1)
-  .map(([route, files]) => ({ route, files }));
-
-const hostResolutionSources = await Promise.all([
-  readFile(path.join(root, "server", "storefrontPrerender.ts"), "utf8"),
-  readFile(path.join(root, "server", "crawlerRenderer.ts"), "utf8"),
-  readFile(path.join(root, "endpoints", "storefrontHost_GET.ts"), "utf8"),
-]);
-if (hostResolutionSources.some((source) =>
-  source.includes("resolvePlatformSubdomainSlug") || source.includes("resolvePlatformSubdomain(")
-)) {
-  findings.push({ file: "source", issue: "Retired business-subdomain resolver remains", count: 1 });
-}
-
-const subscriptionSource = await readFile(path.join(root, "helpers", "subscriptionPlan.tsx"), "utf8");
-const hostEndpointSource = await readFile(path.join(root, "endpoints", "storefrontHost_GET.ts"), "utf8");
-const sitemapSource = await readFile(path.join(root, "endpoints", "sitemap_GET.ts"), "utf8");
-if (!subscriptionSource.includes("canUseCustomDomain: paid")) {
-  findings.push({ file: "helpers/subscriptionPlan.tsx", issue: "Custom-domain entitlement must be paid-only", count: 1 });
-}
-if (!hostEndpointSource.includes("subscriptionPlan.resolve(business).canUseCustomDomain")) {
-  findings.push({ file: "endpoints/storefrontHost_GET.ts", issue: "Custom-domain host resolution must enforce paid entitlement", count: 1 });
-}
-if (!sitemapSource.includes("plan.canUseCustomDomain")) {
-  findings.push({ file: "endpoints/sitemap_GET.ts", issue: "Sitemap must enforce paid custom-domain entitlement", count: 1 });
+const obsoletePaths = [
+  "legacy-pages",
+  "src/App.tsx",
+  "src/LegacyAppClient.tsx",
+  "src/LegacyAppRuntime.tsx",
+  "src/app/legacy",
+  // An underscore-prefixed folder is private in Next.js. The escaped directory
+  // name is required to expose the literal /_api URL segment.
+  "src/app/_api",
+  "scripts/generate-legacy-page-registry.mjs",
+  "scripts/generate-legacy-page-registry.spec.ts",
+];
+for (const relative of obsoletePaths) {
+  if (await exists(relative)) failures.push({ file: relative, issue: "Obsolete legacy frontend source remains" });
 }
 
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
-const directViteDependencies = Object.keys({
-  ...packageJson.dependencies,
-  ...packageJson.devDependencies,
-}).filter((name) => name === "vite" || name.startsWith("@vitejs/"));
+if (!packageJson.dependencies?.next) {
+  failures.push({ file: "package.json", issue: "Next.js must be a direct runtime dependency" });
+}
+for (const name of ["react-router-dom", "react-helmet", "@types/react-helmet", "vite", "@vitejs/plugin-react"]) {
+  if (packageJson.dependencies?.[name] || packageJson.devDependencies?.[name]) {
+    failures.push({ file: "package.json", issue: "Obsolete or competing frontend dependency remains: " + name });
+  }
+}
+for (const [name, command] of Object.entries(packageJson.scripts ?? {})) {
+  if (/\bvite\b/i.test(command)) {
+    failures.push({ file: "package.json", issue: "Non-Next.js frontend command remains in script " + name });
+  }
+}
+if (packageJson.scripts?.prestart) {
+  failures.push({ file: "package.json", issue: "Application startup must not execute automatic prestart hooks" });
+}
 
-const requiredFiles = [
-  "src/app/store/[[...path]]/page.next.tsx",
-  "src/app/legacy/[[...path]]/page.next.tsx",
-  "src/app/%5Fapi/[...path]/route.next.ts",
-  "server/nextApiProxy.ts",
-  "scripts/generate-legacy-page-registry.mjs",
+const nextConfig = await readFile(path.join(root, "next.config.ts"), "utf8");
+if (/rewrites\s*\(/.test(nextConfig) || /destination:\s*["']\/legacy/.test(nextConfig)) {
+  failures.push({ file: "next.config.ts", issue: "Legacy route rewrite remains" });
+}
+
+async function findNonstandardRoutes(directory) {
+  const routes = [];
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const absolute = path.join(directory, entry.name);
+    if (entry.isDirectory()) routes.push(...await findNonstandardRoutes(absolute));
+    else if (/^(?:page|layout|route)\.next\.(?:ts|tsx)$/.test(entry.name)) routes.push(path.relative(root, absolute));
+  }
+  return routes;
+}
+for (const file of await findNonstandardRoutes(path.join(root, "src", "app"))) {
+  failures.push({ file, issue: "Non-standard Next.js route filename; use page.tsx/layout.tsx/route.ts" });
+}
+
+const requiredRoutes = [
+  "src/app/page.tsx", "src/app/login/page.tsx", "src/app/register/page.tsx",
+  "src/app/forgot-password/page.tsx", "src/app/reset-password/page.tsx",
+  "src/app/verify-email/page.tsx", "src/app/dashboard/page.tsx", "src/app/admin/page.tsx",
+  "src/app/[slug]/page.tsx", "src/app/[slug]/p/[productSlug]/page.tsx",
+  "src/app/[slug]/s/[serviceId]/page.tsx", "src/app/[slug]/b/[blogSlug]/page.tsx",
+  "src/app/[slug]/e/[eventSlug]/page.tsx", "src/app/[slug]/f/[formId]/page.tsx",
+  "src/app/[slug]/g/[gallerySlug]/page.tsx", "src/app/[slug]/track/page.tsx",
+  "src/app/[slug]/track/[code]/page.tsx", "src/app/[slug]/checkout/page.tsx",
+  "src/app/[slug]/booking/[code]/page.tsx", "src/app/[slug]/book/[serviceId]/page.tsx",
+  "src/app/%5Fapi/[...path]/route.ts",
+  "src/app/p/[productSlug]/page.tsx", "src/app/s/[serviceId]/page.tsx",
+  "src/app/b/[blogSlug]/page.tsx", "src/app/g/[gallerySlug]/page.tsx",
+  "src/app/e/[eventSlug]/page.tsx", "src/app/book/[serviceId]/page.tsx",
+  "src/app/track/page.tsx", "src/app/track/[code]/page.tsx", "src/app/pay/[code]/page.tsx",
+  "src/app/booking/[code]/page.tsx", "src/app/checkout/page.tsx",
 ];
-const missingRequiredFiles = [];
-for (const file of requiredFiles) {
-  try {
-    await stat(path.join(root, file));
-  } catch (error) {
-    if (error.code === "ENOENT") missingRequiredFiles.push(file);
-    else throw error;
-  }
+for (const relative of requiredRoutes) {
+  if (!(await exists(relative))) failures.push({ file: relative, issue: "Required App Router route is missing" });
 }
 
-const obsoleteEntrypoints = [];
-for (const file of ["vite.config.ts", "index.html", "src/main.tsx"]) {
-  try {
-    await stat(path.join(root, file));
-    obsoleteEntrypoints.push(file);
-  } catch (error) {
-    if (error.code !== "ENOENT") throw error;
-  }
-}
-
-const report = {
-  routeCount: routeFiles.length,
-  routes: routeFiles,
-  routeCollisions: collisions,
-  directViteDependencies,
-  obsoleteEntrypoints,
-  missingRequiredFiles,
-  sourceFindings: findings,
-  testRunner: packageJson.devDependencies?.vitest ? "Vitest (Vite is transitive, development-only)" : "No Vitest",
-};
-
-process.stdout.write(JSON.stringify(report, null, 2) + "\n");
-if (collisions.length || directViteDependencies.length || obsoleteEntrypoints.length || missingRequiredFiles.length || findings.length) {
+if (failures.length) {
+  for (const item of failures) process.stderr.write("[FAIL] " + item.file + ": " + item.issue + "\n");
+  process.stderr.write("Next.js architecture audit failed with " + failures.length + " issue(s).\n");
   process.exitCode = 1;
+} else {
+  process.stdout.write("Next.js architecture audit passed: no legacy router/runtime, no fallback rewrites, standard App Router filenames, and required routes are present.\n");
 }

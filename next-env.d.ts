@@ -1,5 +1,5 @@
 /// <reference types="next" />
 /// <reference types="next/image-types/global" />
 
-// This file is maintained for the parallel Next.js migration.
-// The legacy Vite application remains active until the migration is approved.
+// NOTE: This file should not be edited
+// see https://nextjs.org/docs/app/api-reference/config/typescript for more information.

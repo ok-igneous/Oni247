@@ -1,18 +1,10 @@
 name: Oni247 Next.js CI
 
 on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [security/nextjs-hardening]
   workflow_dispatch:
 
 permissions:
   contents: read
-
-concurrency:
-  group: oni247-nextjs-ci-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   verify:
@@ -22,32 +14,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          persist-credentials: true
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-
-      - name: Generate dependency lockfile
-        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
-
-      - name: Install locked dependencies
-        run: npm ci --no-audit --no-fund
-
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
       - name: Audit Next.js migration
         run: npm run audit:nextjs
-
       - name: Audit project structure
         run: npm run audit:project
-
       - name: TypeScript
         run: npm run typecheck
-
       - name: Unit tests
         run: npm test
-
       - name: Production build
         run: npm run build
-

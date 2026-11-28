@@ -57,7 +57,7 @@ import { StorefrontHeaderNext } from "./StorefrontHeader.next";
 import { StorefrontHero } from "../../../components/StorefrontHero";
 import { StoreServiceCardNext } from "./StoreServiceCard.next";
 import type { OutputType as StorefrontOutput, StorefrontProduct } from "../../../endpoints/storefront_GET.schema";
-import styles from "../../../legacy-pages/StorefrontPage.module.css";
+import styles from "./StorefrontPage.module.css";
 import { shareLink } from "../../../endpoints/share/page_GET.schema";
 
 const safeContentLink = (value: string): string | null => {
@@ -71,7 +71,7 @@ const safeContentLink = (value: string): string | null => {
   }
 };
 
-export default function StorefrontPageNext({ slug, initialData, customDomain, origin }: { slug: string; initialData: StorefrontOutput; customDomain: boolean; origin: string }) {
+export default function StorefrontPageNext({ slug, initialData, customDomain, origin, pageSlug }: { slug: string; initialData: StorefrontOutput; customDomain: boolean; origin: string; pageSlug?: "about" | "products" | "services" | "gallery" | "blog" | "events" | "contact" }) {
   const router = useRouter();
   const { data, isFetching } = useStorefront(slug, initialData);
   const storefrontPath = (businessSlug: string, path = "/") => {
@@ -270,19 +270,33 @@ export default function StorefrontPageNext({ slug, initialData, customDomain, or
   const defaultHeroAction = isOnlineStore ? "Shop now" : appearance.siteType === "service_business" ? "Book a service" : appearance.siteType === "portfolio" ? "View our work" : appearance.siteType === "events_community" ? "Explore events" : "Message us on WhatsApp";
   const heroActionUrl = isOnlineStore ? "#catalogue" : appearance.siteType === "portfolio" ? "#work" : appearance.siteType === "events_community" ? "#events" : whatsappNumber ? enquiryUrl : "#contact";
   const siteMode = themeEngine.siteMode === "multi_page" && business.canUseMultiPage ? "multi_page" : "one_page";
-  const sections = {
+  const configuredSections = {
     hero: true, slider: true, video: true, gallery: true, services: true, featured: true, catalogue: true, about: true,
     work: true, testimonials: true, blog: true, events: true, contact: true,
     ...(typeof appearance.sections === "object" && appearance.sections !== null ? appearance.sections : {}),
   };
+  const pageSections: Record<NonNullable<typeof pageSlug>, string[]> = {
+    about: ["about", "work", "testimonials"],
+    products: ["featured", "catalogue"],
+    services: ["services"],
+    gallery: ["gallery"],
+    blog: ["blog"],
+    events: ["events"],
+    contact: ["contact"],
+  };
+  const sections = pageSlug
+    ? Object.fromEntries(Object.entries(configuredSections).map(([key, enabled]) => [key, pageSections[pageSlug].includes(key) && enabled !== false]))
+    : configuredSections;
+  const isHomeView = !pageSlug;
+  const isProductsView = isHomeView || pageSlug === "products";
   const sectionOrder = Array.isArray(appearance.sectionOrder) ? appearance.sectionOrder.filter((key): key is string => typeof key === "string") : [];
   const onlineStoreOrder: Record<string, number> = { hero: 10, slider: 10, categories: 11, trust: 12, onsale: 13, new: 14, featured: 15, catalogue: 16, video: 30, gallery: 31, events: 32, services: 33, about: 34, work: 35, testimonials: 36, blog: 37, contact: 38 };
   const orderOf = (key: string) => { if (isOnlineStore && sectionOrder.length === 0 && key in onlineStoreOrder) return onlineStoreOrder[key]; const index = sectionOrder.indexOf(key); return 10 + (index < 0 ? ["hero","slider","video","gallery","services","featured","catalogue","about","work","testimonials","blog","events","contact"].indexOf(key) : index); };
   const selectedHomePage = typeof appearance.homePage === "string" ? appearance.homePage : "home";
   const footerMode = appearance.footerMode === "none" || appearance.footerMode === "selected" ? appearance.footerMode : "all";
   const footerPages = Array.isArray(appearance.footerPages) ? appearance.footerPages.filter((key): key is string => typeof key === "string") : [];
-  const showFooter = footerMode === "all" || (footerMode === "selected" && footerPages.includes(selectedHomePage === "home" ? "home" : selectedHomePage));
-  const redirectHomePage = siteMode === "multi_page" && selectedHomePage !== "home" && ["products","services","about","gallery","blog","events","contact"].includes(selectedHomePage);
+  const footerPage = pageSlug ?? (selectedHomePage === "home" ? "home" : selectedHomePage);\n  const showFooter = footerMode === "all" || (footerMode === "selected" && footerPages.includes(footerPage));
+  const redirectHomePage = !pageSlug && siteMode === "multi_page" && selectedHomePage !== "home" && ["products","services","about","gallery","blog","events","contact"].includes(selectedHomePage);
   useEffect(() => {
     if (redirectHomePage) router.replace(storefrontPath(business.slug, "/" + selectedHomePage));
   }, [redirectHomePage, router, business.slug, selectedHomePage]);
@@ -369,8 +383,8 @@ export default function StorefrontPageNext({ slug, initialData, customDomain, or
 
       {business.showPlatformBranding && <a className={styles.platformCredit} href="https://oni247.org" target="_blank" rel="noopener noreferrer" aria-label="Build using Oni247">Build using <strong>Oni247</strong></a>}
 
-      {isOnlineStore && <div className={styles.storeCallStrip}>{(business.phone || whatsappNumber) ? <><span>Call to order</span>{business.phone && <a href={`tel:${business.phone.replace(/\s/g, "")}`}>{business.phone}</a>}{whatsappNumber && <a href={enquiryUrl} target="_blank" rel="noopener noreferrer">WhatsApp order</a>}</> : <span>Welcome to {business.name}</span>}</div>}
-      {isOnlineStore && <div className={styles.storeSearchRow}><Search size={18} aria-hidden="true"/><Input value={search} onChange={event=>{setSearch(event.target.value);setVisibleCount(12);}} onKeyDown={event=>{if(event.key==="Enter")document.getElementById("catalogue")?.scrollIntoView({behavior:"smooth"});}} enterKeyHint="search" type="search" placeholder="Search products" aria-label="Search products"/></div>}
+      {isHomeView && isOnlineStore && <div className={styles.storeCallStrip}>{(business.phone || whatsappNumber) ? <><span>Call to order</span>{business.phone && <a href={`tel:${business.phone.replace(/\s/g, "")}`}>{business.phone}</a>}{whatsappNumber && <a href={enquiryUrl} target="_blank" rel="noopener noreferrer">WhatsApp order</a>}</> : <span>Welcome to {business.name}</span>}</div>}
+      {isProductsView && isOnlineStore && <div className={styles.storeSearchRow}><Search size={18} aria-hidden="true"/><Input value={search} onChange={event=>{setSearch(event.target.value);setVisibleCount(12);}} onKeyDown={event=>{if(event.key==="Enter")document.getElementById("catalogue")?.scrollIntoView({behavior:"smooth"});}} enterKeyHint="search" type="search" placeholder="Search products" aria-label="Search products"/></div>}
 
       <main className={styles.main} style={{ display: "flex", flexDirection: "column" }}>
         {sections.hero && !((sections.slider !== false && homepageSlides.length > 0 && sliderInHero) || (sections.video !== false && (homepageVideoUrl || homepageVideoFileUrl) && videoInHero)) && <StorefrontHero headline={business.heroHeadline} description={business.heroSubtext} imageUrl={business.heroImageUrl} layout={heroLayout as "full"|"left"|"right"|"text"} actionUrl={heroActionUrl} actionLabel={business.heroCtaLabel || defaultHeroAction} style={{order:orderOf("hero")}} />}
@@ -398,13 +412,13 @@ export default function StorefrontPageNext({ slug, initialData, customDomain, or
           </section>
         )}
 
-        {isOnlineStore && categories.length > 0 && <section className={styles.storeCategorySection} id="categories" style={{order:orderOf("categories")}}><div className={styles.catalogueHead}><h2 className={styles.sectionHeading}>Shop by category</h2><button type="button" className={styles.storeCategoryAll} onClick={()=>{setActiveCategory(null);setSearch("");}}>View all</button></div><div className={styles.storeCategoryGrid}><button type="button" className={`${styles.storeCategoryTile} ${activeCategory===null?styles.storeCategoryActive:""}`} onClick={()=>{setActiveCategory(null);setVisibleCount(12);document.getElementById("catalogue")?.scrollIntoView({behavior:"smooth"});}}>All products<span>{products.length} items</span></button>{categories.map(category=><button type="button" key={category.id} className={`${styles.storeCategoryTile} ${activeCategory===category.id?styles.storeCategoryActive:""}`} onClick={()=>{setActiveCategory(category.id);setVisibleCount(12);document.getElementById("catalogue")?.scrollIntoView({behavior:"smooth"});}}>{category.name}<span>{categoryCounts.get(category.id)??0} items</span></button>)}</div></section>}
+        {isProductsView && isOnlineStore && categories.length > 0 && <section className={styles.storeCategorySection} id="categories" style={{order:orderOf("categories")}}><div className={styles.catalogueHead}><h2 className={styles.sectionHeading}>Shop by category</h2><button type="button" className={styles.storeCategoryAll} onClick={()=>{setActiveCategory(null);setSearch("");}}>View all</button></div><div className={styles.storeCategoryGrid}><button type="button" className={`${styles.storeCategoryTile} ${activeCategory===null?styles.storeCategoryActive:""}`} onClick={()=>{setActiveCategory(null);setVisibleCount(12);document.getElementById("catalogue")?.scrollIntoView({behavior:"smooth"});}}>All products<span>{products.length} items</span></button>{categories.map(category=><button type="button" key={category.id} className={`${styles.storeCategoryTile} ${activeCategory===category.id?styles.storeCategoryActive:""}`} onClick={()=>{setActiveCategory(category.id);setVisibleCount(12);document.getElementById("catalogue")?.scrollIntoView({behavior:"smooth"});}}>{category.name}<span>{categoryCounts.get(category.id)??0} items</span></button>)}</div></section>}
 
-        {isOnlineStore && (()=>{const c=business.checkout;const trust=[...(c?.deliveryEnabled?[{title:"Delivery available",detail:c.deliveryNote||"Delivery options at checkout"}]:[]),...(c?.freeDeliveryOver!==null&&c?.freeDeliveryOver!==undefined?[{title:"Free delivery offer",detail:`Free delivery on orders above ${formatMoney(c.freeDeliveryOver,business.currency)}`}]:[]),...(c?.pickupEnabled?[{title:"Pickup available",detail:c.pickupNote||"Choose pickup at checkout"}]:[]),...(c?.paymentMethods.cashOnDelivery?[{title:"Cash on delivery",detail:"Available at checkout"}]:[]),...(c?.paymentMethods.bankTransfer?[{title:"Bank transfer",detail:"Available at checkout"}]:[]),...(c?.paymentMethods.payOnPickup?[{title:"Pay on pickup",detail:"Available at checkout"}]:[]),...(c?.returnPolicy?[{title:"Returns",detail:c.returnPolicy}]:[])];return trust.length>0?<section className={styles.storeTrustGrid} style={{order:orderOf("trust")}} aria-label="Store information">{trust.map(item=><article key={item.title}><strong>{item.title}</strong><span>{item.detail}</span></article>)}</section>:null;})()}
+        {isProductsView && isOnlineStore && (()=>{const c=business.checkout;const trust=[...(c?.deliveryEnabled?[{title:"Delivery available",detail:c.deliveryNote||"Delivery options at checkout"}]:[]),...(c?.freeDeliveryOver!==null&&c?.freeDeliveryOver!==undefined?[{title:"Free delivery offer",detail:`Free delivery on orders above ${formatMoney(c.freeDeliveryOver,business.currency)}`}]:[]),...(c?.pickupEnabled?[{title:"Pickup available",detail:c.pickupNote||"Choose pickup at checkout"}]:[]),...(c?.paymentMethods.cashOnDelivery?[{title:"Cash on delivery",detail:"Available at checkout"}]:[]),...(c?.paymentMethods.bankTransfer?[{title:"Bank transfer",detail:"Available at checkout"}]:[]),...(c?.paymentMethods.payOnPickup?[{title:"Pay on pickup",detail:"Available at checkout"}]:[]),...(c?.returnPolicy?[{title:"Returns",detail:c.returnPolicy}]:[])];return trust.length>0?<section className={styles.storeTrustGrid} style={{order:orderOf("trust")}} aria-label="Store information">{trust.map(item=><article key={item.title}><strong>{item.title}</strong><span>{item.detail}</span></article>)}</section>:null;})()}
 
-        {isOnlineStore && onSaleProducts.length>0 && <section className={styles.section} style={{order:orderOf("onsale")}}><div className={styles.catalogueHead}><h2 className={styles.sectionHeading}>On sale</h2><a className={styles.myOrdersLink} href="#catalogue">See all</a></div><div className={styles.featuredRow}>{onSaleProducts.slice(0,8).map(product=><StoreProductCardNext key={product.id} product={product} to={storefrontPath(business.slug, "/p/" + product.slug)} onAdd={()=>handleAdd(product)} className={styles.featuredCard}/>)}</div></section>}
+        {isProductsView && isOnlineStore && onSaleProducts.length>0 && <section className={styles.section} style={{order:orderOf("onsale")}}><div className={styles.catalogueHead}><h2 className={styles.sectionHeading}>On sale</h2><a className={styles.myOrdersLink} href="#catalogue">See all</a></div><div className={styles.featuredRow}>{onSaleProducts.slice(0,8).map(product=><StoreProductCardNext key={product.id} product={product} to={storefrontPath(business.slug, "/p/" + product.slug)} onAdd={()=>handleAdd(product)} className={styles.featuredCard}/>)}</div></section>}
 
-        {isOnlineStore && newArrivals.length>0 && <section className={styles.section} style={{order:orderOf("new")}}><div className={styles.catalogueHead}><h2 className={styles.sectionHeading}>New arrivals</h2><a className={styles.myOrdersLink} href="#catalogue">See all</a></div><div className={styles.featuredRow}>{newArrivals.map(product=><StoreProductCardNext key={product.id} product={product} to={storefrontPath(business.slug, "/p/" + product.slug)} onAdd={()=>handleAdd(product)} className={styles.featuredCard}/>)}</div></section>}
+        {isProductsView && isOnlineStore && newArrivals.length>0 && <section className={styles.section} style={{order:orderOf("new")}}><div className={styles.catalogueHead}><h2 className={styles.sectionHeading}>New arrivals</h2><a className={styles.myOrdersLink} href="#catalogue">See all</a></div><div className={styles.featuredRow}>{newArrivals.map(product=><StoreProductCardNext key={product.id} product={product} to={storefrontPath(business.slug, "/p/" + product.slug)} onAdd={()=>handleAdd(product)} className={styles.featuredCard}/>)}</div></section>}
 
         {sections.video !== false && (homepageVideoUrl || homepageVideoFileUrl) && <section className={styles.videoSection} style={{ order: orderOf(videoInHero ? "hero" : "video") }}>
           <h2 className={styles.sectionHeading}>{typeof content.homepageVideoTitle === "string" && content.homepageVideoTitle.trim() ? content.homepageVideoTitle : "Watch our video"}</h2>
@@ -667,7 +681,7 @@ export default function StorefrontPageNext({ slug, initialData, customDomain, or
         </section>}
       </main>
       <footer className={styles.footer}><span>{business.name}</span>{business.phone && <a href={`tel:${business.phone.replace(/\s/g,"")}`}>{business.phone}</a>}<span>Powered by Oni247</span></footer>
-      {isOnlineStore && <StoreCartDockNext slug={business.slug} currency={business.currency} cart={cart} open={cartOpen} onOpenChange={setCartOpen} customDomain={customDomain} />}
+      {isOnlineStore && isProductsView && <StoreCartDockNext slug={business.slug} currency={business.currency} cart={cart} open={cartOpen} onOpenChange={setCartOpen} customDomain={customDomain} />}
       {optionsProduct && <StoreOptionsDialog product={optionsProduct} onClose={() => setOptionsProduct(null)} onConfirm={(item) => { cart.add(item); setCartOpen(true); }} />}
     </div>
   );
