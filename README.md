@@ -43,6 +43,10 @@ npm start
 
 The production start command runs Next.js on the hosting platform's public `PORT` and Fastify on the private `API_PORT` (default 3001).
 
+## Database migration safety
+
+Application startup does not run SQL migrations. The baseline migration creates PostgreSQL types and tables and is not safe to replay against an existing production database. Run `npm run db:migrate` only against a disposable development database or after a separately reviewed, schema-diffed migration plan. Do not point the baseline migration at the existing customer database.
+
 ## Deployment safety
 
 The migration branch is not production-ready until dependency installation, architecture audits, typecheck, tests, the Next.js production build, and browser acceptance tests pass. Authentication, payment, custom-domain, SEO, storefront, dashboard and admin flows must be exercised on staging. Do not change production DNS, webhooks or customer traffic without explicit cutover approval.
