@@ -1,6 +1,6 @@
 import { Fragment, useState } from "react";
 import { Helmet } from "react-helmet";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { toast } from "sonner";
 import { Users, ShieldCheck, Table2 } from "lucide-react";
 import { Button } from "../components/Button";
@@ -257,7 +257,7 @@ const TeamPage = () => {
         <div className={styles.locked}>
           <strong>The Team add-on is off.</strong>
           <p className={styles.empty}>Switch it on in Add-ons to invite people and set roles.</p>
-          <Button asChild><Link to="/dashboard/addons">Open add-ons</Link></Button>
+          <Button asChild><Link href="/dashboard/addons">Open add-ons</Link></Button>
         </div>
       ) : (
         <SectionLayout title="Team" items={SECTIONS.map((s) => (s.id === "people" ? { ...s, badge: data.members.length } : s.id === "roles" ? { ...s, badge: data.roles.length } : s))} value={section} onChange={setSection}>
