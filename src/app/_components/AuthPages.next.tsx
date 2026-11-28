@@ -37,6 +37,10 @@ function LoginFormNext() {
   const [error, setError] = useState<string | null>(null);
   const [attemptsRemaining, setAttemptsRemaining] = useState<number | null>(null);
   const [failedAttempts, setFailedAttempts] = useState<number | null>(null);
+  const [requestCount, setRequestCount] = useState<number | null>(null);
+  const [requestLimit, setRequestLimit] = useState<number | null>(null);
+  const [requestsRemaining, setRequestsRemaining] = useState<number | null>(null);
+  const [retryType, setRetryType] = useState<"IP_RATE_LIMITED" | "PASSWORD_LOCKOUT" | null>(null);
   const [retryAt, setRetryAt] = useState<number | null>(null);
   const [now, setNow] = useState(Date.now());
   const form = useForm({ defaultValues: { email: "", password: "" }, schema: loginSchema });
@@ -45,10 +49,23 @@ function LoginFormNext() {
     const saved = Number(window.localStorage.getItem("oni247-login-retry-at"));
     if (Number.isFinite(saved) && saved > Date.now()) {
       setRetryAt(saved);
-      setFailedAttempts(5);
-      setAttemptsRemaining(0);
-      setError("Too many failed login attempts. Your account is temporarily locked.");
-    } else window.localStorage.removeItem("oni247-login-retry-at");
+      const savedType = window.localStorage.getItem("oni247-login-retry-type");
+      if (savedType === "IP_RATE_LIMITED") {
+        setRetryType("IP_RATE_LIMITED");
+        setRequestCount(Number(window.localStorage.getItem("oni247-login-request-count")) || null);
+        setRequestLimit(Number(window.localStorage.getItem("oni247-login-request-limit")) || null);
+        setRequestsRemaining(Number(window.localStorage.getItem("oni247-login-requests-remaining")) || 0);
+        setError("Too many login requests. Your login is temporarily paused.");
+      } else {
+        setRetryType("PASSWORD_LOCKOUT");
+        setFailedAttempts(5);
+        setAttemptsRemaining(0);
+        setError("Too many failed login attempts. Your account is temporarily locked.");
+      }
+    } else {
+      window.localStorage.removeItem("oni247-login-retry-at");
+      window.localStorage.removeItem("oni247-login-retry-type");
+    }
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
   }, []);
@@ -56,15 +73,27 @@ function LoginFormNext() {
   useEffect(() => {
     if (retryAt && retryAt > Date.now()) {
       window.localStorage.setItem("oni247-login-retry-at", String(retryAt));
+      if (retryType) window.localStorage.setItem("oni247-login-retry-type", retryType);
+      if (requestCount !== null) window.localStorage.setItem("oni247-login-request-count", String(requestCount));
+      if (requestLimit !== null) window.localStorage.setItem("oni247-login-request-limit", String(requestLimit));
+      if (requestsRemaining !== null) window.localStorage.setItem("oni247-login-requests-remaining", String(requestsRemaining));
     } else if (retryAt) {
       window.localStorage.removeItem("oni247-login-retry-at");
+      window.localStorage.removeItem("oni247-login-retry-type");
+      window.localStorage.removeItem("oni247-login-request-count");
+      window.localStorage.removeItem("oni247-login-request-limit");
+      window.localStorage.removeItem("oni247-login-requests-remaining");
     }
-  }, [retryAt]);
+  }, [retryAt, retryType, requestCount, requestLimit, requestsRemaining]);
 
   const submit = async (data: LoginData) => {
     setError(null);
     setAttemptsRemaining(null);
     setFailedAttempts(null);
+    setRequestCount(null);
+    setRequestLimit(null);
+    setRequestsRemaining(null);
+    setRetryType(null);
     setLoading(true);
     try {
       const result = await postLogin(data);
@@ -75,7 +104,13 @@ function LoginFormNext() {
         setError(err.message);
         setAttemptsRemaining(typeof err.attemptsRemaining === "number" ? err.attemptsRemaining : null);
         setFailedAttempts(typeof err.failedAttempts === "number" ? err.failedAttempts : null);
-        if (typeof err.retryAt === "number") setRetryAt(err.retryAt);
+        setRequestCount(typeof err.requestCount === "number" ? err.requestCount : null);
+        setRequestLimit(typeof err.requestLimit === "number" ? err.requestLimit : null);
+        setRequestsRemaining(typeof err.requestsRemaining === "number" ? err.requestsRemaining : null);
+        if (typeof err.retryAt === "number") {
+          setRetryAt(err.retryAt);
+          setRetryType(typeof err.requestLimit === "number" ? "IP_RATE_LIMITED" : "PASSWORD_LOCKOUT");
+        }
       } else {
         setError(err instanceof Error ? err.message : "Login failed. Please try again.");
       }
@@ -89,6 +124,11 @@ function LoginFormNext() {
       <form onSubmit={form.handleSubmit(submit)} className={loginStyles.form}>
         {error && <div className={loginStyles.errorMessage} role="alert">
           {error}
+          {requestCount !== null && requestLimit !== null && (
+            <p aria-live="polite">
+              You have made {requestCount} login requests in this 15-minute window (limit: {requestLimit}). {requestsRemaining ?? 0} requests remaining.
+            </p>
+          )}
           {failedAttempts !== null && (
             <p aria-live="polite">
               You have used {failedAttempts} of 5 login attempts. {attemptsRemaining === 0
@@ -99,7 +139,9 @@ function LoginFormNext() {
         </div>}
         {retryAt !== null && retryAt > now && (
           <div role="status" aria-live="polite">
-            Login temporarily locked after {failedAttempts ?? 5} failed attempts. No attempts remaining. Time left: {Math.floor((retryAt - now) / 60000)}m {Math.floor(((retryAt - now) % 60000) / 1000)}s.
+            {retryType === "IP_RATE_LIMITED"
+              ? "Login requests are temporarily paused."
+              : `Login temporarily locked after ${failedAttempts ?? 5} failed password attempts. No attempts remaining.`} Time left: {Math.floor((retryAt - now) / 60000)}m {Math.floor(((retryAt - now) % 60000) / 1000)}s.
           </div>
         )}
         <FormItem name="email">
