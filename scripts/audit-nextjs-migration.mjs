@@ -46,6 +46,9 @@ const obsoletePaths = [
   "src/LegacyAppClient.tsx",
   "src/LegacyAppRuntime.tsx",
   "src/app/legacy",
+  // An underscore-prefixed folder is private in Next.js. The escaped directory
+  // name is required to expose the literal /_api URL segment.
+  "src/app/_api",
   "scripts/generate-legacy-page-registry.mjs",
   "scripts/generate-legacy-page-registry.spec.ts",
 ];
@@ -88,6 +91,7 @@ const requiredRoutes = [
   "src/app/[slug]/g/[gallerySlug]/page.tsx", "src/app/[slug]/track/page.tsx",
   "src/app/[slug]/track/[code]/page.tsx", "src/app/[slug]/checkout/page.tsx",
   "src/app/[slug]/booking/[code]/page.tsx", "src/app/[slug]/book/[serviceId]/page.tsx",
+  "src/app/%5Fapi/[...path]/route.ts",
   "src/app/track/page.tsx", "src/app/track/[code]/page.tsx", "src/app/pay/[code]/page.tsx",
   "src/app/booking/[code]/page.tsx", "src/app/checkout/page.tsx",
 ];
