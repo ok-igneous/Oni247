@@ -42,6 +42,10 @@ Oni247 is a standalone application. The migration target is a native Next.js App
 
 The staged PostgreSQL RLS foundation and rollout requirements are documented in [database/rls/README.md](database/rls/README.md). Do not apply its migration until request-scoped transaction context is implemented, a non-owner runtime role is provisioned, the actual database schema is compared, and all public/system access paths are covered. Applying the migration before those prerequisites can block normal application access. It has not been applied to production.
 
+## Database migration safety
+
+Application startup does not run SQL migrations. The baseline migration creates PostgreSQL types and tables and is not safe to replay against an existing production database. Run `npm run db:migrate` only against a disposable development database or after a separately reviewed, schema-diffed migration plan. Do not point the baseline migration at the existing customer database.
+
 ## Release safety
 
 The latest observed GitHub Actions verification attempt failed before any job steps were recorded. This is not a passing build and does not establish a source-code failure; the workflow must run successfully before merge. No successful dependency installation, full typecheck, full test run, production build, or browser acceptance run is claimed for this migration branch.
