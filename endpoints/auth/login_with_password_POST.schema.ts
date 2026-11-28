@@ -13,14 +13,20 @@ export class LoginAttemptError extends Error {
   attemptsRemaining?: number;
   failedAttempts?: number;
   remainingMinutes?: number;
+  requestCount?: number;
+  requestLimit?: number;
+  requestsRemaining?: number;
 
-  constructor(message: string, options: { retryAt?: number; attemptsRemaining?: number; failedAttempts?: number; remainingMinutes?: number } = {}) {
+  constructor(message: string, options: { retryAt?: number; attemptsRemaining?: number; failedAttempts?: number; remainingMinutes?: number; requestCount?: number; requestLimit?: number; requestsRemaining?: number } = {}) {
     super(message);
     this.name = "LoginAttemptError";
     this.retryAt = options.retryAt;
     this.attemptsRemaining = options.attemptsRemaining;
     this.failedAttempts = options.failedAttempts;
     this.remainingMinutes = options.remainingMinutes;
+    this.requestCount = options.requestCount;
+    this.requestLimit = options.requestLimit;
+    this.requestsRemaining = options.requestsRemaining;
   }
 }
 
@@ -30,6 +36,10 @@ type LoginResponsePayload = Partial<OutputType> & {
   attemptsRemaining?: number;
   failedAttempts?: number;
   remainingMinutes?: number;
+  requestCount?: number;
+  requestLimit?: number;
+  requestsRemaining?: number;
+  retryAfterSeconds?: number;
   code?: string;
 };
 
@@ -73,6 +83,9 @@ export const postLogin = async (
       attemptsRemaining: typeof payload?.attemptsRemaining === "number" ? payload.attemptsRemaining : undefined,
       failedAttempts: typeof payload?.failedAttempts === "number" ? payload.failedAttempts : undefined,
       remainingMinutes: typeof payload?.remainingMinutes === "number" ? payload.remainingMinutes : undefined,
+      requestCount: typeof payload?.requestCount === "number" ? payload.requestCount : undefined,
+      requestLimit: typeof payload?.requestLimit === "number" ? payload.requestLimit : undefined,
+      requestsRemaining: typeof payload?.requestsRemaining === "number" ? payload.requestsRemaining : undefined,
     });
   }
 
