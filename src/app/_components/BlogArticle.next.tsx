@@ -7,7 +7,7 @@ import { EngagementSection } from "../../../components/EngagementSection";
 import { storeThemeEngine } from "../../../helpers/storeThemeEngine";
 import type { OutputType } from "../../../endpoints/storefront_GET.schema";
 import { StorefrontHeaderNext } from "./StorefrontHeader.next";
-import styles from "../../../legacy-pages/store.$slug.b.$blogSlug.module.css";
+import styles from "./store.$slug.b.$blogSlug.module.css";
 
 type Props = {
   data: OutputType;
