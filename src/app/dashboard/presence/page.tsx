@@ -1,7 +1,6 @@
-"use client";
+import type { Metadata } from "next";
+import PresencePage from "../_components/dashboard.presence";
 
-import DashboardPage from "../../../../legacy-pages/dashboard.presence";
+export const metadata: Metadata = { title: "Presence — Oni247", robots: { index: false, follow: false } };
 
-export default function Page() {
-  return <DashboardPage />;
-}
+export default function Page() { return <PresencePage />; }
