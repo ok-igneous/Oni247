@@ -89,6 +89,22 @@ async function invokeEndpoint(
   reply: FastifyReply,
   originOverride?: string,
 ) {
+  // Reject browser-originated cross-site mutations. Requests without Origin
+  // remain available for server-to-server webhooks and non-browser clients.
+  if (!["GET", "HEAD", "OPTIONS"].includes(method)) {
+    const originHeader = request.headers.origin;
+    if (originHeader) {
+      try {
+        const requestOrigin = `${request.protocol}://${request.host}`;
+        if (new URL(originHeader).origin !== requestOrigin) {
+          return reply.code(403).send({ error: "Cross-origin request blocked" });
+        }
+      } catch {
+        return reply.code(403).send({ error: "Invalid request origin" });
+      }
+    }
+  }
+
   const file = endpointFiles.get(`${method} ${route}`);
   if (!file) return reply.code(404).send({ error: "API endpoint not found" });
 
@@ -214,7 +230,15 @@ app.get("/readyz", async (request, reply) => {
 });
 app.all("/_api/*", async (request, reply) => {
   const pathname = new URL(request.url, "http://localhost").pathname;
-  const route = decodeURIComponent(pathname.replace(/^\/_api\/?/, "")).replace(/\/$/, "");
+  let route: string;
+  try {
+    route = decodeURIComponent(pathname.replace(/^\\/_api\\/?/, "")).replace(/\\/$/, "");
+  } catch {
+    return reply.code(400).send({ error: "Malformed API path" });
+  }
+  if (route.includes("\\\\") || route.includes("\\0") || route.split("/").some((part) => part === "." || part === "..")) {
+    return reply.code(400).send({ error: "Invalid API path" });
+  }
   return invokeEndpoint(request.method.toUpperCase(), route, request, reply);
 });
 
