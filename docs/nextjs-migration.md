@@ -43,6 +43,10 @@ Static routes take precedence over the dynamic root-level business slug route. U
 - Configure `APP_BASE_URL=https://oni247.org` and `PLATFORM_ROOT_DOMAIN=https://oni247.org` in the deployment environment.
 - If Fastify is deployed separately, it must be on a private network. Review proxy trust and client-IP handling before exposing it to any public network.
 
+## Database migration safety
+
+Application startup does not run SQL migrations. The baseline migration creates PostgreSQL types and tables and is not safe to replay against an existing production database. Run `npm run db:migrate` only against a disposable development database or after a separately reviewed, schema-diffed migration plan. Do not point the baseline migration at the existing customer database.
+
 ## Security requirements
 
 - Resolve tenant identity on the server. Do not trust client-supplied business identifiers for authorization.
