@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Helmet } from "react-helmet";
 import { toast } from "sonner";
 import { ImageOff, Pencil, Plus, Trash2, Upload, X } from "lucide-react";
@@ -236,7 +236,7 @@ const ProductsPage = () => {
           {atLimit
             ? `You have used all ${plan.productLimit} products on the free plan. `
             : `Using ${products.length} of ${plan.productLimit} products on the free plan. `}
-          <Link to="/dashboard/plan" className={styles.inlineLink}>
+          <Link href="/dashboard/plan" className={styles.inlineLink}>
             See Premium
           </Link>
         </p>
@@ -516,7 +516,7 @@ const ProductsPage = () => {
             {categories.length === 0 ? (
               <span className={styles.hint}>
                 No categories yet.{" "}
-                <Link to="/dashboard/categories" className={styles.inlineLink}>
+                <Link href="/dashboard/categories" className={styles.inlineLink}>
                   Add one
                 </Link>{" "}
                 to group your catalogue.
