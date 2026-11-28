@@ -36,14 +36,19 @@ function LoginFormNext() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [attemptsRemaining, setAttemptsRemaining] = useState<number | null>(null);
+  const [failedAttempts, setFailedAttempts] = useState<number | null>(null);
   const [retryAt, setRetryAt] = useState<number | null>(null);
   const [now, setNow] = useState(Date.now());
   const form = useForm({ defaultValues: { email: "", password: "" }, schema: loginSchema });
 
   useEffect(() => {
     const saved = Number(window.localStorage.getItem("oni247-login-retry-at"));
-    if (Number.isFinite(saved) && saved > Date.now()) setRetryAt(saved);
-    else window.localStorage.removeItem("oni247-login-retry-at");
+    if (Number.isFinite(saved) && saved > Date.now()) {
+      setRetryAt(saved);
+      setFailedAttempts(5);
+      setAttemptsRemaining(0);
+      setError("Too many failed login attempts. Your account is temporarily locked.");
+    } else window.localStorage.removeItem("oni247-login-retry-at");
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
   }, []);
@@ -59,6 +64,7 @@ function LoginFormNext() {
   const submit = async (data: LoginData) => {
     setError(null);
     setAttemptsRemaining(null);
+    setFailedAttempts(null);
     setLoading(true);
     try {
       const result = await postLogin(data);
@@ -68,6 +74,7 @@ function LoginFormNext() {
       if (err instanceof LoginAttemptError) {
         setError(err.message);
         setAttemptsRemaining(typeof err.attemptsRemaining === "number" ? err.attemptsRemaining : null);
+        setFailedAttempts(typeof err.failedAttempts === "number" ? err.failedAttempts : null);
         if (typeof err.retryAt === "number") setRetryAt(err.retryAt);
       } else {
         setError(err instanceof Error ? err.message : "Login failed. Please try again.");
@@ -82,13 +89,17 @@ function LoginFormNext() {
       <form onSubmit={form.handleSubmit(submit)} className={loginStyles.form}>
         {error && <div className={loginStyles.errorMessage} role="alert">
           {error}
-          {attemptsRemaining !== null && attemptsRemaining > 0 && (
-            <p>{attemptsRemaining} {attemptsRemaining === 1 ? "attempt" : "attempts"} remaining before a temporary login lock.</p>
+          {failedAttempts !== null && (
+            <p aria-live="polite">
+              You have used {failedAttempts} of 5 login attempts. {attemptsRemaining === 0
+                ? "No attempts remaining. Your login is temporarily locked."
+                : `${attemptsRemaining ?? 0} ${attemptsRemaining === 1 ? "attempt" : "attempts"} remaining.`}
+            </p>
           )}
         </div>}
         {retryAt !== null && retryAt > now && (
           <div role="status" aria-live="polite">
-            Login temporarily locked. Time remaining: {Math.floor((retryAt - now) / 60000)}m {Math.floor(((retryAt - now) % 60000) / 1000)}s.
+            Login temporarily locked after {failedAttempts ?? 5} failed attempts. No attempts remaining. Time left: {Math.floor((retryAt - now) / 60000)}m {Math.floor(((retryAt - now) % 60000) / 1000)}s.
           </div>
         )}
         <FormItem name="email">
