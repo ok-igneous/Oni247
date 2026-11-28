@@ -103,6 +103,9 @@ const requiredRoutes = [
   "src/app/[slug]/track/[code]/page.tsx", "src/app/[slug]/checkout/page.tsx",
   "src/app/[slug]/booking/[code]/page.tsx", "src/app/[slug]/book/[serviceId]/page.tsx",
   "src/app/%5Fapi/[...path]/route.ts",
+  "src/app/p/[productSlug]/page.tsx", "src/app/s/[serviceId]/page.tsx",
+  "src/app/b/[blogSlug]/page.tsx", "src/app/g/[gallerySlug]/page.tsx",
+  "src/app/e/[eventSlug]/page.tsx", "src/app/book/[serviceId]/page.tsx",
   "src/app/track/page.tsx", "src/app/track/[code]/page.tsx", "src/app/pay/[code]/page.tsx",
   "src/app/booking/[code]/page.tsx", "src/app/checkout/page.tsx",
 ];
