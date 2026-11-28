@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { toast } from "sonner";
 import {
   CalendarDays,
@@ -390,7 +390,7 @@ export default function EventsPage() {
         <p className={styles.subtitle}>
           Create public events, take registrations and manage capacity. Available on Premium Plus.
         </p>
-        <div><Button asChild><Link to="/dashboard/plan">Upgrade to Premium Plus</Link></Button></div>
+        <div><Button asChild><Link href="/dashboard/plan">Upgrade to Premium Plus</Link></Button></div>
       </div>
     );
   }
@@ -495,7 +495,7 @@ export default function EventsPage() {
               <div className={styles.field}>
                 <span className={styles.label}>Registration form</span>
                 {forms.filter((f) => f.isActive).length === 0 ? (
-                  <p className={styles.hint}>                    You have no active forms yet. <Link to="/dashboard/forms">Create a form</Link>, then come back.
+                  <p className={styles.hint}>                    You have no active forms yet. <Link href="/dashboard/forms">Create a form</Link>, then come back.
                   </p>
                 ) : (
                   <Select value={draft.formId || "none"} onValueChange={(value) => set({ formId: value === "none" ? "" : value })}>
@@ -697,7 +697,7 @@ export default function EventsPage() {
           <p>No events yet. Create your first event, then attach a registration form if you want bookings.</p>
           <div className={styles.actions}>
             <Button onClick={startNew}><Plus size={16} /> Create an event</Button>
-            <Button asChild variant="outline"><Link to="/dashboard/forms">Make a registration form</Link></Button>
+            <Button asChild variant="outline"><Link href="/dashboard/forms">Make a registration form</Link></Button>
           </div>
         </div>
       ) : (
