@@ -11,7 +11,7 @@ import { useTrackedOrder } from "../../../helpers/useTrackedOrder";
 import { storeThemeEngine } from "../../../helpers/storeThemeEngine";
 import { StorefrontHeaderNext } from "./StorefrontHeader.next";
 import type { ShippingStatus } from "../../../helpers/schema";
-import styles from "../../../pages/track.$code.module.css";
+import styles from "../../../legacy-pages/track.$code.module.css";
 
 const shippingSteps: { id: ShippingStatus; label: string; blurb: string }[] = [
   { id: "preparing", label: "Preparing", blurb: "The shop is getting your items ready." },
