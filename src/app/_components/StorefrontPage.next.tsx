@@ -57,7 +57,7 @@ import { StorefrontHeaderNext } from "./StorefrontHeader.next";
 import { StorefrontHero } from "../../../components/StorefrontHero";
 import { StoreServiceCardNext } from "./StoreServiceCard.next";
 import type { OutputType as StorefrontOutput, StorefrontProduct } from "../../../endpoints/storefront_GET.schema";
-import styles from "../../../legacy-pages/StorefrontPage.module.css";
+import styles from "./StorefrontPage.module.css";
 import { shareLink } from "../../../endpoints/share/page_GET.schema";
 
 const safeContentLink = (value: string): string | null => {
