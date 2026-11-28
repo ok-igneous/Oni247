@@ -5,14 +5,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { CheckCircle2, Lock } from "lucide-react";
-import { Button } from "../components/Button";
-import { Input } from "../components/Input";
-import { Skeleton } from "../components/Skeleton";
-import { formatMoney } from "../helpers/formatMoney";
-import { getPayInfo } from "../endpoints/pay/info_GET.schema";
-import { getPayStatus, type OutputType as StatusOutput } from "../endpoints/pay/status_GET.schema";
-import { postPayStart } from "../endpoints/pay/start_POST.schema";
-import styles from "./pay.$code.module.css";
+import { Button } from "../../../components/Button";
+import { Input } from "../../../components/Input";
+import { Skeleton } from "../../../components/Skeleton";
+import { formatMoney } from "../../../helpers/formatMoney";
+import { getPayInfo } from "../../../endpoints/pay/info_GET.schema";
+import { getPayStatus, type OutputType as StatusOutput } from "../../../endpoints/pay/status_GET.schema";
+import { postPayStart } from "../../../endpoints/pay/start_POST.schema";
+import styles from "./pay.module.css";
 
 export default function PayPage({ code, ref }: { code: string; ref: string | null }) {
   const router = useRouter();
