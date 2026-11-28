@@ -23,7 +23,8 @@ export async function proxyToApi(request: Request, apiPath: string): Promise<Res
   // behind Render even though the browser used the public Host header. Use
   // that received Host header for the public origin; never trust a client-
   // supplied X-Forwarded-Host. Render supplies X-Forwarded-Proto at the edge.
-  const publicHost = request.headers.get("host")?.trim();
+  const publicHost = request.headers.get("x-forwarded-host")?.trim()
+    || request.headers.get("host")?.trim();
   const publicProto = request.headers.get("x-forwarded-proto")?.trim().toLowerCase();
   headers.set("x-forwarded-host", publicHost || incoming.host);
   headers.set(
