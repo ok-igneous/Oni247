@@ -106,3 +106,8 @@ The active migration work is on `nextjs-app-router-migration` and tracked by dra
 - Custom `.next.tsx` route conventions and the custom Next.js page-extension override have been removed; route files use standard `page.tsx`, `layout.tsx`, and `route.ts` names.
 - Native route components have replaced the legacy routing layer for dashboard, admin, authentication, storefront and public transaction/content flows.
 - CI has not passed. The latest recorded GitHub Actions job terminated before recording any job steps; a retry also failed without step output. Treat verification as blocked, not passed. No production deploy, PR merge, or production cutover is authorized by this status update.
+
+
+## Database startup safety (2026-11-28)
+
+Removed the package `prestart` hook that executed SQL migrations automatically on every application start. The baseline schema migration uses non-idempotent `CREATE TYPE` and `CREATE TABLE` statements, so replaying it against an existing production database without a validated migration ledger could break deployment. Database migration is now an explicit operator action; do not run the baseline against the existing customer database.
