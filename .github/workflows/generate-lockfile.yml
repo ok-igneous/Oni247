@@ -2,7 +2,7 @@ name: Generate npm lockfile
 
 on:
   push:
-    branches: [security/nextjs-hardening]
+    branches: [security/nextjs-hardening, nextjs-app-router-migration]
     paths:
       - package.json
       - package-lock.json
