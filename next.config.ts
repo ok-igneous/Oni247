@@ -17,14 +17,6 @@ const nextConfig: NextConfig = {
     }
     return [{ source: "/:path*", headers: securityHeaders }];
   },
-  async rewrites() {
-    return {
-      // Next.js owns public pages and API proxy handlers. Only unmatched
-      // legacy dashboard/editor routes are internally rewritten to the
-      // compatibility boundary; they are never sent to a Vite/Fastify SPA.
-      fallback: [{ source: "/:path*", destination: "/legacy/:path*" }],
-    };
-  },
 };
 
 export default nextConfig;
