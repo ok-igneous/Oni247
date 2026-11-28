@@ -1,12 +1,6 @@
-"use client";
+import type { Metadata } from "next";
+import AddonsPage from "../_components/dashboard.addons";
 
-import { Suspense } from "react";
-import DashboardPage from "../../../../legacy-pages/dashboard.addons";
+export const metadata: Metadata = { title: "Addons — Oni247", robots: { index: false, follow: false } };
 
-export default function Page() {
-  return (
-    <Suspense fallback={<main role="status">Loading dashboard page…</main>}>
-      <DashboardPage />
-    </Suspense>
-  );
-}
+export default function Page() { return <AddonsPage />; }

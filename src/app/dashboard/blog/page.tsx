@@ -1,7 +1,6 @@
-"use client";
+import type { Metadata } from "next";
+import BlogPage from "../_components/dashboard.blog";
 
-import DashboardPage from "../../../../legacy-pages/dashboard.blog";
+export const metadata: Metadata = { title: "Blog — Oni247", robots: { index: false, follow: false } };
 
-export default function Page() {
-  return <DashboardPage />;
-}
+export default function Page() { return <BlogPage />; }

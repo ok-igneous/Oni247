@@ -1,7 +1,6 @@
-"use client";
+import type { Metadata } from "next";
+import CheckoutPage from "../_components/dashboard.checkout";
 
-import DashboardPage from "../../../../legacy-pages/dashboard.checkout";
+export const metadata: Metadata = { title: "Checkout — Oni247", robots: { index: false, follow: false } };
 
-export default function Page() {
-  return <DashboardPage />;
-}
+export default function Page() { return <CheckoutPage />; }
