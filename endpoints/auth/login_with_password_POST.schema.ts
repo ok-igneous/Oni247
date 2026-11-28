@@ -20,6 +20,12 @@ export class LoginAttemptError extends Error {
   }
 }
 
+type LoginResponsePayload = Partial<OutputType> & {
+  message?: string;
+  retryAt?: number;
+  attemptsRemaining?: number;
+};
+
 export type OutputType = {
   user: User;
 };
@@ -41,7 +47,7 @@ export const postLogin = async (
   });
 
   const responseText = await result.text();
-  const payload = parseApiPayload<OutputType>(responseText);
+  const payload = parseApiPayload<LoginResponsePayload>(responseText);
 
   if (!result.ok) {
     const fallback =
