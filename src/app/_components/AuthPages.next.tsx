@@ -19,7 +19,7 @@ import {
   useForm,
 } from "../../../components/Form";
 import { useAuth, AUTH_QUERY_KEY } from "../../../helpers/useAuth";
-import { schema as loginSchema, postLogin } from "../../../endpoints/auth/login_with_password_POST.schema";
+import { LoginAttemptError, schema as loginSchema, postLogin } from "../../../endpoints/auth/login_with_password_POST.schema";
 import { schema as registerSchema, postRegister } from "../../../endpoints/auth/register_with_password_POST.schema";
 import { postForgotPassword } from "../../../endpoints/auth/forgot_password_POST.schema";
 import { postSendVerification } from "../../../endpoints/auth/send_verification_POST.schema";
@@ -35,17 +35,43 @@ function LoginFormNext() {
   const { onLogin } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [attemptsRemaining, setAttemptsRemaining] = useState<number | null>(null);
+  const [retryAt, setRetryAt] = useState<number | null>(null);
+  const [now, setNow] = useState(Date.now());
   const form = useForm({ defaultValues: { email: "", password: "" }, schema: loginSchema });
+
+  useEffect(() => {
+    const saved = Number(window.localStorage.getItem("oni247-login-retry-at"));
+    if (Number.isFinite(saved) && saved > Date.now()) setRetryAt(saved);
+    else window.localStorage.removeItem("oni247-login-retry-at");
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (retryAt && retryAt > Date.now()) {
+      window.localStorage.setItem("oni247-login-retry-at", String(retryAt));
+    } else if (retryAt) {
+      window.localStorage.removeItem("oni247-login-retry-at");
+    }
+  }, [retryAt]);
 
   const submit = async (data: LoginData) => {
     setError(null);
+    setAttemptsRemaining(null);
     setLoading(true);
     try {
       const result = await postLogin(data);
       onLogin(result.user);
       router.replace("/dashboard");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed. Please try again.");
+      if (err instanceof LoginAttemptError) {
+        setError(err.message);
+        setAttemptsRemaining(typeof err.attemptsRemaining === "number" ? err.attemptsRemaining : null);
+        if (typeof err.retryAt === "number") setRetryAt(err.retryAt);
+      } else {
+        setError(err instanceof Error ? err.message : "Login failed. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -54,7 +80,17 @@ function LoginFormNext() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(submit)} className={loginStyles.form}>
-        {error && <div className={loginStyles.errorMessage} role="alert">{error}</div>}
+        {error && <div className={loginStyles.errorMessage} role="alert">
+          {error}
+          {attemptsRemaining !== null && attemptsRemaining > 0 && (
+            <p>{attemptsRemaining} {attemptsRemaining === 1 ? "attempt" : "attempts"} remaining before a temporary login lock.</p>
+          )}
+        </div>}
+        {retryAt !== null && retryAt > now && (
+          <div role="status" aria-live="polite">
+            Login temporarily locked. Time remaining: {Math.floor((retryAt - now) / 60000)}m {Math.floor(((retryAt - now) % 60000) / 1000)}s.
+          </div>
+        )}
         <FormItem name="email">
           <FormLabel>Email</FormLabel>
           <FormControl>
