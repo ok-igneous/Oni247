@@ -1,4 +1,5 @@
 import { z } from "zod";
+import superjson from "superjson";
 import { apiErrorMessage, parseApiPayload } from "../../helpers/apiResponse";
 
 // No input required for logout
@@ -20,7 +21,7 @@ export const postLogout = async (
 ): Promise<OutputType> => {
   const result = await fetch(`/_api/auth/logout`, {
     method: "POST",
-    body: JSON.stringify(body),
+    body: superjson.stringify(body),
     ...init,
     headers: {
       "Content-Type": "application/json",
