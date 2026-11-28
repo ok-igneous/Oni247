@@ -52,11 +52,11 @@ for (const item of findings) {
 
 const appRouteFiles = sourceFiles.filter((file) =>
   file.startsWith("src/app/") &&
-  /(?:^|\\/)(?:page|route)\\.(?:ts|tsx)$/.test(file)
+  /(?:^|\/)(?:page|route)\.(?:ts|tsx)$/.test(file)
 );
 const appLayoutFiles = sourceFiles.filter((file) =>
   file.startsWith("src/app/") &&
-  /(?:^|\\/)layout\\.(?:ts|tsx)$/.test(file)
+  /(?:^|\/)layout\.(?:ts|tsx)$/.test(file)
 );
 
 const endpointPattern = /_(GET|POST|PUT|PATCH|DELETE)\.ts$/;
