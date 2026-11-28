@@ -66,7 +66,7 @@ for (const name of ["react-router-dom", "react-helmet", "@types/react-helmet", "
   }
 }
 for (const [name, command] of Object.entries(packageJson.scripts ?? {})) {
-  if (/\\bvite\\b/i.test(command)) {
+  if (/\bvite\b/i.test(command)) {
     failures.push({ file: "package.json", issue: "Non-Next.js frontend command remains in script " + name });
   }
 }
