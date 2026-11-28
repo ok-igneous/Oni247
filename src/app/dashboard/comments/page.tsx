@@ -1,7 +1,6 @@
-"use client";
+import type { Metadata } from "next";
+import CommentsPage from "../_components/dashboard.comments";
 
-import DashboardPage from "../../../../legacy-pages/dashboard.comments";
+export const metadata: Metadata = { title: "Comments — Oni247", robots: { index: false, follow: false } };
 
-export default function Page() {
-  return <DashboardPage />;
-}
+export default function Page() { return <CommentsPage />; }
