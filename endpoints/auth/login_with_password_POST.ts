@@ -136,9 +136,25 @@ export async function handle(request: Request) {
           })
           .execute();
 
+        const totalFailedAttempts = Number(failedCount) + 1;
+        if (totalFailedAttempts >= RATE_LIMIT_CONFIG.maxFailedAttempts) {
+          const lockoutNumber = Math.max(
+            1,
+            Math.floor(totalFailedAttempts / RATE_LIMIT_CONFIG.maxFailedAttempts)
+          );
+          const lockoutMinutes = Math.min(
+            24 * 60,
+            RATE_LIMIT_CONFIG.firstLockoutMinutes * 2 ** (lockoutNumber - 1)
+          );
+          return {
+            type: "rate_limited" as const,
+            remainingMinutes: lockoutMinutes,
+            retryAt: now.getTime() + lockoutMinutes * 60 * 1000,
+          };
+        }
         return {
           type: "auth_failed" as const,
-          attemptsRemaining: Math.max(0, RATE_LIMIT_CONFIG.maxFailedAttempts - Number(failedCount) - 1),
+          attemptsRemaining: RATE_LIMIT_CONFIG.maxFailedAttempts - totalFailedAttempts,
         };
       }
 
@@ -157,9 +173,25 @@ export async function handle(request: Request) {
           })
           .execute();
 
+        const totalFailedAttempts = Number(failedCount) + 1;
+        if (totalFailedAttempts >= RATE_LIMIT_CONFIG.maxFailedAttempts) {
+          const lockoutNumber = Math.max(
+            1,
+            Math.floor(totalFailedAttempts / RATE_LIMIT_CONFIG.maxFailedAttempts)
+          );
+          const lockoutMinutes = Math.min(
+            24 * 60,
+            RATE_LIMIT_CONFIG.firstLockoutMinutes * 2 ** (lockoutNumber - 1)
+          );
+          return {
+            type: "rate_limited" as const,
+            remainingMinutes: lockoutMinutes,
+            retryAt: now.getTime() + lockoutMinutes * 60 * 1000,
+          };
+        }
         return {
           type: "auth_failed" as const,
-          attemptsRemaining: Math.max(0, RATE_LIMIT_CONFIG.maxFailedAttempts - Number(failedCount) - 1),
+          attemptsRemaining: RATE_LIMIT_CONFIG.maxFailedAttempts - totalFailedAttempts,
         };
       }
 
