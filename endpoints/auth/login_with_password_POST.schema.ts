@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { User } from "../../helpers/User";
 import superjson from "superjson";
+import { apiErrorMessage, parseApiPayload } from "../../helpers/apiResponse";
 
 export const schema = z.object({
   email: z.string().email("Email is required"),
@@ -24,14 +25,27 @@ export const postLogin = async (
       "Content-Type": "application/json",
       ...(init?.headers ?? {}),
     },
-    credentials: "include", // Important for cookies to be sent and received
+    credentials: "include",
   });
 
+  const responseText = await result.text();
+  const payload = parseApiPayload<OutputType>(responseText);
+
   if (!result.ok) {
-    const errorData = superjson.parse<{ message: string }>(await result.text());
-    throw new Error(errorData.message || "Login failed");
+    const fallback =
+      result.status === 401
+        ? "Invalid email or password."
+        : result.status === 429
+          ? "Too many login attempts. Please wait and try again."
+          : result.status >= 500
+            ? "The login service is temporarily unavailable. Please try again shortly."
+            : `Login failed (HTTP ${result.status}). Please try again.`;
+    throw new Error(apiErrorMessage(payload, fallback));
   }
 
-  return superjson.parse<OutputType>(await result.text());
-};
+  if (!payload || typeof payload !== "object" || !payload.user) {
+    throw new Error("The login service returned an invalid response. Please try again.");
+  }
 
+  return payload;
+};
