@@ -122,3 +122,12 @@ A static relative-import audit was performed across the 72 App Router route/layo
 - Earlier tracking and password-reset component import-depth errors were also corrected.
 
 The audited route and component files now resolve their relative imports against the branch tree. This is a static path check only; it does not replace TypeScript, Next.js build, or browser/runtime verification. The API proxy route uses the escaped `%5Fapi` folder name intentionally: Next.js treats a literal underscore-prefixed folder as private, while the escaped name exposes the public `/_api/*` route.
+
+
+## Verification and runtime hardening update (2026-11-28)
+
+- The production build command now runs `audit:nextjs` and `audit:project` before TypeScript and `next build`, so Render cannot build a branch that fails either architecture audit.
+- The Next.js architecture audit now rejects direct Vite runtime dependencies/scripts, requires Next.js as a direct runtime dependency, rejects automatic `prestart` hooks, and checks custom-domain product/service/blog/gallery/event/booking routes.
+- The repository tree contains no root Pages Router `pages/` directory, no Vite application entrypoint/config, no React Router/Helmet packages, no legacy page tree/runtime, and 72 standard App Router route/layout/handler files.
+- The latest GitHub Actions job is marked failed but has no recorded steps or log URL. It failed before executing checkout, install, audit, tests, or build. The reason is not exposed by the available job record, so this cannot be treated as a source-code build failure or a passing verification. Do not merge until a runner executes the workflow successfully.
+- Removed automatic SQL migration execution from `npm start`. The baseline migration is non-idempotent and must not be replayed against the existing customer database.
