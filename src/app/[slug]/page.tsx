@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import StorefrontPageNext from "../_components/StorefrontPage.next";
-import LegacyAppClient from "../../LegacyAppClient";
-import { legacyRootPageSlugs } from "../../generated/legacyRootPageSlugs";
 import { getStorefrontData, resolveStorefrontHost, storefrontMetadata } from "../_lib/storefront.server";
 
 export const dynamic = "force-dynamic";
@@ -28,9 +26,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function VanityStorefrontPage({ params }: Props) {
   const { slug, data, origin } = await getPageData(params);
-  if (!data) {
-    if (!legacyRootPageSlugs.includes(slug)) notFound();
-    return <LegacyAppClient />;
-  }
+  if (!data) notFound();
   return <StorefrontPageNext slug={slug} initialData={data} customDomain={false} origin={origin} />;
 }
