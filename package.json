@@ -10,7 +10,7 @@
     "dev": "concurrently -k \"next dev --hostname 0.0.0.0 --port 3000\" \"tsx watch server/index.ts\"",
     "dev:web": "next dev --hostname 0.0.0.0 --port 3000",
     "dev:api": "tsx watch server/index.ts",
-    "build": "tsc --noEmit && next build",
+    "build": "npm run audit:nextjs && npm run audit:project && tsc --noEmit && next build",
     "start": "concurrently -k \"next start --hostname 0.0.0.0\" \"node --import tsx server/index.ts\"",
     "start:web": "next start --hostname 0.0.0.0",
     "start:api": "node --import tsx server/index.ts",
