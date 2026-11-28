@@ -1,12 +1,6 @@
-"use client";
+import type { Metadata } from "next";
+import ThemePage from "../_components/dashboard.theme";
 
-import { Suspense } from "react";
-import DashboardPage from "../../../../legacy-pages/dashboard.theme";
+export const metadata: Metadata = { title: "Theme — Oni247", robots: { index: false, follow: false } };
 
-export default function Page() {
-  return (
-    <Suspense fallback={<main role="status">Loading dashboard page…</main>}>
-      <DashboardPage />
-    </Suspense>
-  );
-}
+export default function Page() { return <ThemePage />; }
