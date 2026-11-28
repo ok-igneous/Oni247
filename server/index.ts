@@ -94,6 +94,11 @@ async function invokeEndpoint(
 
   const ratePolicy: Record<string, { limit: number; windowSeconds: number }> = {
     "auth/login_with_password": { limit: 20, windowSeconds: 15 * 60 },
+    "auth/register_with_password": { limit: 5, windowSeconds: 15 * 60 },
+    "auth/forgot_password": { limit: 5, windowSeconds: 15 * 60 },
+    "auth/send_verification": { limit: 5, windowSeconds: 15 * 60 },
+    "auth/reset_password": { limit: 10, windowSeconds: 15 * 60 },
+    "auth/verify_email": { limit: 10, windowSeconds: 15 * 60 },
     "storefront/order": { limit: 10, windowSeconds: 10 * 60 },
     "storefront/enquiry": { limit: 10, windowSeconds: 10 * 60 },
     "storefront/orderPay": { limit: 8, windowSeconds: 10 * 60 },
