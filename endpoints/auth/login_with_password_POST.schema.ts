@@ -68,5 +68,5 @@ export const postLogin = async (
     throw new Error("The login service returned an invalid response. Please try again.");
   }
 
-  return payload;
+  return { user: payload.user };
 };
