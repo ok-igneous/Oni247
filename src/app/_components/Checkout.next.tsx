@@ -47,7 +47,7 @@ import {
   type OutputType as PlacedOrder,
 } from "../../../endpoints/storefront/order_POST.schema";
 import type { OrderPaymentMethod } from "../../../helpers/schema";
-import styles from "../../../pages/store.$slug.checkout.module.css";
+import styles from "../../../legacy-pages/store.$slug.checkout.module.css";
 
 type Method = "delivery" | "pickup";
 
