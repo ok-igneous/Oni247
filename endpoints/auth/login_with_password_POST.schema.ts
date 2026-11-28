@@ -11,8 +11,10 @@ export const schema = z.object({
 export class LoginAttemptError extends Error {
   retryAt?: number;
   attemptsRemaining?: number;
+  failedAttempts?: number;
+  remainingMinutes?: number;
 
-  constructor(message: string, options: { retryAt?: number; attemptsRemaining?: number } = {}) {
+  constructor(message: string, options: { retryAt?: number; attemptsRemaining?: number; failedAttempts?: number; remainingMinutes?: number } = {}) {
     super(message);
     this.name = "LoginAttemptError";
     this.retryAt = options.retryAt;
