@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNextSearchParams as useSearchParams } from "../helpers/useNextSearchParams";
 import { Helmet } from "react-helmet";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
