@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { toast } from "sonner";
 import { Copy, ImagePlus, Maximize2, Trash2 } from "lucide-react";
 import { Button } from "../components/Button";
@@ -112,7 +112,7 @@ export default function MediaPage() {
           Keep your uploaded images together and reuse them across your website. Available on Premium Plus.
         </p>
         <Button asChild>
-          <Link to="/dashboard/plan">Upgrade to Premium Plus</Link>
+          <Link href="/dashboard/plan">Upgrade to Premium Plus</Link>
         </Button>
       </div>
     );
