@@ -4,7 +4,7 @@ import path from "node:path";
 
 const root = process.cwd();
 const ignored = new Set([".git", "node_modules", ".next", "dist", "coverage"]);
-const roots = ["pages", "components", "helpers", "endpoints", "src", "server", "app"];
+const roots = ["legacy-pages", "components", "helpers", "endpoints", "src", "server", "app"];
 const findings = [];
 const routeFiles = [];
 
@@ -30,10 +30,10 @@ async function walk(directory) {
     const source = await readFile(absolute, "utf8");
 
     if (
-      relative.startsWith("pages/") &&
+      relative.startsWith("legacy-pages/") &&
       !relative.endsWith(".pageLayout.tsx") &&
-      relative !== "pages/StorefrontPage.tsx" &&
-      !relative.startsWith("pages/store.$slug")
+      relative !== "legacy-pages/StorefrontPage.tsx" &&
+      !relative.startsWith("legacy-pages/store.$slug")
     ) {
       const base = path.basename(relative).replace(/\.(tsx|jsx)$/, "");
       const route = base === "_index"
