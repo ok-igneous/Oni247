@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { toast } from "sonner";
 import { Palette } from "lucide-react";
 import { Button } from "../components/Button";
@@ -87,7 +87,7 @@ const BusinessSettingsPage = () => {
   return <div className={styles.page}>
     <Helmet><title>Business — Oni247</title></Helmet>
     <div className={styles.head}>
-      <div><h1 className={styles.title}>{isNew?"Create your business page":"Business"}</h1><p className={styles.subtitle}>Your business details and publishing. Look, layout and pages are in <Link to="/dashboard/theme">Theme</Link>.</p></div>
+      <div><h1 className={styles.title}>{isNew?"Create your business page":"Business"}</h1><p className={styles.subtitle}>Your business details and publishing. Look, layout and pages are in <Link href="/dashboard/theme">Theme</Link>.</p></div>
       {business&&<span className={styles.status}>{form.published?"Published":"Draft"}</span>}
     </div>
 
@@ -116,7 +116,7 @@ const BusinessSettingsPage = () => {
         <label className={styles.field}><span className={styles.label}>Opening hours</span><Input value={form.openingHours} onChange={e=>update("openingHours",e.target.value)} placeholder="Mon - Sat, 9:00am - 7:00pm"/></label>
       </section></TabsContent>
 
-      <TabsContent value="content"><section className={styles.group}><h2 className={styles.groupTitle}>Storefront wording</h2><label className={styles.field}><span className={styles.label}>Customer feedback heading</span><Input value={form.testimonialsHeading} onChange={e=>update("testimonialsHeading",e.target.value)} placeholder="What our customers are saying"/></label><label className={styles.field}><span className={styles.label}>Customer feedback intro</span><Textarea value={form.testimonialsIntro} onChange={e=>update("testimonialsIntro",e.target.value)} rows={3} placeholder="Real feedback from people who have worked with us."/></label><div className={styles.linkCards}><Link to="/dashboard/theme"><Palette size={14}/> Look, layout and sections <span>Open Theme →</span></Link><a href="/dashboard/presence">Hero, testimonials and portfolio <span>Manage storefront content →</span></a><a href="/dashboard/galleries">Galleries <span>Manage image galleries →</span></a><a href="/dashboard/blog">Blog <span>Publish articles and updates →</span></a></div></section></TabsContent>
+      <TabsContent value="content"><section className={styles.group}><h2 className={styles.groupTitle}>Storefront wording</h2><label className={styles.field}><span className={styles.label}>Customer feedback heading</span><Input value={form.testimonialsHeading} onChange={e=>update("testimonialsHeading",e.target.value)} placeholder="What our customers are saying"/></label><label className={styles.field}><span className={styles.label}>Customer feedback intro</span><Textarea value={form.testimonialsIntro} onChange={e=>update("testimonialsIntro",e.target.value)} rows={3} placeholder="Real feedback from people who have worked with us."/></label><div className={styles.linkCards}><Link href="/dashboard/theme"><Palette size={14}/> Look, layout and sections <span>Open Theme →</span></Link><a href="/dashboard/presence">Hero, testimonials and portfolio <span>Manage storefront content →</span></a><a href="/dashboard/galleries">Galleries <span>Manage image galleries →</span></a><a href="/dashboard/blog">Blog <span>Publish articles and updates →</span></a></div></section></TabsContent>
 
       <TabsContent value="publishing"><section className={styles.group}><h2 className={styles.groupTitle}>Publishing</h2><div className={styles.switchRow}><Switch id="published" checked={form.published} onCheckedChange={checked=>update("published",checked)}/><label htmlFor="published"><span className={styles.label}>Published</span><span className={styles.hint}>When enabled, customers can open your public page.</span></label></div>{business&&<div className={styles.publishCard}><span className={styles.label}>Public page</span><code>/{form.slug}</code><a href={`/${form.slug}`} target="_blank" rel="noopener noreferrer">Open public page →</a></div>}</section></TabsContent>
     </Tabs>
