@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Helmet } from "react-helmet";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { toast } from "sonner";
 import { Button } from "../components/Button";
 import { EmailCompose, EMPTY_COMPOSE, type ComposeInitial } from "../components/EmailCompose";
@@ -70,7 +70,7 @@ function SettingsForm({ data }: { data: SettingsData }) {
 
   return (
     <>
-      {!data.isPremiumPlus && <div className={styles.notice}>Email is included in Premium Plus. <Link to="/dashboard/plan">See plans</Link></div>}
+      {!data.isPremiumPlus && <div className={styles.notice}>Email is included in Premium Plus. <Link href="/dashboard/plan">See plans</Link></div>}
       <Tabs defaultValue="sender">
         <TabsList>
           <TabsTrigger value="sender">Sender</TabsTrigger>
@@ -151,7 +151,7 @@ function SettingsForm({ data }: { data: SettingsData }) {
               <div className={styles.biz}>
                 <strong>{biz.name}</strong>
                 <span>{[biz.address, biz.phone, biz.email].filter(Boolean).join(" · ") || "No address, phone or email added yet."}</span>
-                <span className={styles.meta}>This comes from your business page. <Link to="/dashboard/business">Edit business details</Link></span>
+                <span className={styles.meta}>This comes from your business page. <Link href="/dashboard/business">Edit business details</Link></span>
               </div>
             )}
             <EmailLookEditor idPrefix="s" value={template} onChange={(patch) => setEdit((s) => ({ ...s, template: { ...(s.template ?? {}), ...patch } }))} />
