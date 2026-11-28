@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Helmet } from "react-helmet";
 import { toast } from "sonner";
 import { ArrowDown, ArrowUp, ImageOff, Pencil, Plus, Star, Trash2, Upload, X } from "lucide-react";
@@ -344,7 +344,7 @@ const PresencePage = () => {
         <p className={styles.notice}>
           These sections are part of Premium. Anything already added stays on
           your page and can still be removed.{" "}
-          <Link to="/dashboard/plan" className={styles.inlineLink}>
+          <Link href="/dashboard/plan" className={styles.inlineLink}>
             See Premium
           </Link>
         </p>
@@ -471,7 +471,7 @@ const PresencePage = () => {
 
         {!canUsePremiumPlus && (
           <p className={styles.notice}>
-            The homepage slider and video section are Premium Plus features. Your current content stays saved. <Link to="/dashboard/plan" className={styles.inlineLink}>View plans</Link>
+            The homepage slider and video section are Premium Plus features. Your current content stays saved. <Link href="/dashboard/plan" className={styles.inlineLink}>View plans</Link>
           </p>
         )}
 
