@@ -111,3 +111,14 @@ The active migration work is on `nextjs-app-router-migration` and tracked by dra
 ## Database startup safety (2026-11-28)
 
 Removed the package `prestart` hook that executed SQL migrations automatically on every application start. The baseline schema migration uses non-idempotent `CREATE TYPE` and `CREATE TABLE` statements, so replaying it against an existing production database without a validated migration ledger could break deployment. Database migration is now an explicit operator action; do not run the baseline against the existing customer database.
+
+
+## Source import audit update (2026-11-28)
+
+A static relative-import audit was performed across the 72 App Router route/layout/handler files, the migrated dashboard and admin components, and the shared Next.js page components. It found and corrected:
+
+- A missing theme-editor tabs stylesheet, restored into the Next.js dashboard component directory.
+- An incorrect relative import for the business order-tracking page's Input component.
+- Earlier tracking and password-reset component import-depth errors were also corrected.
+
+The audited route and component files now resolve their relative imports against the branch tree. This is a static path check only; it does not replace TypeScript, Next.js build, or browser/runtime verification. The API proxy route uses the escaped `%5Fapi` folder name intentionally: Next.js treats a literal underscore-prefixed folder as private, while the escaped name exposes the public `/_api/*` route.
