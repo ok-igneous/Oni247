@@ -1,5 +1,6 @@
 // adapt this to the database schema and helpers if necessary
 import { db } from "../../helpers/db";
+import { sql } from "kysely";
 import { schema } from "./register_with_password_POST.schema";
 import { randomBytes } from "crypto";
 import {
@@ -16,35 +17,27 @@ export async function handle(request: Request) {
     const json = superjson.parse(await request.text());
     const { email, password, displayName } = schema.parse(json);
 
-    // Check if email already exists
-    const existingUser = await db
-      .selectFrom("users")
-      .select("id")
-      .where("email", "=", email)
-      .limit(1)
-      .execute();
-
-    if (existingUser.length > 0) {
-      return new Response(
-        superjson.stringify({ message: "email already in use" }),
-        {
-          status: 409,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-    }
+    const normalizedEmail = email.trim().toLowerCase();
 
     const passwordHash = await generatePasswordHash(password);
 
     // Create new user
     const newUser = await db.transaction().execute(async (trx) => {
+      // Serialize registrations for the same normalized email. The unique check
+      // and insert now share one transaction, preventing concurrent duplicates.
+      await sql`SELECT pg_advisory_xact_lock(hashtextextended(${normalizedEmail}, 0))`.execute(trx);
+      const existingUser = await trx
+        .selectFrom("users")
+        .select("id")
+        .where(sql`LOWER(users.email)`, "=", normalizedEmail)
+        .limit(1)
+        .executeTakeFirst();
+      if (existingUser) return null;
       // Insert the user
       const [user] = await trx
         .insertInto("users")
         .values({
-          email: email.toLowerCase(),
+          email: normalizedEmail,
           displayName,
           role: "user", // Default role
         })
@@ -62,6 +55,13 @@ export async function handle(request: Request) {
 
       return user;
     });
+
+    if (!newUser) {
+      return new Response(superjson.stringify({ message: "email already in use" }), {
+        status: 409,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
 
     const publicAppUrl = process.env.PUBLIC_APP_URL || new URL(request.url).origin;
     const rawVerificationToken = randomBytes(32).toString("base64url");
