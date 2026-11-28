@@ -33,7 +33,8 @@ async function walk(directory) {
       relative.startsWith("legacy-pages/") &&
       !relative.endsWith(".pageLayout.tsx") &&
       relative !== "legacy-pages/StorefrontPage.tsx" &&
-      !relative.startsWith("legacy-pages/store.$slug")
+      !relative.startsWith("legacy-pages/store.$slug") &&
+      !relative.startsWith("legacy-pages/$slug.")
     ) {
       const base = path.basename(relative).replace(/\.(tsx|jsx)$/, "");
       const route = base === "_index"
