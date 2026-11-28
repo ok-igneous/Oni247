@@ -19,10 +19,19 @@ export async function proxyToApi(request: Request, apiPath: string): Promise<Res
     headers.set(key, value);
   });
 
-  // Rebuild these headers from the request Next.js actually received. Never
-  // forward client-supplied X-Forwarded-Host/Proto values to the API.
-  headers.set("x-forwarded-host", incoming.host);
-  headers.set("x-forwarded-proto", incoming.protocol.slice(0, -1));
+  // Next.js may expose an internal URL (for example http://0.0.0.0:10000)
+  // behind Render even though the browser used the public Host header. Use
+  // that received Host header for the public origin; never trust a client-
+  // supplied X-Forwarded-Host. Render supplies X-Forwarded-Proto at the edge.
+  const publicHost = request.headers.get("host")?.trim();
+  const publicProto = request.headers.get("x-forwarded-proto")?.trim().toLowerCase();
+  headers.set("x-forwarded-host", publicHost || incoming.host);
+  headers.set(
+    "x-forwarded-proto",
+    publicProto === "https" || publicProto === "http"
+      ? publicProto
+      : incoming.protocol.slice(0, -1),
+  );
 
   try {
     const upstream = await fetch(target, {
