@@ -93,3 +93,16 @@ The new runtime is a first implementation, not a completed migration. Keep previ
 - Render deploy `dep-dc4o9tui0phs73b0r8kg` was triggered for the auth URL correction. Its latest observed state was `build_in_progress`; completion and live endpoint checks must be confirmed before calling the staging release verified.
 
 - Added `scripts/migrate.mjs` and the `npm run db:migrate` command. The runner applies numbered SQL files in order, records applied versions, and wraps each migration in a transaction. The runner itself has been reviewed but has not yet been executed from the Render runtime.
+
+
+## Next.js App Router migration update (2026-11-28)
+
+The active migration work is on `nextjs-app-router-migration` and tracked by draft PR #12. This update supersedes the earlier Vite/React Router compatibility-layer status described in the historical notes above.
+
+- The branch tree contains 72 standard Next.js App Router route/layout/handler files.
+- All 25 required route paths in `scripts/audit-nextjs-migration.mjs` are present.
+- The `legacy-pages/` directory, `src/App.tsx`, `LegacyAppClient`, `LegacyAppRuntime`, legacy route registry generator, and legacy catch-all routes are absent from the branch tree.
+- `react-router-dom`, `react-helmet`, and their legacy type package are absent from the package manifest.
+- Custom `.next.tsx` route conventions and the custom Next.js page-extension override have been removed; route files use standard `page.tsx`, `layout.tsx`, and `route.ts` names.
+- Native route components have replaced the legacy routing layer for dashboard, admin, authentication, storefront and public transaction/content flows.
+- CI has not passed. The latest recorded GitHub Actions job terminated before recording any job steps; a retry also failed without step output. Treat verification as blocked, not passed. No production deploy, PR merge, or production cutover is authorized by this status update.
