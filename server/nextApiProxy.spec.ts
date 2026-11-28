@@ -46,6 +46,32 @@ describe("Next.js private API proxy", () => {
     expect(responseHeaders.getSetCookie?.()).toHaveLength(2);
   });
 
+
+  it("uses the public Host header when Next.js receives an internal URL", async () => {
+    vi.stubEnv("ONI247_API_INTERNAL_URL", "http://127.0.0.1:3001");
+    const fetchMock = vi.fn(async () => new Response("ok", { status: 200 }));
+    globalThis.fetch = fetchMock as typeof fetch;
+
+    const request = new Request("http://0.0.0.0:10000/_api/auth/login", {
+      method: "POST",
+      headers: {
+        host: "www.oni247.org",
+        origin: "https://www.oni247.org",
+        "x-forwarded-proto": "https",
+        "x-forwarded-host": "attacker.example",
+      },
+      body: JSON.stringify({ email: "owner@example.com" }),
+    });
+
+    await proxyToApi(request, "/_api/auth/login");
+    const [, init] = fetchMock.mock.calls[0] as unknown as [URL, RequestInit];
+    const forwarded = init.headers as Headers;
+
+    expect(forwarded.get("x-forwarded-host")).toBe("www.oni247.org");
+    expect(forwarded.get("x-forwarded-proto")).toBe("https");
+    expect(forwarded.get("x-forwarded-host")).not.toBe("attacker.example");
+  });
+
   it("returns a controlled 502 when the private API is unavailable", async () => {
     globalThis.fetch = vi.fn(async () => {
       throw new Error("connection refused");
