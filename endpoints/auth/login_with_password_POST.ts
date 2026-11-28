@@ -17,8 +17,8 @@ const dummyPasswordHashPromise = hash(randomBytes(32).toString("hex"), 10);
 // Configuration constants
 const RATE_LIMIT_CONFIG = {
   maxFailedAttempts: 5,
-  lockoutWindowMinutes: 15,
-  lockoutDurationMinutes: 15,
+  lockoutWindowMinutes: 24 * 60,
+  firstLockoutMinutes: 5,
   cleanupProbability: 0.1,
 } as const;
 
@@ -81,9 +81,17 @@ export async function handle(request: Request) {
         failedCount >= RATE_LIMIT_CONFIG.maxFailedAttempts &&
         safeLastFailedAt
       ) {
+        // Every subsequent lockout doubles: 5, 10, 20, 40 minutes (capped at 24h).
+        const lockoutNumber = Math.max(
+          1,
+          Math.floor(failedCount / RATE_LIMIT_CONFIG.maxFailedAttempts)
+        );
+        const lockoutMinutes = Math.min(
+          24 * 60,
+          RATE_LIMIT_CONFIG.firstLockoutMinutes * 2 ** (lockoutNumber - 1)
+        );
         const lockoutEnd = new Date(
-          safeLastFailedAt.getTime() +
-            RATE_LIMIT_CONFIG.lockoutDurationMinutes * 60 * 1000
+          safeLastFailedAt.getTime() + lockoutMinutes * 60 * 1000
         );
 
         if (now < lockoutEnd) {
@@ -94,6 +102,7 @@ export async function handle(request: Request) {
           return {
             type: "rate_limited" as const,
             remainingMinutes,
+            retryAt: lockoutEnd.getTime(),
           };
         }
       }
@@ -129,6 +138,7 @@ export async function handle(request: Request) {
 
         return {
           type: "auth_failed" as const,
+          attemptsRemaining: Math.max(0, RATE_LIMIT_CONFIG.maxFailedAttempts - Number(failedCount) - 1),
         };
       }
 
@@ -149,6 +159,7 @@ export async function handle(request: Request) {
 
         return {
           type: "auth_failed" as const,
+          attemptsRemaining: Math.max(0, RATE_LIMIT_CONFIG.maxFailedAttempts - Number(failedCount) - 1),
         };
       }
 
@@ -217,6 +228,8 @@ export async function handle(request: Request) {
       return new Response(
         superjson.stringify({
           message: `Too many failed login attempts. Account locked for ${result.remainingMinutes} more minutes.`,
+          retryAt: result.retryAt,
+          remainingMinutes: result.remainingMinutes,
         }),
         {
           status: 429,
@@ -229,7 +242,10 @@ export async function handle(request: Request) {
 
     if (result.type === "auth_failed") {
       return new Response(
-        superjson.stringify({ message: "Invalid email or password" }),
+        superjson.stringify({
+          message: "Invalid email or password",
+          attemptsRemaining: result.attemptsRemaining,
+        }),
         {
           status: 401,
           headers: {
