@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { toast } from "sonner";
 import { ExternalLink, ImagePlus, MessageSquare, Pencil, Plus, Trash2 } from "lucide-react";
 import { Badge } from "../components/Badge";
@@ -347,7 +347,7 @@ const BlogPage = () => {
         </div>
         <div className={styles.headActions}>
           <Button asChild variant="outline">
-            <Link to="/dashboard/comments"><MessageSquare size={15} /> Comments &amp; reactions</Link>
+            <Link href="/dashboard/comments"><MessageSquare size={15} /> Comments &amp; reactions</Link>
           </Button>
           <Button disabled={!canEdit} onClick={startNew}><Plus size={16} /> New post</Button>
         </div>
@@ -355,7 +355,7 @@ const BlogPage = () => {
 
       {!canEdit && (
         <p className={styles.notice}>
-          Blog editing is a Premium feature. <Link to="/dashboard/plan">See plans</Link>
+          Blog editing is a Premium feature. <Link href="/dashboard/plan">See plans</Link>
         </p>
       )}
 
@@ -498,7 +498,7 @@ const BlogPage = () => {
             Turn comments and likes on or off for your whole blog, set whether comments need your approval first, and moderate what visitors wrote. You can still override this on each post when you edit it.
           </p>
           <div>
-            <Button asChild variant="outline"><Link to="/dashboard/comments"><MessageSquare size={15} /> Open comments &amp; reactions</Link></Button>
+            <Button asChild variant="outline"><Link href="/dashboard/comments"><MessageSquare size={15} /> Open comments &amp; reactions</Link></Button>
           </div>
         </section>
       </TabsContent>
