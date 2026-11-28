@@ -109,7 +109,7 @@ function LoginFormNext() {
           </FormControl>
           <FormMessage />
         </FormItem>
-        <Button type="submit" disabled={loading} className={loginStyles.submitButton}>
+        <Button type="submit" disabled={loading || (retryAt !== null && retryAt > now)} className={loginStyles.submitButton}>
           {loading ? <><Spinner size="sm" /> Logging in…</> : "Log In"}
         </Button>
       </form>
