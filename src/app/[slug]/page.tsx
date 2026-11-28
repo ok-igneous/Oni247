@@ -27,13 +27,14 @@ async function getPageData(params: Props["params"]) {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug, data, origin } = await getPageData(params);
+  const { slug, data, origin, pageSlug, customDomain } = await getPageData(params);
   if (!data) return { title: "Oni247", robots: { index: false, follow: false } };
-  return storefrontMetadata(data, `${origin}/${encodeURIComponent(slug)}`);
+  const canonicalPath = customDomain ? (pageSlug ? `/${pageSlug}` : "/") : `/${encodeURIComponent(slug)}`;
+  return storefrontMetadata(data, new URL(canonicalPath, origin).toString());
 }
 
 export default async function VanityStorefrontPage({ params }: Props) {
-  const { slug, data, origin } = await getPageData(params);
+  const { slug, data, origin, pageSlug, customDomain } = await getPageData(params);
   if (!data) notFound();
-  return <StorefrontPageNext slug={slug} initialData={data} customDomain={false} origin={origin} />;
+  return <StorefrontPageNext slug={slug} initialData={data} customDomain={customDomain} origin={origin} pageSlug={pageSlug} />;
 }
