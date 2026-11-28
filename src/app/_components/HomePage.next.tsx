@@ -15,7 +15,7 @@ import { DEFAULT_LANDING, type IconName } from "../../../helpers/landingConfig";
 import { storeThemeEngine } from "../../../helpers/storeThemeEngine";
 import { formatMoney } from "../../../helpers/formatMoney";
 import { getLanding, type OutputType as LandingData } from "../../../endpoints/landing_GET.schema";
-import styles from "../../../legacy-pages/_index.module.css";
+import styles from "./_index.module.css";
 
 const ICONS: Record<IconName, LucideIcon> = { Globe2, Package, MessageCircle, Share2, BarChart3, Search, ShoppingBag, Store, Sparkles, Truck, Smartphone, CreditCard, Users, Mail, Calendar, Image, ShieldCheck, Zap };
 const trustIcons = [Store, MessageCircle, Smartphone, Globe2, Zap, ShieldCheck];
