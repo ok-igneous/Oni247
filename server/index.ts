@@ -126,7 +126,6 @@ async function invokeEndpoint(
   if (!file) return reply.code(404).send({ error: "API endpoint not found" });
 
   const ratePolicy: Record<string, { limit: number; windowSeconds: number }> = {
-    "auth/login_with_password": { limit: 20, windowSeconds: 15 * 60 },
     "auth/register_with_password": { limit: 5, windowSeconds: 15 * 60 },
     "auth/forgot_password": { limit: 5, windowSeconds: 15 * 60 },
     "auth/send_verification": { limit: 5, windowSeconds: 15 * 60 },
