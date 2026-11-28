@@ -16,9 +16,9 @@
     "start:api": "node --import tsx server/index.ts",
     "typecheck": "node scripts/generate-legacy-page-registry.mjs && tsc --noEmit",
     "test": "vitest run",
-    "audit:standalone": "node scripts/audit-standalone.mjs",
     "audit:nextjs": "node scripts/audit-nextjs-migration.mjs",
-    "db:migrate": "node scripts/migrate.mjs"
+    "db:migrate": "node scripts/migrate.mjs",
+    "audit:project": "node scripts/audit-project.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.850.0",

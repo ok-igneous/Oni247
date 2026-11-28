@@ -2,7 +2,7 @@ import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
 const root = process.cwd();
-const auditFile = path.resolve(root, "scripts/audit-standalone.mjs");
+const auditFile = path.resolve(root, "scripts/audit-project.mjs");
 const ignoredDirectories = new Set([".git", "node_modules", "dist", "coverage"]);
 const sourceExtensions = new Set([
   ".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".json", ".html", ".xml",
@@ -51,11 +51,10 @@ for (const item of findings) {
 }
 
 const pageFiles = sourceFiles.filter((file) =>
-  file.startsWith("pages/") &&
+  file.startsWith("legacy-pages/") &&
   file.endsWith(".tsx") &&
   !file.endsWith(".pageLayout.tsx") &&
-  file !== "pages/StorefrontPage.tsx" &&
-  !file.startsWith("pages/store.$slug")
+  !file.startsWith("legacy-pages/store.$slug")
 );
 const toRoutePath = (file) => {
   const baseName = path.basename(file, ".tsx");
@@ -91,5 +90,5 @@ for (const [key, files] of duplicateEndpoints) {
 
 process.stdout.write(`Frontend routes: ${pageFiles.length}; API handlers: ${endpointKeys.size}.\n`);
 const errors = findings.filter((item) => item.severity === "error").length + duplicateRoutes.length + duplicateEndpoints.length;
-process.stdout.write(`\nStandalone audit: ${errors} blocking issue(s).\n`);
+process.stdout.write(`\nProject audit: ${errors} blocking issue(s).\n`);
 if (errors) process.exitCode = 1;

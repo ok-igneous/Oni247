@@ -306,9 +306,8 @@ export async function handle(request: Request) {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Could not record the order.";
-    return fail(message);
+    console.error("[oni247] Storefront order creation failed", error);
+    return fail("Could not place your order. Please try again.", 500);
   }
 }
 
