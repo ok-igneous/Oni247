@@ -1,8 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Legacy React Router source lives in legacy-pages/. Native App Router files use the explicit .next.tsx suffix.
-  pageExtensions: ["next.tsx", "next.ts", "next.jsx", "next.js"],
   poweredByHeader: false,
   reactStrictMode: true,
   async headers() {
