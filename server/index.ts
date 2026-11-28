@@ -95,8 +95,14 @@ async function invokeEndpoint(
     const originHeader = request.headers.origin;
     if (originHeader) {
       try {
-        const requestOrigin = `${request.protocol}://${request.host}`;
-        if (new URL(originHeader).origin !== requestOrigin) {
+        const { isSameOriginMutation } = await import("./requestOrigin");
+        if (!isSameOriginMutation(
+          originHeader,
+          request.protocol,
+          request.headers.host,
+          request.headers["x-forwarded-host"],
+          request.headers["x-forwarded-proto"],
+        )) {
           return reply.code(403).send({ error: "Cross-origin request blocked" });
         }
       } catch {
