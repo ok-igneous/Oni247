@@ -192,10 +192,13 @@ export async function handle(request: Request) {
             type: "rate_limited" as const,
             remainingMinutes: lockoutMinutes,
             retryAt: now.getTime() + lockoutMinutes * 60 * 1000,
+            failedAttempts: totalFailedAttempts,
+            attemptsRemaining: 0,
           };
         }
         return {
           type: "auth_failed" as const,
+          failedAttempts: totalFailedAttempts,
           attemptsRemaining: RATE_LIMIT_CONFIG.maxFailedAttempts - totalFailedAttempts,
         };
       }
