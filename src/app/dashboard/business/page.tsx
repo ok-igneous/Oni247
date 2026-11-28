@@ -1,7 +1,8 @@
-"use client";
+import type { Metadata } from "next";
+import BusinessPage from "../_components/dashboard.business";
 
-import DashboardPage from "../../../../legacy-pages/dashboard.business";
+export const metadata: Metadata = { title: "Business — Oni247", robots: { index: false, follow: false } };
 
 export default function Page() {
-  return <DashboardPage />;
+  return <BusinessPage />;
 }
