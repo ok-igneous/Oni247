@@ -1,7 +1,6 @@
-"use client";
+import type { Metadata } from "next";
+import LandingPage from "../_components/admin.landing";
 
-import AdminPage from "../../../../legacy-pages/admin.landing";
+export const metadata: Metadata = { title: "Landing — Oni247", robots: { index: false, follow: false } };
 
-export default function Page() {
-  return <AdminPage />;
-}
+export default function Page() { return <LandingPage />; }

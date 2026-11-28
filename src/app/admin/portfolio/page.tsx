@@ -1,7 +1,6 @@
-"use client";
+import type { Metadata } from "next";
+import PortfolioPage from "../_components/admin.portfolio";
 
-import AdminPage from "../../../../legacy-pages/admin.portfolio";
+export const metadata: Metadata = { title: "Portfolio — Oni247", robots: { index: false, follow: false } };
 
-export default function Page() {
-  return <AdminPage />;
-}
+export default function Page() { return <PortfolioPage />; }

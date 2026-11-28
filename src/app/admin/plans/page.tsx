@@ -1,7 +1,6 @@
-"use client";
+import type { Metadata } from "next";
+import PlansPage from "../_components/admin.plans";
 
-import AdminPage from "../../../../legacy-pages/admin.plans";
+export const metadata: Metadata = { title: "Plans — Oni247", robots: { index: false, follow: false } };
 
-export default function Page() {
-  return <AdminPage />;
-}
+export default function Page() { return <PlansPage />; }
