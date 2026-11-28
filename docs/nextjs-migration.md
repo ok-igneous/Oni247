@@ -2,52 +2,46 @@
 
 ## Objective
 
-Make Next.js App Router the only web runtime while retaining Fastify and the existing endpoint handlers as the API backend. Preserve authentication/session cookies, tenant isolation, storefront URLs, SEO, payments, media uploads and the live production baseline.
+Make Next.js App Router the only web runtime while retaining Fastify and existing endpoint handlers as the private API backend. Preserve authentication/session cookies, tenant isolation, storefront URLs, SEO, payments, media uploads and the live production baseline.
 
 ## Non-negotiable routing contract
 
 - Platform storefronts use `https://oni247.org/{slug}`, e.g. `https://oni247.org/nesmage`.
-- `/store/{slug}` is not a route and returns a real 404. Unknown root-level slugs also return 404 unless they match a known legacy static page.
+- `/store/{slug}` is not a route and returns a real 404. Unknown root-level slugs also return 404.
 - Business subdomains under `oni247.org` are not supported.
-- A custom domain serves a storefront at its own root only when its ownership is verified and the business has an active paid subscription. A trial or expired subscription does not qualify.
+- A custom domain serves a storefront only when ownership is verified and the business has an active paid subscription. A trial or expired subscription does not qualify.
 
 ## Current architecture
 
-- Next.js 16 App Router with React 19 owns web development, rendering and production builds.
+- Next.js 16 App Router with React 19 owns all web routing, rendering, metadata and production builds.
 - Fastify is API-only and binds to loopback port 3001 by default.
 - Next.js proxies `/_api/*`, `/sitemap.xml`, `/robots.txt`, `/healthz` and `/readyz` to the private Fastify process.
 - Fastify trusts one proxy hop only because the default deployment runs it behind the local Next.js proxy. Do not expose that API listener publicly with `TRUST_PROXY=1`.
-- The root `pages/` directory contains legacy React Router components. Next.js uses the custom `.next.tsx` route suffix so those source files are not interpreted as Pages Router routes.
-- A generated static import registry replaces Vite's `import.meta.glob()`. The old `store.$slug.*` route modules have been removed. The shared storefront component is `pages/StorefrontPage.tsx`, imported by `pages/$slug.tsx`.
-- Routes not yet migrated use a client-only React Router compatibility boundary behind a Next.js internal fallback rewrite.
-- Vite config, Vite web scripts, the Vite HTML entrypoint, Vite client types, and direct Vite / React Vite plugin dependencies have been removed. Vitest remains the test runner and currently brings Vite transitively as a development-only dependency; Vite is not used to serve or build the app.
+- React Router, BrowserRouter, React Helmet, the old legacy page runtime, the generated route registry, the `legacy-pages/` tree, and the legacy catch-all routes have been removed from the migration branch.
+- All route files use standard Next.js `page.tsx`, `layout.tsx`, and `route.ts` conventions. There is no custom page-extension override or compatibility rewrite.
+- Vitest remains the test runner. A transitive Vite dependency used by test tooling is not an application runtime.
 
 ## Native Next.js routes
 
-The current tree contains native App Router pages for:
+The migration branch contains 72 standard App Router route/layout/handler files. The required route audit checks the following route families:
 
 - Platform landing page and business vanity storefront `/{slug}`.
-- Login, registration, forgot-password, email verification and dashboard overview.
-- Blog article details at `/{slug}/b/{blogSlug}` and `/b/{blogSlug}` on a verified custom domain.
-- Product details at `/{slug}/p/{productSlug}` and `/p/{productSlug}` on a verified custom domain.
-- Service details at `/{slug}/s/{serviceId}` and `/s/{serviceId}` on a verified custom domain.
-- Gallery details at `/{slug}/g/{gallerySlug}` and `/g/{gallerySlug}` on a verified custom domain.
-- Event details at `/{slug}/e/{eventSlug}` and `/e/{eventSlug}` on a verified custom domain.
-- Service booking at `/{slug}/book/{serviceId}` and `/book/{serviceId}` on a verified custom domain.
-- Booking confirmation/status at `/{slug}/booking/{code}` and `/booking/{code}` on a verified custom domain.
-- Order tracking at `/{slug}/track/{code}` and `/track/{code}` on a verified custom domain.
-- Checkout at `/{slug}/checkout` and `/checkout` on a verified custom domain, including payment-return handling.
+- Login, registration, forgot-password, reset-password, email verification, dashboard and admin.
+- Dashboard and admin feature sections.
+- Product, service, blog, gallery, event and form routes.
+- Booking, booking confirmation/status, order tracking, payment and checkout.
+- Health/readiness, sitemap and robots handlers.
 
-The remaining dashboard/editor pages and storefront listing flows still use the compatibility layer where no native route has been completed. Booking, tracking and checkout now have native App Router routes. Do not remove React Router or legacy components until route parity and acceptance tests pass.
+Static routes take precedence over the dynamic root-level business slug route. Unknown business slugs return 404; there is no fallback to an older router.
 
 ## Runtime and deployment
 
 - `npm run dev` starts Next.js on port 3000 and Fastify on private port 3001.
-- `npm run build` generates the legacy route registry, runs TypeScript checking and builds Next.js.
+- `npm run build` runs TypeScript checking and builds Next.js.
 - `npm start` starts Next.js on the platform-provided public `PORT` and Fastify on private `API_PORT` (default 3001).
 - `ONI247_API_INTERNAL_URL` controls the private API origin; the default is `http://127.0.0.1:3001`.
-- Configure `APP_BASE_URL=https://oni247.org` and `PLATFORM_ROOT_DOMAIN=https://oni247.org` in the production environment.
-- If Fastify is deployed separately, it must be on a private network and `HOST=0.0.0.0` must be used only for that private service. Review proxy trust and client-IP handling before exposing it to any public network.
+- Configure `APP_BASE_URL=https://oni247.org` and `PLATFORM_ROOT_DOMAIN=https://oni247.org` in the deployment environment.
+- If Fastify is deployed separately, it must be on a private network. Review proxy trust and client-IP handling before exposing it to any public network.
 
 ## Security requirements
 
@@ -60,4 +54,6 @@ The remaining dashboard/editor pages and storefront listing flows still use the 
 
 ## Verification status
 
-This branch has not yet completed a full dependency installation, typecheck, Vitest run, Next.js production build, browser hydration test, custom-domain test or staging acceptance. Static repository edits and regression tests are not proof that the app builds or runs. Keep this migration branch unmerged and do not change production DNS, payment webhooks or customer traffic until the verification gates pass.
+Source inventory and architecture checks show that legacy frontend routing and runtime files are absent from the migration branch. However, GitHub Actions has not produced a successful verification run: the latest recorded job failed before recording any execution steps, including after a retry. This is not evidence of a passing build and does not establish a source-code failure. Dependency installation, typecheck, tests, Next.js production build, browser hydration, custom-domain behavior and staging acceptance remain release gates.
+
+Keep the migration branch unmerged and do not change production DNS, payment webhooks or customer traffic until verification passes and cutover is explicitly approved.
