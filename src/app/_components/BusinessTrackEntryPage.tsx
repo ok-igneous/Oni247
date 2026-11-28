@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Search } from "lucide-react";
 import { Button } from "../../../components/Button";
-import { Input } from "../components/Input";
+import { Input } from "../../../components/Input";
 import { useStorefront } from "../../../helpers/useStorefront";
 import styles from "./track-order.module.css";
 
