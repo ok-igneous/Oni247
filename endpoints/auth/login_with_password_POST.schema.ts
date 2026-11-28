@@ -17,6 +17,8 @@ export class LoginAttemptError extends Error {
     this.name = "LoginAttemptError";
     this.retryAt = options.retryAt;
     this.attemptsRemaining = options.attemptsRemaining;
+    this.failedAttempts = options.failedAttempts;
+    this.remainingMinutes = options.remainingMinutes;
   }
 }
 
@@ -24,6 +26,8 @@ type LoginResponsePayload = Partial<OutputType> & {
   message?: string;
   retryAt?: number;
   attemptsRemaining?: number;
+  failedAttempts?: number;
+  remainingMinutes?: number;
   code?: string;
 };
 
@@ -55,7 +59,9 @@ export const postLogin = async (
       throw new LoginAttemptError("We couldn’t verify this request. Refresh the page and try again. If it keeps happening, open Oni247 in a new tab.");
     }
     const fallback =
-      result.status === 401
+      result.status === 429
+        ? "Too many login requests. Please wait before trying again."
+        : result.status === 401
         ? "Invalid email or password."
         : result.status === 429
           ? "Too many login attempts. Please wait and try again."
@@ -65,6 +71,8 @@ export const postLogin = async (
     throw new LoginAttemptError(apiErrorMessage(payload, fallback), {
       retryAt: typeof payload?.retryAt === "number" ? payload.retryAt : undefined,
       attemptsRemaining: typeof payload?.attemptsRemaining === "number" ? payload.attemptsRemaining : undefined,
+      failedAttempts: typeof payload?.failedAttempts === "number" ? payload.failedAttempts : undefined,
+      remainingMinutes: typeof payload?.remainingMinutes === "number" ? payload.remainingMinutes : undefined,
     });
   }
 
