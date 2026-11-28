@@ -32,7 +32,7 @@ await walk(pagesDir);
 pages.sort();
 layouts.sort();
 
-const importPath = (file) => "../../" + file;
+const importPath = (file) => "../../" + file.replace(/\.tsx$/, "");
 const legacyRootPageSlugs = pages
   .filter((file) => {
     if (!file.startsWith("pages/") || file.slice("pages/".length).includes("/")) return false;
