@@ -3,7 +3,7 @@ import path from "node:path";
 
 const root = process.cwd();
 const auditFile = path.resolve(root, "scripts/audit-project.mjs");
-const ignoredDirectories = new Set([".git", "node_modules", "dist", "coverage"]);
+const ignoredDirectories = new Set([".git", "node_modules", ".next", "dist", "coverage"]);
 const sourceExtensions = new Set([
   ".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".json", ".html", ".xml",
   ".plist", ".gradle", ".swift", ".kt", ".java", ".css", ".yml", ".yaml", ".sql", ".txt", ".example"
