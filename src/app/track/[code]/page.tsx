@@ -10,6 +10,6 @@ export default async function CustomDomainTrackPage({ params }: Props) {
  const [{ code }, h] = await Promise.all([params, headers()]);
  const host = h.get("host") ?? "";
  const resolved = await resolveStorefrontHost(host);
- if (!resolved.customDomain) notFound();
- return <TrackOrderNext code={code} expectedSlug={resolved.slug ?? undefined} customDomain />;
+ if (!resolved.customDomain && !resolved.platformHost) notFound();
+ return <TrackOrderNext code={code} expectedSlug={resolved.customDomain ? resolved.slug ?? undefined : undefined} customDomain={resolved.customDomain} />;
 }
