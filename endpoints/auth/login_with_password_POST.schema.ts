@@ -24,6 +24,7 @@ type LoginResponsePayload = Partial<OutputType> & {
   message?: string;
   retryAt?: number;
   attemptsRemaining?: number;
+  code?: string;
 };
 
 export type OutputType = {
@@ -50,6 +51,9 @@ export const postLogin = async (
   const payload = parseApiPayload<LoginResponsePayload>(responseText);
 
   if (!result.ok) {
+    if (payload?.code === "ORIGIN_CHECK_FAILED") {
+      throw new LoginAttemptError("We couldn’t verify this request. Refresh the page and try again. If it keeps happening, open Oni247 in a new tab.");
+    }
     const fallback =
       result.status === 401
         ? "Invalid email or password."
