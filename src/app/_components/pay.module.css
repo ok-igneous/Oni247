@@ -1,0 +1,15 @@
+.page { min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 32px 16px; background: var(--background); }
+.card { width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 14px; padding: 24px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--card); }
+.card h1 { margin: 0; font-size: 1.5rem; line-height: 1.2; }
+.card h2 { margin: 0; font-size: 1.2rem; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 650; }
+.logo { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+.muted { margin: 0; color: var(--muted-foreground); line-height: 1.5; }
+.amount { font-family: var(--font-family-monospace); font-size: 1.8rem; font-weight: 700; }
+.fields { display: grid; gap: 12px; }
+.field { display: grid; gap: 6px; font-size: 0.88rem; }
+.error { margin: 0; padding: 10px 12px; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--destructive) 10%, transparent); color: var(--destructive); font-size: 0.9rem; }
+.secure { margin: 0; display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--muted-foreground); }
+.done { display: grid; gap: 10px; justify-items: start; color: var(--success, var(--primary)); }
+.done .muted { color: var(--muted-foreground); }
+.link { align-self: flex-start; border: 0; background: none; padding: 0; color: var(--primary); font: inherit; font-size: 0.88rem; cursor: pointer; text-decoration: underline; }

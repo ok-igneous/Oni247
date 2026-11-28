@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import ServiceDetailNext from "../../_components/ServiceDetail.next";
+import ShowcasePageNext from "../../_components/ShowcasePage.next";
 import { getStorefrontData, resolveStorefrontHost } from "../../_lib/storefront.server";
 
 export const dynamic = "force-dynamic";
@@ -22,6 +23,9 @@ async function getPageData(params: Props["params"]) {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const [{ serviceId }, h] = await Promise.all([params, headers()]);
+  const resolved = await resolveStorefrontHost(h.get("host") ?? "");
+  if (resolved.platformHost) return { title: "Collection — Oni247", robots: { index: false, follow: false } };
   const { data, service, canonical } = await getPageData(params);
   const description = service.description || `${service.name} from ${data.business.name}`;
   return {
@@ -33,6 +37,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CustomDomainServiceDetailPage({ params }: Props) {
+  const { serviceId } = await params;
+  const host = (await headers()).get("host") ?? "";
+  const resolved = await resolveStorefrontHost(host);
+  if (resolved.platformHost) return <ShowcasePageNext code={serviceId} />;
   const { data, service } = await getPageData(params);
   return <ServiceDetailNext data={data} serviceId={service.id} customDomain />;
 }
