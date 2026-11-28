@@ -8,6 +8,18 @@ export const schema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+export class LoginAttemptError extends Error {
+  retryAt?: number;
+  attemptsRemaining?: number;
+
+  constructor(message: string, options: { retryAt?: number; attemptsRemaining?: number } = {}) {
+    super(message);
+    this.name = "LoginAttemptError";
+    this.retryAt = options.retryAt;
+    this.attemptsRemaining = options.attemptsRemaining;
+  }
+}
+
 export type OutputType = {
   user: User;
 };
@@ -40,7 +52,10 @@ export const postLogin = async (
           : result.status >= 500
             ? "The login service is temporarily unavailable. Please try again shortly."
             : `Login failed (HTTP ${result.status}). Please try again.`;
-    throw new Error(apiErrorMessage(payload, fallback));
+    throw new LoginAttemptError(apiErrorMessage(payload, fallback), {
+      retryAt: typeof payload?.retryAt === "number" ? payload.retryAt : undefined,
+      attemptsRemaining: typeof payload?.attemptsRemaining === "number" ? payload.attemptsRemaining : undefined,
+    });
   }
 
   if (!payload || typeof payload !== "object" || !payload.user) {
