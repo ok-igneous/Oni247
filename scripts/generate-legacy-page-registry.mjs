@@ -8,6 +8,8 @@ const outputDir = path.join(root, "src", "generated");
 const pages = [];
 const layouts = [];
 
+const relativeVanityRoute = (name) => /^\$slug\./.test(name);
+
 async function walk(directory) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     const absolute = path.join(directory, entry.name);
@@ -16,6 +18,9 @@ async function walk(directory) {
       continue;
     }
     if (!entry.isFile() || !/\.tsx$/.test(entry.name)) continue;
+    // These obsolete vanity wrappers point to retired pages-router files; the
+    // equivalent storefront routes are owned by the Next.js App Router.
+    if (relativeVanityRoute(entry.name)) continue;
     const relative = path.relative(root, absolute).split(path.sep).join("/");
 
     // /store/{slug} was an old public route and is not part of Oni247's URL
