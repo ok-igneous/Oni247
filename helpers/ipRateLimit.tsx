@@ -5,6 +5,9 @@ import { db } from "./db";
 export type IpRateLimitResult = {
   allowed: boolean;
   retryAfterSeconds: number;
+  requestCount: number;
+  requestLimit: number;
+  requestsRemaining: number;
 };
 
 /**
@@ -57,8 +60,12 @@ export async function checkIpRateLimit(
     1,
     Math.ceil((new Date(row.window_started_at).getTime() + windowSeconds * 1000 - Date.now()) / 1000),
   );
+  const requestCount = Number(row.request_count);
   return {
-    allowed: Number(row.request_count) <= limit,
+    allowed: requestCount <= limit,
     retryAfterSeconds,
+    requestCount,
+    requestLimit: limit,
+    requestsRemaining: Math.max(0, limit - requestCount),
   };
 }
