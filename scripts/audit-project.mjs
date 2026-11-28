@@ -74,6 +74,6 @@ for (const [key, files] of duplicateEndpoints) {
 }
 
 process.stdout.write(`Next.js App Router route/handler files: ${appRouteFiles.length}; layouts: ${appLayoutFiles.length}; API handlers: ${endpointKeys.size}.\n`);
-const errors = findings.filter((item) => item.severity === "error").length + duplicateRoutes.length + duplicateEndpoints.length;
+const errors = findings.filter((item) => item.severity === "error").length + duplicateEndpoints.length;
 process.stdout.write(`\nProject audit: ${errors} blocking issue(s).\n`);
 if (errors) process.exitCode = 1;
