@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
-import CheckoutNext from "../../../_components/Checkout.next";
-import { resolveStorefrontHost } from "../../../_lib/storefront.server";
+import CheckoutNext from "../../_components/Checkout.next";
+import { resolveStorefrontHost } from "../../_lib/storefront.server";
 export const dynamic = "force-dynamic";
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ ref?: string | string[] }> };
 export async function generateMetadata(): Promise<Metadata> { return { title: "Checkout", robots: { index: false, follow: false } }; }
