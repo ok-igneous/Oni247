@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { storeThemeEngine } from "../../../helpers/storeThemeEngine";
 import type { OutputType } from "../../../endpoints/galleries/public_GET.schema";
 import { StorefrontHeaderNext } from "./StorefrontHeader.next";
-import styles from "../../../pages/store.$slug.g.$gallerySlug.module.css";
+import styles from "../../../legacy-pages/store.$slug.g.$gallerySlug.module.css";
 
 type Props = { data: OutputType; gallerySlug: string; customDomain: boolean; origin: string };
 
