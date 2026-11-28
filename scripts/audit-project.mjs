@@ -50,29 +50,14 @@ for (const item of findings) {
   process.stdout.write(`[${item.severity.toUpperCase()}] ${item.file}:${item.line} — ${item.label}\n`);
 }
 
-const pageFiles = sourceFiles.filter((file) =>
-  file.startsWith("legacy-pages/") &&
-  file.endsWith(".tsx") &&
-  !file.endsWith(".pageLayout.tsx") &&
-  !file.startsWith("legacy-pages/store.$slug")
+const appRouteFiles = sourceFiles.filter((file) =>
+  file.startsWith("src/app/") &&
+  /(?:^|\\/)(?:page|route)\\.(?:ts|tsx)$/.test(file)
 );
-const toRoutePath = (file) => {
-  const baseName = path.basename(file, ".tsx");
-  if (baseName === "_index") return "/";
-  return "/" + baseName
-    .replace(/\./g, "/")
-    .replace(/\$([A-Za-z0-9_]+)/g, ":$1")
-    .replace(/^_/, "");
-};
-const routeGroups = new Map();
-for (const file of pageFiles) {
-  const route = toRoutePath(file);
-  routeGroups.set(route, [...(routeGroups.get(route) ?? []), file]);
-}
-const duplicateRoutes = [...routeGroups.entries()].filter(([, files]) => files.length > 1);
-for (const [route, files] of duplicateRoutes) {
-  process.stdout.write(`[ERROR] Duplicate frontend route ${route}: ${files.join(", ")}\n`);
-}
+const appLayoutFiles = sourceFiles.filter((file) =>
+  file.startsWith("src/app/") &&
+  /(?:^|\\/)layout\\.(?:ts|tsx)$/.test(file)
+);
 
 const endpointPattern = /_(GET|POST|PUT|PATCH|DELETE)\.ts$/;
 const endpointKeys = new Map();
@@ -88,7 +73,7 @@ for (const [key, files] of duplicateEndpoints) {
   process.stdout.write(`[ERROR] Duplicate API handler ${key}: ${files.join(", ")}\n`);
 }
 
-process.stdout.write(`Frontend routes: ${pageFiles.length}; API handlers: ${endpointKeys.size}.\n`);
+process.stdout.write(`Next.js App Router route/handler files: ${appRouteFiles.length}; layouts: ${appLayoutFiles.length}; API handlers: ${endpointKeys.size}.\n`);
 const errors = findings.filter((item) => item.severity === "error").length + duplicateRoutes.length + duplicateEndpoints.length;
 process.stdout.write(`\nProject audit: ${errors} blocking issue(s).\n`);
 if (errors) process.exitCode = 1;
