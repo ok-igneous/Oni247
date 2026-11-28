@@ -12,15 +12,13 @@ export class LoginAttemptError extends Error {
   retryAt?: number;
   attemptsRemaining?: number;
   failedAttempts?: number;
-  remainingMinutes?: number;
 
-  constructor(message: string, options: { retryAt?: number; attemptsRemaining?: number; failedAttempts?: number; remainingMinutes?: number } = {}) {
+  constructor(message: string, options: { retryAt?: number; attemptsRemaining?: number; failedAttempts?: number } = {}) {
     super(message);
     this.name = "LoginAttemptError";
     this.retryAt = options.retryAt;
     this.attemptsRemaining = options.attemptsRemaining;
     this.failedAttempts = options.failedAttempts;
-    this.remainingMinutes = options.remainingMinutes;
   }
 }
 
@@ -29,7 +27,6 @@ type LoginResponsePayload = Partial<OutputType> & {
   retryAt?: number;
   attemptsRemaining?: number;
   failedAttempts?: number;
-  remainingMinutes?: number;
   code?: string;
 };
 
@@ -71,7 +68,6 @@ export const postLogin = async (
       retryAt: typeof payload?.retryAt === "number" ? payload.retryAt : undefined,
       attemptsRemaining: typeof payload?.attemptsRemaining === "number" ? payload.attemptsRemaining : undefined,
       failedAttempts: typeof payload?.failedAttempts === "number" ? payload.failedAttempts : undefined,
-      remainingMinutes: typeof payload?.remainingMinutes === "number" ? payload.remainingMinutes : undefined,
     });
   }
 
