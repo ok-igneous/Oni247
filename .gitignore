@@ -7,5 +7,3 @@ dist/
 coverage/
 *.log
 .DS_Store
-src/generated/legacyPageRegistry.ts
-src/generated/legacyRootPageSlugs.ts
