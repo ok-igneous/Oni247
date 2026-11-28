@@ -127,10 +127,8 @@ export async function handle(request: Request) {
     return response;
   } catch (error: unknown) {
     console.error("Registration error:", error);
-    const errorMessage =
-      error instanceof Error ? error.message : "Registration failed";
     return new Response(
-      superjson.stringify({ message: errorMessage }),
+      superjson.stringify({ message: "Registration failed. Please check your details and try again." }),
       {
         status: 400,
         headers: {
