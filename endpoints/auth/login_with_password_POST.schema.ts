@@ -89,11 +89,9 @@ export const postLogin = async (
       attemptsRemaining: typeof payload?.attemptsRemaining === "number" ? payload.attemptsRemaining : undefined,
       failedAttempts: typeof payload?.failedAttempts === "number" ? payload.failedAttempts : undefined,
       remainingMinutes: typeof payload?.remainingMinutes === "number" ? payload.remainingMinutes : undefined,
-      requestCount: typeof payload?.requestCount === "number" ? payload.requestCount : undefined,
-      requestLimit: typeof payload?.requestLimit === "number" ? payload.requestLimit : undefined,
-      requestsRemaining: typeof payload?.requestsRemaining === "number" ? payload.requestsRemaining : (result.status === 429 && typeof payload?.failedAttempts !== "number" ? 0 : undefined),
       requestCount: typeof payload?.requestCount === "number" ? payload.requestCount : (result.status === 429 && typeof payload?.failedAttempts !== "number" ? 20 : undefined),
       requestLimit: typeof payload?.requestLimit === "number" ? payload.requestLimit : (result.status === 429 && typeof payload?.failedAttempts !== "number" ? 20 : undefined),
+      requestsRemaining: typeof payload?.requestsRemaining === "number" ? payload.requestsRemaining : (result.status === 429 && typeof payload?.failedAttempts !== "number" ? 0 : undefined),
     });
   }
 
