@@ -64,9 +64,7 @@ export const postLogin = async (
       result.status === 429
         ? "Too many login requests. Please wait before trying again."
         : result.status === 401
-        ? "Invalid email or password."
-        : result.status === 429
-          ? "Too many login attempts. Please wait and try again."
+          ? "Invalid email or password."
           : result.status >= 500
             ? "The login service is temporarily unavailable. Please try again shortly."
             : `Login failed (HTTP ${result.status}). Please try again.`;
