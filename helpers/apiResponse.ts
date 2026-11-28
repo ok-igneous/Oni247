@@ -6,7 +6,10 @@ export function parseApiPayload<T = unknown>(body: string): T | null {
   if (!text) return null;
 
   try {
-    return superjson.parse<T>(text);
+    const decoded = superjson.parse<unknown>(text);
+    // superjson.parse may return undefined for a plain JSON envelope instead
+    // of throwing; only accept a decoded value when it actually exists.
+    if (decoded !== undefined) return decoded as T;
   } catch {
     // Some infrastructure errors are plain JSON rather than SuperJSON.
   }
