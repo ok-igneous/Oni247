@@ -268,7 +268,6 @@ export async function handle(request: Request) {
           retryAt: result.retryAt,
           remainingMinutes: result.remainingMinutes,
           failedAttempts: result.failedAttempts,
-          failedAttempts: result.failedAttempts,
           attemptsRemaining: result.attemptsRemaining,
         }),
         {
@@ -284,6 +283,7 @@ export async function handle(request: Request) {
       return new Response(
         superjson.stringify({
           message: "Invalid email or password",
+          failedAttempts: result.failedAttempts,
           attemptsRemaining: result.attemptsRemaining,
         }),
         {
