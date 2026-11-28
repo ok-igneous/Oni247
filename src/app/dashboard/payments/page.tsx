@@ -1,7 +1,6 @@
-"use client";
+import type { Metadata } from "next";
+import PaymentsPage from "../_components/dashboard.payments";
 
-import DashboardPage from "../../../../legacy-pages/dashboard.payments";
+export const metadata: Metadata = { title: "Payments — Oni247", robots: { index: false, follow: false } };
 
-export default function Page() {
-  return <DashboardPage />;
-}
+export default function Page() { return <PaymentsPage />; }

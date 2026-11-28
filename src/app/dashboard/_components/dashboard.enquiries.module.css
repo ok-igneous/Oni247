@@ -1,0 +1,134 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  padding-bottom: var(--spacing-16);
+}
+
+.title {
+  font-family: var(--font-family-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  margin: 0 0 var(--spacing-2);
+}
+
+.subtitle {
+  margin: 0;
+  max-width: 56ch;
+  color: var(--muted-foreground);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  padding: var(--spacing-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card);
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+}
+
+.customer {
+  font-weight: 600;
+  font-size: 0.98rem;
+}
+
+.message {
+  margin: 0;
+  line-height: 1.6;
+  font-size: 0.93rem;
+  white-space: pre-wrap;
+}
+
+.contacts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding-top: var(--spacing-3);
+  border-top: 1px solid var(--border);
+}
+
+.contactLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  font-size: 0.85rem;
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.contactLink:hover {
+  text-decoration: underline;
+}
+
+.date {
+  font-size: 0.8rem;
+  color: var(--muted-foreground);
+  margin-left: auto;
+}
+
+.statusRow {
+  display: flex;
+  gap: var(--spacing-2);
+  flex-wrap: wrap;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+  padding: var(--spacing-8);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card);
+}
+
+.emptyTitle {
+  margin: 0;
+  font-family: var(--font-family-display);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.emptyBody {
+  margin: 0;
+  max-width: 52ch;
+  color: var(--muted-foreground);
+  line-height: 1.6;
+}
+
+.errorText {
+  margin: 0;
+  color: var(--error);
+}
+
+.skeletonTitle {
+  width: 200px;
+  height: 32px;
+}
+
+.skeletonBlock {
+  width: 100%;
+  height: 240px;
+  border-radius: var(--radius-md);
+}

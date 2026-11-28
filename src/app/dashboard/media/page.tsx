@@ -1,7 +1,6 @@
-"use client";
+import type { Metadata } from "next";
+import MediaPage from "../_components/dashboard.media";
 
-import DashboardPage from "../../../../legacy-pages/dashboard.media";
+export const metadata: Metadata = { title: "Media — Oni247", robots: { index: false, follow: false } };
 
-export default function Page() {
-  return <DashboardPage />;
-}
+export default function Page() { return <MediaPage />; }
