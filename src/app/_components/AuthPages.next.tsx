@@ -42,23 +42,18 @@ function LoginFormNext() {
   const form = useForm({ defaultValues: { email: "", password: "" }, schema: loginSchema });
 
   useEffect(() => {
-    const saved = Number(window.localStorage.getItem("oni247-login-retry-at"));
+    // Use a new key for account lockouts. Old IP-quota keys are discarded.
+    const saved = Number(window.localStorage.getItem("oni247-account-lockout-until"));
     if (Number.isFinite(saved) && saved > Date.now()) {
       setRetryAt(saved);
-      const savedType = window.localStorage.getItem("oni247-login-retry-type");
-      if (savedType === "PASSWORD_LOCKOUT") {
-        setFailedAttempts(5);
-        setAttemptsRemaining(0);
-        setError("Too many failed login attempts. Your account is temporarily locked.");
-      } else {
-        // Discard obsolete IP-based login lockouts from older app versions.
-        window.localStorage.removeItem("oni247-login-retry-at");
-        window.localStorage.removeItem("oni247-login-retry-type");
-      }
+      setFailedAttempts(5);
+      setAttemptsRemaining(0);
+      setError("Too many failed login attempts. Your account is temporarily locked.");
     } else {
-      window.localStorage.removeItem("oni247-login-retry-at");
-      window.localStorage.removeItem("oni247-login-retry-type");
+      window.localStorage.removeItem("oni247-account-lockout-until");
     }
+    window.localStorage.removeItem("oni247-login-retry-at");
+    window.localStorage.removeItem("oni247-login-retry-type");
     window.localStorage.removeItem("oni247-login-request-count");
     window.localStorage.removeItem("oni247-login-request-limit");
     window.localStorage.removeItem("oni247-login-requests-remaining");
@@ -68,11 +63,9 @@ function LoginFormNext() {
 
   useEffect(() => {
     if (retryAt && retryAt > Date.now()) {
-      window.localStorage.setItem("oni247-login-retry-at", String(retryAt));
-      window.localStorage.setItem("oni247-login-retry-type", "PASSWORD_LOCKOUT");
+      window.localStorage.setItem("oni247-account-lockout-until", String(retryAt));
     } else if (retryAt) {
-      window.localStorage.removeItem("oni247-login-retry-at");
-      window.localStorage.removeItem("oni247-login-retry-type");
+      window.localStorage.removeItem("oni247-account-lockout-until");
     }
   }, [retryAt]);
 
@@ -80,6 +73,7 @@ function LoginFormNext() {
     setError(null);
     setAttemptsRemaining(null);
     setFailedAttempts(null);
+    setRetryAt(null);
     setLoading(true);
     try {
       const result = await postLogin(data);
