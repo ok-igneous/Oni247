@@ -145,8 +145,16 @@ async function invokeEndpoint(
       if (!result.allowed) {
         const retryAt = Date.now() + result.retryAfterSeconds * 1000;
         reply.header("Retry-After", String(result.retryAfterSeconds));
+        const retryMinutes = Math.floor(result.retryAfterSeconds / 60);
+        const retrySeconds = result.retryAfterSeconds % 60;
+        const retryLabel = retryMinutes > 0
+          ? `${retryMinutes}m ${retrySeconds}s`
+          : `${retrySeconds}s`;
+        const errorMessage =
+          `Too many login requests: ${result.requestCount}/${result.requestLimit} used. ` +
+          `${result.requestsRemaining} requests remaining in this window. Try again in ${retryLabel}.`;
         return reply.code(429).send({
-          error: "Too many login requests. Please wait before trying again.",
+          error: errorMessage,
           code: "IP_RATE_LIMITED",
           requestCount: result.requestCount,
           requestLimit: result.requestLimit,
