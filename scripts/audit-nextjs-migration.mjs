@@ -56,7 +56,7 @@ for (const relative of obsoletePaths) {
 const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
 for (const name of ["react-router-dom", "react-helmet", "@types/react-helmet"]) {
   if (packageJson.dependencies?.[name] || packageJson.devDependencies?.[name]) {
-    failures.push({ file: "package.json", issue: \`Obsolete dependency remains: \${name}\` });
+    failures.push({ file: "package.json", issue: "Obsolete dependency remains: " + name });
   }
 }
 
@@ -96,8 +96,8 @@ for (const relative of requiredRoutes) {
 }
 
 if (failures.length) {
-  for (const item of failures) process.stderr.write(\`[FAIL] \${item.file}: \${item.issue}\n\`);
-  process.stderr.write(\`Next.js architecture audit failed with \${failures.length} issue(s).\n\`);
+  for (const item of failures) process.stderr.write("[FAIL] " + item.file + ": " + item.issue + "\n");
+  process.stderr.write("Next.js architecture audit failed with " + failures.length + " issue(s).\n");
   process.exitCode = 1;
 } else {
   process.stdout.write("Next.js architecture audit passed: no legacy router/runtime, no fallback rewrites, standard App Router filenames, and required routes are present.\n");
